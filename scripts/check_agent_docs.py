@@ -16,6 +16,10 @@ REQUIRED = [
     "tests/scenarios/phase-01/hb-001-checkpoints-and-allocations.md",
     "docs/adr/0002-month-closing-and-corrections.md",
     "tests/scenarios/phase-01/hb-002-month-closing-and-corrections.md",
+    "docs/adr/0003-daily-forecast-and-liquidity.md",
+    "tests/scenarios/phase-01/hb-003-daily-forecast.md",
+    "tests/scenarios/phase-01/hb-003-allocation-correction.md",
+    "tests/scenarios/phase-01/hb-003-safe-liquidity.md",
 ]
 SKILLS = [
     "create-milestone", "create-planning-doc", "create-issues",

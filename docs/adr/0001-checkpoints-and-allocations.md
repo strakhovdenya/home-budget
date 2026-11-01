@@ -1,8 +1,10 @@
 # ADR 0001 — Checkpoint-first balances and complete month allocations
 
-**Status: Accepted** — owner approved the checkpoint-first model after independent review of revision 2 and HB1-001..020; final observation-date/statistics clarifications incorporated. HB-001 is Done as a documentation/scenario task.
+**Status: Accepted** — corrected D32..D35 contract re-accepted by the owner after owner-reported repeated independent review;original acceptance history retained.
 
-**Date:** 2026-11-01. Revision 2 incorporates the owner's explicit requirement clarification. The product decisions below supersede conflicting assumptions in the first local draft. Acceptance follows owner-reported independent review and the local verification recorded in the scenario document; it does not accept the remaining HB-002/HB-003 contracts.
+**Re-acceptance — 2026-11-01:** the owner confirms repeated independent review of the D32..D35 amendment and resolution of all four review findings,and approves the corrected contract. This acceptance supersedes the erroneous signed actual-allocation interpretation;it does not imply that the original model was always correct. Earlier acceptance and evidence remain archived below and in Git. Scope:B>=0,A[p]>=0,sum(A)=B,F=A-R-S,deficit=max(0,-F);full R/S may exceed A/B,expected income is excluded,and ordinary CARRY/FRESH_START/history/no-double-debit remain intact. See [owner re-acceptance](../DECISIONS.md#corrected-adr-0001-and-0002-re-acceptance--2026-11-01). HB-003 liquidity,multi-source CARRY,overdraft and historical-overspend features are not accepted by this entry. No runtime tests are implied.
+
+**Date:** 2026-11-01. Original revision 2 and HB1-001..020 were accepted after owner-reported independent review. This owner-authorized amendment supersedes the signed actual-allocation interpretation; original evidence does not validate this amended revision.
 
 **References:** [Business rules](../BUSINESS_RULES.md), [decision log D21..D25](../DECISIONS.md), [HB1-001..HB1-020 scenarios](../../tests/scenarios/phase-01/hb-001-checkpoints-and-allocations.md).
 
@@ -25,41 +27,42 @@ Statistics must not label allocation deltas as actual spending or confirmed inco
 
 ## Primary model and exact equalities
 
-A checkpoint is an immutable user-confirmed bank observation. An allocation revision is an immutable COMPLETE vector A[p] of signed month balances, anchored to a checkpoint revision. Each new checkpoint commits its complete vector atomically. One active head is selected for the account's current budget; historical checkpoint vectors remain available, never summed together.
+A checkpoint is an immutable user-confirmed bank observation. An ordinary B>=0 allocation revision is an immutable COMPLETE vector A[p] of nonnegative actual-money shares,anchored to that checkpoint and committed atomically with a new ordinary budget update. A real negative bank observation has no ordinary A contract;ADR0003 represents it separately with forecast unavailable pending overdraft policy. One active budget head is selected;historical vectors remain available and are never summed together.
 
 ```text
 B = balance of the checkpoint anchoring the selected allocation revision
+A[p] >= 0; B >= 0
 sum_p A[p] = B
 D = B_new - B_old
 sum_p (A_new[p] - A_old[p]) = D
 ```
 
-Missing rows mean zero. No suspense month or unassigned user category exists. A draft may be incomplete while editing, but confirmation requires the exact sum, integer cents and explicit user approval of each month's final amount (one review/confirm action may approve the whole vector). A suggested vector is never committed automatically.
+Missing rows mean zero. No suspense month or unassigned user category exists. A draft may be incomplete while editing, but confirmation requires nonnegative allocations, the exact sum, integer cents and explicit user approval of each month's final amount (one review/confirm action may approve the whole vector). A suggested vector is never committed automatically.
 
 A same-balance redistribution creates a new complete allocation revision anchored to the existing checkpoint, not a fabricated new bank observation. A transfer-only confirmation reuses the already confirmed unchanged balance without requiring its re-entry. If the balance has changed, a new checkpoint and complete allocation vector can be saved in the same transaction. Paid status still requires a fresh balance affirmation and the unchanged-balance warning (BR-02); this is not bypassed by a transfer action.
 
 All amounts are bounded integer EUR cents with checked range and exact integer arithmetic. Month/date semantics are Europe/Berlin; recorded timestamps are UTC. Domain is pure TypeScript with injected clock, independent of UI, network and persistence; existing shared-pure boundaries and Neon/Drizzle selection remain unchanged.
 
-## Negative budgets, earmarks and optional operation funding
+## Actual cash, free deficits and optional operation funding
 
-A[p] may be negative for an approved advance. With B=8000, November=9500 and December=-1500, the vector still sums to 8000; the advance does not create bank money. A later confirmed B=128000 can be distributed November=9500/December=118500. Do not subtract that advance again from the confirmed December amount.
+A[p] distributes only physically existing cash: every share is nonnegative and the complete vector sums to observed B. New B=10000 with November=15000/December=-5000 rejects NEGATIVE_CASH_ALLOCATION even though its sum matches. At B=10000,A[Nov]=10000,R[Nov]=20000,S=0,free=-10000 is a valid full-reserve deficit; neither reserves nor savings are trimmed. Expected income is excluded from B/A. After a real observation includes a receipt, its full balance may be allocated across any financial months without entering an income operation. A real negative bank observation/overdraft is outside this ordinary B>=0 model pending an explicit decision; never infer credit or replace an observed negative balance with zero.
 
 ```text
-R[p] = sum of full outstanding active obligations funded by p
-S[p] = voluntary savings assigned to p
+R[p] = sum of full outstanding UNPAID obligations funded by p with reserveFull=true
+S[p] = retained voluntary savings amounts assigned to p
 F[p] = A[p] - R[p] - S[p]
 sum_p F[p] = B - sum_p R[p] - sum_p S[p]
 ```
 
-Earmarks are subsets of the allocated balance, not extra cash allocations. Each active obligation/saving contributes once. Reserve is 100% of unpaid outstanding even with insufficient funds; partial payment reduces outstanding, full payment permits zero outstanding. Paid/cancelled active reserve is zero. Cancellation is distinct from payment. Neither payment status, reserve creation/release nor savings release changes B.
+A is actually allocated money;R is the full outstanding obligation amount reserved against its funding period,and S is the retained voluntary savings amount. R/S are requirements used to derive free funds,not necessarily funded subsets of A: R+S may exceed A or even B. The excess makes F negative and creates no additional bank money. Never trim R or automatically reduce S. Each included obligation/saving counts once. An ordinary UNPAID obligation has reserveFull=true;an isPossible=true claim may have reserveFull=false until explicitly elected for full reservation. Its contribution is then0 or its entire outstanding,never a fraction. Paid/cancelled obligations have reserveFull=false and contribute0. Partial payment reduces outstanding while the full remainder stays reserved. Selection changes retain identity and full before/after revisions;payment/cancellation are distinct events. Neither status,reservation selection nor savings release changes B. Exact proposed flags and validation are in ADR0003.
 
 A purchase may optionally have signed financing-detail rows split across months; their sum must equal the one described operation, e.g. -3500=-2000-1500. These rows are metadata, NOT primary A rows, and are never automatically applied to an already confirmed balance/vector. A user can approve a separate proposed full-vector edit together with the detail, without a second debit. Without optional detail, confirm the resulting vector directly; its differences are not proof of individual purchases.
 
 ## Current forecast: normal case versus unresolved liquidity edge
 
-For an ordinary fully funded current month, eligible free derives from the confirmed current A minus its full reserves and savings; future A is excluded. Older-month cash contributes only after the user confirms a transfer into the current month. Already reflected advances are not subtracted a second time. Inclusive remaining days and floor integer division follow BR-04; future preview uses all days of its month.
+For an ordinary fully funded current month, eligible free derives from the confirmed current A minus its full reserves and savings; future A is excluded. Older-month cash contributes only after the user confirms a transfer into the current month. Purchases funded by existing cash and already reflected in the confirmed state are not subtracted a second time. Inclusive remaining days and floor integer division follow BR-04; future preview uses all days of its month.
 
-The former draft's `E=min(G,L)` liquidity cap is withdrawn as a recommendation/acceptance oracle. Where a negative future month or other constraints make the current budget exceed physical liquidity, **HB-003 must present and obtain a decision**: (A) keep the budget-based guideline with a separate liquidity warning; (B) cap the spending guideline using a separately approved liquidity computation, showing planning and liquidity separately. Warning behavior, reserve coverage across periods and the final edge-case formula remain open. No numerical daily oracle for that edge is accepted in this ADR.
+The earlier signed-A cap was never approved:negative new A rejects input validation. Valid other-month earmarks can exceed actual cash. Owner D36 now selects option B:main daily guidance protects all existing selected reserves/savings regardless of period/due date and preserves other-month allocations;budget guidance is secondary. Exact max-based liquidity mathematics and D37..D39 UX are Accepted in ADR0003 after owner-reported final independent review. This display clarification does not change the Accepted checkpoint/full-reserve/history contract.
 
 ## Month opening and user-confirmed transfer — option A selected
 
@@ -75,7 +78,7 @@ confirmed Nov->Dec transfer: delta A[Nov]=-40000, delta A[Dec]=+40000
 sum(delta A)=0; sum(R')=sum(R); sum(S')=sum(S)
 ```
 
-Store confirmation date/time, source/target month, before/after vector revisions, carried obligation/savings funding associations, unchanged bank anchor and audit metadata. A retry returns the same result. Reopening an already confirmed proposal cannot repeat it; later proposals must be based on the current revision. General proposals spanning multiple old/negative months and conflicts need HB-002/HB-003 specification, not an invented policy here.
+Store confirmation date/time, source/target month, before/after vector revisions, carried obligation/savings funding associations, unchanged bank anchor and audit metadata. A retry returns the same result. Reopening an already confirmed proposal cannot repeat it; later proposals must be based on the current revision. General proposals spanning multiple completed months and conflicts need HB-002/HB-003 specification, not an invented policy here.
 
 ## No required month-end checkpoint; honest historical reports
 
@@ -133,9 +136,9 @@ Use immutable allocation-set revisions containing the complete vector, not manda
 2. Allocation changes need not be income/expenses; only optional evidence can describe gross activity.
 3. Payment, transfer, redistribution and PDF detail cannot automatically debit the checkpoint balance.
 4. Transfer changes total allocated cash by zero and retains each obligation/saving once; consent precedes active change.
-5. Reserves equal full unpaid outstanding; earmarks are subtracted once; negative periods create no cash.
-6. Future allocations do not automatically increase current budget; liquidity-edge forecast awaits HB-003.
+5. R sums full outstanding of UNPAID reserveFull=true identities,including elected possible claims;unelected possible claims contribute0. R+S may exceed A/B without being capped. A>=0,sum(A)=B>=0,F=A-R-S,deficit=max(0,-F);each identity counts once.
+6. Expected income is excluded; actually observed future allocations do not automatically increase current budget. Accepted ADR0003 defines cross-period earmark safe-main liquidity.
 7. Missing bank observations remain unknown; old report versions and actual observation dates survive all later changes.
 8. Optional reconciliation preserves K+U=D and unique operation identity, independently of A.
 
-Owner reports independent review of revision 2 and all 20 scenarios completed and approves this model. The final clarifications explicitly retain Nov 28 as last bank check after a Dec 1 transfer and prohibit actual-spending/income statistics inferred from allocation deltas without operation evidence. Local arithmetic and document checks passed; see the scenario verification record. HB-002 must detail closing/history, transfer lineage and ordering; HB-003 must finalize forecast and remaining liquidity edge. Acceptance is limited to this architecture/specification; no finance runtime tests are claimed.
+**Archived original acceptance:** owner reported independent review of revision 2 and all20 scenarios and approved that original specification. Its local evidence and original commit remain inspectable. Signed-allocation validity in that revision is superseded by D32..D35; the corrected scenarios/contract have now been re-accepted after owner-reported repeated independent review. No runtime finance tests were claimed then or now.

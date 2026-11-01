@@ -1,6 +1,6 @@
 # Phase 01: finance acceptance scenarios (synthetic)
 
-Owner clarification 2026-11-01: all checkpoint cases include COMPLETE confirmed month balances summing to bank balance (single-month cases assign all cash to that month). Operations mentioned below are optional explanatory data, never required user entry; no mandatory source/residual allocation or suspense. Only user-confirmed transfers make older cash eligible in the new month. Revised detailed oracles: [HB1-001..020](hb-001-checkpoints-and-allocations.md); HB-003 still owns the physical-liquidity forecast edge.
+Owner correction D32..D35: every new complete actual-money vector has A>=0,sum(A)=B>=0. F=A-R-S can be negative with full reserves/savings. Expected income never contributes;optional signed operations are non-posting. Corrected ADR0001/0002 contracts are re-Accepted after owner-reported repeated independent review;original verification remains historical in HB1/HB2 documents. D36 selects safe-main all-period protection;HB-003 exact formula and D37..D39 are Accepted after owner-reported independent review. Existing daily figures below are budget guidelines,not substitutes for the safe main limit.
 
 ## F-001 — paid obligation does not double-debit
 Given checkpoint €1000.00 and full unpaid reserve €200.00, free €800.00.
@@ -12,19 +12,23 @@ Given card €500.00, reserves €200.00.
 When user confirms same €500.00 and marks €54.00 paid.
 Then warn and require explicit confirmation; after accepted card remains €500.00, reserves €146.00, free €354.00; record affirmation and do not infer a bank debit.
 
-## F-003 — future income isolated
-Given November eligible free €30.00 on November 28 and December new incoming money €1200.00; allocate 0 November / €1200 December; December reserves €900.
-Then November available €30.00, November forecast €10.00/day for 3 days, December preview €300/31 floored to €9.67/day.
+## F-003 — already received future-month money stays isolated
 
-## F-004 — advance split expense
-Given November free €20, December free €300, and one physical purchase €35 on November 29.
-When financing allocation splits €20 November and €15 December.
-Then November free €0, December free €285, one physical cash movement €35 (not two).
+GIVEN Nov28 actual prior card30 EUR,A={Nov:30},R=S=0.
+WHEN1200 EUR has actually arrived on the card and the user confirms the real new bank balance1230 EUR with the complete A={Nov:30,Dec:1200},R[Dec]=900 EUR,S0. These December funds already exist in that confirmed balance;no expected/unreceived income is allocated and no separate income operation is required.
+THEN sum(A)=1230 EUR,Nov budget/safe available30 EUR,main/current guideline10 EUR per day over3 inclusive days;Dec budget free300 EUR,full-month preview floor(30000 cents/31)=967 cents (9.67 EUR/day),remainder23 cents. Future cash/reserve is protected once;it does not raise Nov guidance or create a second bank posting.
 
-## F-005 — future advance before income
-Given November free €5, no received December income.
-When physical purchase €20 charged €5 November and €15 December.
-Then December carries advance -€15, not fabricated income; future receipt must not double-debit €15.
+## F-004 — purchase funded by two already-funded months
+
+GIVEN actual card50 EUR,A={Nov:20,Dec:30},R=S=0.
+WHEN one35 EUR purchase is reflected in a new actual card15 EUR and confirmed A={Nov:0,Dec:15};optional detail splits20/15.
+THEN one bank reduction35 EUR,no negative allocation,no repeated debit;future income is not required or used.
+
+## F-005 — unreceived income cannot finance cash allocations
+
+GIVEN actual card100 EUR,A={Nov:100},R=S=0,expected future receipt50 EUR not yet observed.
+WHEN a new draft A={Nov:150,Dec:-50} is submitted.
+THEN reject NEGATIVE_CASH_ALLOCATION despite matching total100 EUR;no forecast/cap repairs it. Expected income does not change B/A. A real later checkpoint may include received money without a separate income operation.
 
 ## F-006 — full obligation reservation and deficit
 Given bank €150 and new unpaid obligation €200.

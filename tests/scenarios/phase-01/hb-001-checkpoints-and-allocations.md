@@ -1,8 +1,8 @@
 # HB-001 — checkpoint-first acceptance scenarios (synthetic)
 
-**Status:** Reviewed scenario specification under [Accepted ADR 0001](../../../docs/adr/0001-checkpoints-and-allocations.md). Owner clarification supersedes the first draft's mandatory source/residual allocations, automatic carryover and proposed liquidity cap. HB1-001..010 retain their IDs and useful money/history cases, revised to complete-state allocations; HB1-011..020 add the owner's requested acceptance cases. No application tests executed.
+**Status:** Reviewed corrected specification under [Accepted ADR0001](../../../docs/adr/0001-checkpoints-and-allocations.md). Owner confirms re-acceptance after repeated independent review of D32..D35 and all four fixes. Original acceptance/evidence remains archived;no runtime tests implied.
 
-All values are signed integer EUR cents; dates Europe/Berlin in 2026; synthetic account A. A denotes a COMPLETE confirmed month vector, F=A-R-S. Unlisted months/R/S are zero. Every checkpoint commits its full vector atomically; optional bank detail is explicitly marked. Each THEN must retain before/after history. Current funded-case daily values use inclusive days and integer quotient; no daily oracle is asserted for the unresolved liquidity edge. K/U are optional reconciliation diagnostics only.
+All values are integer EUR cents;A>=0 and B>=0;F and optional operation details may be signed; dates Europe/Berlin in 2026; synthetic account A. A denotes a COMPLETE confirmed month vector, F=A-R-S. Unlisted months/R/S are zero. Every checkpoint commits its full vector atomically; optional bank detail is explicitly marked. Each THEN must retain before/after history. Current funded-case daily values use inclusive days and integer quotient; no daily oracle is asserted for the unresolved liquidity edge. K/U are optional reconciliation diagnostics only.
 
 ## HB1-001 — simultaneous 1200 EUR receipt and 100 EUR expense (BR-01/05/09/11)
 
@@ -18,11 +18,13 @@ GIVEN Nov 27 B=3000,A={Nov:3000}. WHEN Nov 28 confirm B=123000,A={Nov:3000,Dec:1
 
 GIVEN Nov 28 B=32000,A={Nov:2000,Dec:30000}. WHEN Nov 29 confirm B=28500,A={Nov:0,Dec:28500}. THEN R=S=0,F[Nov]=0,F[Dec]=28500,daily Nov=0,Dec preview=919. OPTIONAL one -3500 operation with funding details -2000 Nov/-1500 Dec sums to -3500; these details do not debit B or mutate A again. User may omit them entirely; before/after vectors survive.
 
-## HB1-004 — advance before income; no selected liquidity formula (BR-04/05/11)
+## HB1-004 — negative cash rejects;actual receipts remain checkpoint-first (BR-04/05/11)
 
-GIVEN Nov 28 B=10000,A={Nov:10000}. WHEN Nov 29 B=8000,A={Nov:9500,Dec:-1500} is confirmed. THEN sum(A)=8000,F[Nov]=9500,F[Dec]=-1500,R=S=0,Dec deficit=1500,Dec preview=0; no fabricated receipt. Current daily/liquidity warning is explicitly pending HB-003; former cap oracle withdrawn.
-
-WHEN Nov 30 B=128000,A={Nov:9500,Dec:118500} is confirmed, THEN sum(A)=128000,Dec preview=3822,advance is already reflected once. No extra -1500 debit or implicit reassignment of Dec money to Nov. Retain both vectors and any optional evidence separately.
+GIVEN Nov28 B=10000,A={Nov:10000},R=S=0;expected December income is unreceived.
+WHEN Nov29 draft B=8000,A={Nov:9500,Dec:-1500} is submitted.
+THEN NEGATIVE_CASH_ALLOCATION,no new committed vector/forecast,even though sum=8000. A liquidity warning cannot validate it.
+WHEN Nov30 a real B=128000 and nonnegative A={Nov:9500,Dec:118500} are explicitly confirmed without operations.
+THEN sum=128000,F[Nov]=9500,F[Dec]=118500,Dec preview3822,remainder18;no extra-1500 adjustment or inferred gross income. Historical confirmed revisions remain retained.
 
 ## HB1-005 — partial then full PDF explanation (BR-09/11)
 
@@ -40,9 +42,12 @@ GIVEN Nov 5 B=90000,A={Nov:90000},R=S=0; D=-10000,K=-6000,U=-4000 with optional 
 
 GIVEN Nov 1 B=100000,A={Nov:100000},outstanding/R[Nov]=20000. WHEN Nov 5 fresh B=95000,A={Nov:95000},partial paid=5000 THEN outstanding/R=15000,F=80000,daily=3076. WHEN Nov 6 fresh B=80000,A={Nov:80000},paid remainder THEN outstanding/R=0,F=80000,daily=3200. No bank transaction entry required; B is not auto-debited. Original amount 20000 and all payment/vector revisions remain inspectable. Same balance with paid status must warn/require fresh affirmation (F-002).
 
-## HB1-009 — one-cent full vector and validation (BR-10/11)
+## HB1-009 — one-cent validation separates cash from signed detail (BR-10/11)
 
-GIVEN Nov 28 B=10000,A={Nov:10000}. WHEN B=9899,A={Nov:9950,Dec:-51} is confirmed THEN sum(A)=9899,R=S=0,F equals A; no current daily assertion pending HB-003. OPTIONAL -101 operation funding -50/-51 sums exactly; no second subtraction. Reject a confirmed vector {Nov:9950,Dec:-50} (sum=9900), fractional cents or overflow with no partial checkpoint/revision. An invalid optional detail does not prevent a separate valid ordinary update without that detail.
+GIVEN Nov28 B=10000,A={Nov:10000},R=S=0.
+WHEN new draft B=9899,A={Nov:9950,Dec:-51} submitted.
+THEN reject NEGATIVE_CASH_ALLOCATION despite exact sum9899. Separate explicit valid confirmation A={Nov:9849,Dec:50} at actual B9899 succeeds;F equals A,Nov n3,q3283,r0,Dec preview1,r19.
+OPTIONAL one payment-101 with funding details-50/-51 is metadata only;no second debit or derived active A. Reject fractional cents,overflow,wrong sum,stale revision or unauthorized scope atomically;all prior confirmed states remain.
 
 ## HB1-010 — consent before carry; zero net not gross completeness (BR-05/09/11)
 
@@ -92,9 +97,13 @@ GIVEN HB1-016 checkpoints Nov20 B=80000/Dec2 B=75000,active A={Dec:75000},R[Dec]
 
 ## HB1-020 — complete-vector invariant at every confirmation (BR-05/10/11)
 
-GIVEN first-ever B=80000 and no details. WHEN draft A={Nov:60000,Dec:19000}, sum=79000, THEN reject confirmation with 1000 mismatch; no committed checkpoint/set, no suspense row/category. WHEN corrected A={Nov:60000,Dec:20000} THEN commit full vector=80000. WHEN new checkpoint B=75000 with A={Dec:75000} THEN commit sum=75000; when same-bank redistribution A={Dec:76000,Jan:-1000} confirmed, sum=75000 still valid. R=S=0,F equals each vector; no daily edge oracle for final negative-month state. Same id/payload retries add no revision, same id/different vector or stale expected revision reject atomically. All old full vectors remain inspectable, never summed together.
+GIVEN first-ever B=80000 and no details. WHEN draft A={Nov:60000,Dec:19000}, sum=79000, THEN reject confirmation with 1000 mismatch; no committed checkpoint/set, no suspense row/category. WHEN corrected A={Nov:60000,Dec:20000} THEN commit full vector=80000. WHEN new checkpoint B=75000 with A={Dec:75000} THEN commit sum=75000; when a new same-bank draft A={Dec:76000,Jan:-1000} is submitted,reject NEGATIVE_CASH_ALLOCATION even though sum=75000. A separate explicitly confirmed valid redistribution {Dec:74000,Jan:1000} sums75000. R=S=0,F equals each valid vector;no new revision from the rejected draft. Same id/payload retries add no revision, same id/different vector or stale expected revision reject atomically. All old full vectors remain inspectable, never summed together.
 
-## Coverage and evidence limits
+## Archived original coverage and evidence
+
+The following record describes the pre-amendment revision and original completion only;its signed-input validity claims are superseded by D32..D35. It is not proof for the amended scenarios.
+
+
 
 BR-01/02: 001/007/008/011/012/016; BR-03/07: 002/008/014/015; BR-04: ordinary forecast examples and explicitly pending 004/009/020 edge; BR-05: all full-vector sums, consent 010/014..016; BR-08: 010/017/018; BR-09: 001/005..007/019; BR-10/11: 007/009/012/020 plus all no-double-count/history assertions. Existing F-002 covers unchanged-balance paid warning; F-008 savings release; F-010/013/018 backdating/versioning. HB-002 and HB-003 still own detailed algorithms.
 

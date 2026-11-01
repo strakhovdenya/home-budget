@@ -14,7 +14,7 @@
 1. Быстро подтвердить актуальную сумму на карте и заодно сменить статусы оплаченных обязательств; не списывать их второй раз.
 2. Увидеть полный перечень долгов/резервов/накоплений, отрицательный остаток (если есть), доступные деньги и лимит на день.
 3. Зачислить доход конца месяца в *следующий финансовый период*; не раздувать текущий дневной прогноз.
-4. Подтверждать полные месячные остатки с суммой, равной карте; поддержать отрицательные бюджеты авансов. Изменение распределений не трактовать автоматически как операции.
+4. Подтверждать полные месячные остатки с суммой, равной карте; каждая доля неотрицательна;дефицит A-R-S из полных резервов допустим. Изменение распределений не трактовать автоматически как операции.
 5. Сохранить незакрытые обязательства и накопления; после автоматического открытия месяца предложить перенос денег и выполнить его только после подтверждения одной кнопкой (вариант A).
 6. Сохранить неизменяемую историю и закрытые месяцы, корректировать их только через новую версию.
 7. По желанию прикрепить банковскую выписку PDF позднее, категоризовать/сверить операции без повторного списания.
@@ -24,9 +24,9 @@
 - One guided 'Update budget' flow: actual checkpoint amount/date + COMPLETE user-confirmed month distribution + optional obligation/savings changes; one atomic save, no required transaction entry or suspense category. Redistribution against unchanged confirmed bank reuses the observation.
 - Obligations: create/edit full amount, paid/cancelled, partial payments with remainder reserved, recurrence template proposals upon new financial period/incoming future-period money, no auto-generation without confirmation.
 - Savings: create, increase/reduce/release, carry across months, cash withdrawal reflected only via next/fresh card balance checkpoint.
-- Budget periods: full bank balance allocated to past/current/future months; signed month values including zero/negative advance, exact sum equals card balance. Optional operation financing detail cannot repost cash or silently edit confirmed state.
+- Budget periods: full bank balance allocated to past/current/future months; nonnegative actual-money shares,including zero;negative free from full earmarks is allowed, exact sum equals card balance. Optional operation financing detail cannot repost cash or silently edit confirmed state.
 - Months: auto-open new month, propose carryover on next open, apply only after confirmation. Full reserve/savings survive once; no new obligation or bank transaction. Close manually even without last-day observation: unknown actual end balance, incomplete-data flag, real last known checkpoint/date, historical allocation/earmark state and immutable versions (HB-002).
-- Budget-based daily forecast, inclusive Berlin days, future money isolated, earmarks deducted once; remaining physical-liquidity warning/formula belongs to HB-003, no approved cap.
+- D36:safe main daily estimate protects all selected reserves/savings across periods and other-month allocations;budget guideline is secondary. Inclusive Berlin days and actual-cash isolation remain;exact max-based formula is Accepted under completed HB-003.
 - Authentication/authorization and history/audit. Scope follows PRD/TASKS: P0 through HB-021 baseline, HB-020 templates membership pending Q-HB1-03; M3 categories/import/export and M4 PDF are later, not implied MVP requirements here.
 
 ## Future not in v1
