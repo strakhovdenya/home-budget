@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "project": "home-budget",
+  "note": "Layer declarations are targets for later automated import-boundary tests. Runtime not yet installed.",
+  "layers": [
+    {
+      "name": "domain",
+      "description": "Pure finance rules, cents, budgets and projections",
+      "paths": [
+        "src/domain/**"
+      ],
+      "may_depend_on": [
+        "shared"
+      ],
+      "must_not_depend_on": [
+        "app",
+        "features",
+        "infrastructure"
+      ]
+    },
+    {
+      "name": "features",
+      "description": "Application use cases and feature UI",
+      "paths": [
+        "src/features/**"
+      ],
+      "may_depend_on": [
+        "domain",
+        "shared"
+      ],
+      "must_not_depend_on": [
+        "app"
+      ]
+    },
+    {
+      "name": "infrastructure",
+      "description": "DB/auth/documents implementations of ports",
+      "paths": [
+        "src/infrastructure/**"
+      ],
+      "may_depend_on": [
+        "domain",
+        "shared"
+      ],
+      "must_not_depend_on": [
+        "app",
+        "features"
+      ]
+    },
+    {
+      "name": "app",
+      "description": "Next.js routing and composition",
+      "paths": [
+        "src/app/**"
+      ],
+      "may_depend_on": [
+        "domain",
+        "features",
+        "infrastructure",
+        "shared"
+      ],
+      "must_not_depend_on": []
+    },
+    {
+      "name": "shared",
+      "description": "Pure utilities, MUI theme and i18n helpers",
+      "paths": [
+        "src/shared/**"
+      ],
+      "may_depend_on": [],
+      "must_not_depend_on": [
+        "domain",
+        "features",
+        "infrastructure",
+        "app"
+      ]
+    }
+  ]
+}
