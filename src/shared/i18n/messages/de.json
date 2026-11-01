@@ -1,0 +1,14 @@
+{
+  "shell": {"tagline": "Ihr Budget klar im Blick", "navigation": "Hauptnavigation", "openMenu": "Navigation öffnen", "closeMenu": "Navigation schließen", "skip": "Zum Inhalt springen", "preview": "App-Vorschau", "footer": "Ihr Budget, in Ihrem Tempo.", "metadata": "Home Budget — Ihr persönliches Budget"},
+  "navigation": {"overview": "Übersicht", "obligations": "Verpflichtungen", "savings": "Rücklagen", "months": "Monate", "settings": "Einstellungen"},
+  "preferences": {"language": "Sprache", "theme": "Darstellung", "light": "Hell", "dark": "Dunkel", "system": "System", "ru": "Русский", "de": "Deutsch", "en": "English", "saved": "Ihre Einstellungen werden in diesem Browser gespeichert.", "error": "Die Sprache konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."},
+  "notFound": {"title": "Seite nicht gefunden", "description": "Diese Seite ist nicht verfügbar. Sie können zur Übersicht zurückkehren.", "back": "Zurück zur Übersicht"},
+  "screens": {
+    "status": "In Entwicklung", "eyebrow": "Jeden Tag ein wenig mehr Klarheit", "empty": "Noch keine Finanzdaten", "notice": "Dies ist eine Vorschau der Oberfläche. Finanzfunktionen sind in Entwicklung; es sind keine Bankdaten verbunden.",
+    "overview": {"title": "Raum für das Wesentliche", "description": "Ihr bestätigter Kontostand und Hinweise zu Ausgaben erscheinen hier, sobald Budgetaktualisierungen verfügbar sind."},
+    "obligations": {"title": "Verpflichtungen im Blick", "description": "Künftige Updates zeigen hier offene Verpflichtungen, ihre vollständigen Reserven und den Zahlungsverlauf."},
+    "savings": {"title": "Platz für Ihre Pläne", "description": "Künftige Updates ermöglichen es Ihnen, Geld für Ihre Ziele zurückzulegen und Änderungen nachzuverfolgen."},
+    "months": {"title": "Jeder Monat erzählt eine Geschichte", "description": "Budgetzeiträume und versionierte Monatsberichte erscheinen hier mit einem künftigen Update."},
+    "settings": {"title": "Ganz nach Ihren Wünschen", "description": "Wählen Sie Sprache und Darstellung. Diese Einstellungen funktionieren bereits und bleiben in diesem Browser gespeichert."}
+  }
+}

@@ -1,7 +1,7 @@
 # Home Budget — Task Backlog (Codex-ready)
 
 **Source:** [PRD](PRD.md) → [business rules](BUSINESS_RULES.md) → [implementation plan](IMPLEMENTATION_PLAN.md) → these tasks.
-**Status:** HB-001/HB-002/HB-003 Done as reviewed specifications;ADRs0001/0002/0003 Accepted. Correction and original acceptance history retained. HB-004 Review: minimal Next.js bootstrap verified locally; independent review and owner acceptance pending. Financial features remain unimplemented.
+**Status:** HB-001..HB-004 Done, as confirmed by the owner in the HB-005 request. ADRs0001/0002/0003 Accepted; historical evidence retained. HB-005 Done: responsive MUI shell and RU/DE/EN preferences. Financial features remain unimplemented.
 **Conventions:** `HB-NNN` stable ID; `Ready` = can start after prerequisites, `Planned` = not yet ready, `Blocked` = needs decision, `In progress`, `Review`, `Done`.
 **Work policy:** one task / coherent PR at a time. Codex must not silently mark tasks complete. GitHub Issues optional later; add each issue URL beside the stable ID rather than duplicating tasks.
 
@@ -54,12 +54,16 @@ MVP common baseline is P0 tasks through HB-021. Inclusion of P1 HB-020 is pendin
 **Deliverables:** Next.js App Router, package lockfile, lint/typecheck/test/build scripts, setup docs.
 **Acceptance:** local dev + build commands run; TypeScript strict; no PWA, no service worker; project retains docs/ and .agents/skill files.
 
+**Owner acceptance update:** the HB-005 request explicitly confirms HB-001..HB-004 completed and accepted. The following paragraph records the earlier verification-stage state; its pending-review sentence is historical.
+
 **Local evidence (2026-11-01):** `pnpm.cmd lint`, `pnpm.cmd typecheck`, `pnpm.cmd test` (1 real server-render test), `pnpm.cmd build` passed; `pnpm.cmd install --frozen-lockfile --offline` passed. Dev server on 127.0.0.1:3002 (3000 occupied) and production server on :3003 returned HTTP 200 with the expected heading. `git diff --check` passed. Full evidence, version compatibility and pending checks: [PROJECT_CONFIG.md](PROJECT_CONFIG.md). Browser visual QA and Python docs check were unavailable locally. Independent review and explicit owner acceptance remain required; not Done. No commit, push or PR.
 
 ### HB-005 · Build MUI responsive shell and translations
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-004 · **Area:** UI
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-004 · **Area:** UI
 **Deliverables:** MUI custom theme, light/dark/system, RU/DE/EN localization, responsive placeholders.
 **Acceptance:** keyboard/touch usable for phone and desktop; translated labels in all languages; theme persisted; no extra Tailwind/shadcn stack.
+
+**Review artifacts:** [Scope and scenarios](planning/hb-005-ui-shell.md), [actual verification and limitations](planning/hb-005-verification.md). Five routes, MUI SSR integration, Light/Dark/System, RU/DE/EN and browser preferences implemented. Independent review and owner acceptance remain pending; not Done. No commit, push or PR.
 
 ### HB-006 · Define and migrate database schema (Neon + Drizzle)
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-001, HB-002, HB-004 · **Area:** persistence

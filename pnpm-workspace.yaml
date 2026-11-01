@@ -1,0 +1,5 @@
+# Registry packages include platform-specific native binaries as optional dependencies.
+# Do not run fallback download/build scripts during installation.
+allowBuilds:
+  '@swc/core': false
+  '@parcel/watcher': false

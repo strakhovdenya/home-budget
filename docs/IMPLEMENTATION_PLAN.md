@@ -1,6 +1,6 @@
 # Home Budget — Implementation Plan
 
-**Status:** HB-001/HB-002/HB-003 Done;ADRs0001/0002/0003 Accepted after owner-reported independent reviews and explicit approvals. D32..D39 and earlier acceptance history retained. HB-004 Planned/not started;no application.
+**Status:** HB-001..HB-004 Done, as confirmed by the owner in the HB-005 request. ADRs0001/0002/0003 Accepted; D32..D39 and earlier acceptance history retained. HB-005 UI shell is Done; financial features are not implemented.
 **Execution:** Codex in VS Code, small feature branches and reviewable PRs  
 **Scope policy:** PRD defines WHAT, business rules define finance semantics, this plan defines WHEN/HOW TO SHIP.
 
@@ -46,7 +46,7 @@ Deliver in small PRs:
 3. Obligations CRUD: full amount reserves, paid/cancelled, amount changes, partial payment of obligation (not partial reserve), event timeline.
 4. Savings: create/increase/decrease/release; optional proposal to free savings when deficit.
 5. Complete period allocation state: sum equals checkpoint; user confirms suggested/current/past/future amounts, with each share nonnegative and expected income excluded, without suspense. State deltas are not inferred income/expenses; optional physical operation details stay separate.
-6. Monthly open/close:detect current month on access;actual balance/full distribution and explicit A CARRY or B FRESH_START confirm atomically,neither default. Preserve full reserves/savings and historical versions;B supports missed months without compulsory per-month transfers. Complex multi-source A cases remain excluded under Q-HB2-02. Manual close supports unknown end balance without a final-day checkpoint;re-accepted corrected ADR0002 defines historical/correction contracts. D36 requires a safe main current limit protecting all selected reserves/savings across periods and other-month allocations;formula is Accepted for completed HB-003 after owner-reported final independent review with D37..D39:visible dated old-state estimates,nonblocking informational warnings and calendar-age>=7 reminder. HB-003 is Done;HB-004 remains Planned and no implementation starts.
+6. Monthly open/close:detect current month on access;actual balance/full distribution and explicit A CARRY or B FRESH_START confirm atomically,neither default. Preserve full reserves/savings and historical versions;B supports missed months without compulsory per-month transfers. Complex multi-source A cases remain excluded under Q-HB2-02. Manual close supports unknown end balance without a final-day checkpoint;re-accepted corrected ADR0002 defines historical/correction contracts. D36 requires a safe main current limit protecting all selected reserves/savings across periods and other-month allocations;formula is Accepted for completed HB-003 after owner-reported final independent review with D37..D39:visible dated old-state estimates,nonblocking informational warnings and calendar-age>=7 reminder. HB-003 specifications are Done; financial implementation remains in later tasks.
 7. Recurring templates: suggestions requiring user confirmation, duplicate prevention; **MVP membership pending Q-HB1-03**, because HB-020/PRD classify them P1. This line is not approval to expand MVP.
 8. Responsive, multilingual, accessibility and e2e budget paths.
 
