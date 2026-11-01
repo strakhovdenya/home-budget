@@ -17,13 +17,15 @@ We adopt the nine **foundational** workflow ideas described by godark Dark Facto
 Additional project-specific skill: verify-financial-invariants.
 
 ## Recommended sequence
-Read business rules → define architecture/conventions → roadmap → phase planning → scenario specs → small implementation with tests → independent review → phase overview. GitHub actions require user authorization; a skill describes procedure, it does not auto-execute a cloud factory.
+Read [PRD](PRD.md) → normative business rules → architecture/conventions → [Implementation Plan](IMPLEMENTATION_PLAN.md) → choose **one Ready HB-* task** in [Tasks](TASKS.md) → scenario specs → small implementation with tests → independent review → phase overview. GitHub actions require user authorization; a skill describes procedure, it does not auto-execute a cloud factory.
+
+**Current start:** HB-001, specification of checkpoint net differences, month allocations and reconciliation, before any finance UI. The initial task ledger is docs/TASKS.md; GitHub Issues may be linked to HB-* identifiers when created. A completed document task still requires review, not just a changed checkbox.
 
 ## Safety / quality
 No unreviewed auto-merge, no hidden model delegation or unlimited background loops, no Claude command requirements. Before every change ask: does it preserve latest bank checkpoint, exact cents, full reserves and closed month histories?
 
 ## Related docs
-docs/AGENT_FACTORY.md (roles and gates), docs/ROADMAP.md, docs/planning/phase-01-foundation.md, tests/scenarios/README.md, docs/VS_CODE_CODEX.md.
+docs/PRD.md (product goals), docs/IMPLEMENTATION_PLAN.md (milestones), docs/TASKS.md (task register), docs/AGENT_FACTORY.md (roles and gates), docs/ROADMAP.md, docs/planning/phase-01-foundation.md, tests/scenarios/README.md, docs/VS_CODE_CODEX.md.
 
 ## Attribution / limitation
 Workflow inspired by https://godarkfactory.com/docs/skills/ (peter-stratton/dark-factory). The nine Codex skill files were newly authored for this repo from public descriptions, not directly copied. There are multiple unrelated 'dark-factory' projects in the ecosystem; this adaptation targets the godark documentation specifically.
