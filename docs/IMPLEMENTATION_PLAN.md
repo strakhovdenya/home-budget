@@ -1,6 +1,6 @@
 # Home Budget — Implementation Plan
 
-**Status:** HB-001 specification accepted; remaining tasks planned; no application code yet
+**Status:** HB-001 and [HB-002 specification](adr/0002-month-closing-and-corrections.md) Accepted;documentation tasks Done within approved scope;HB-003 and remaining tasks not started;no application code yet
 **Execution:** Codex in VS Code, small feature branches and reviewable PRs  
 **Scope policy:** PRD defines WHAT, business rules define finance semantics, this plan defines WHEN/HOW TO SHIP.
 
@@ -46,7 +46,7 @@ Deliver in small PRs:
 3. Obligations CRUD: full amount reserves, paid/cancelled, amount changes, partial payment of obligation (not partial reserve), event timeline.
 4. Savings: create/increase/decrease/release; optional proposal to free savings when deficit.
 5. Complete period allocation state: sum equals checkpoint; user confirms suggested/current/past/future amounts, including negative advances, without suspense. State deltas are not inferred income/expenses; optional physical operation details stay separate.
-6. Monthly open/close: next month auto-opens; next-open carryover proposal requires one-button user confirmation (option A), preserving full reserves/savings and target funds once. Manual close supports unknown month-end balance without requiring last-day checkpoint; retain historical states and original/revised versions (HB-002). Liquidity-edge forecast remains HB-003.
+6. Monthly open/close:detect current month on access;actual balance/full distribution and explicit A CARRY or B FRESH_START confirm atomically,neither default. Preserve full reserves/savings and historical versions;B supports missed months without compulsory per-month transfers. Complex A signed/multiple-old-month cases remain excluded under Q-HB2-02. Manual close supports unknown end balance without a final-day checkpoint;Accepted ADR 0002 defines historical/correction contracts. Liquidity-edge forecast remains HB-003.
 7. Recurring templates: suggestions requiring user confirmation, duplicate prevention; **MVP membership pending Q-HB1-03**, because HB-020/PRD classify them P1. This line is not approval to expand MVP.
 8. Responsive, multilingual, accessibility and e2e budget paths.
 
