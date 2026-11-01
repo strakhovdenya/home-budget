@@ -24,11 +24,21 @@ Redistribution/confirmed transfer against an already confirmed unchanged balance
 
 Calendar month opens automatically; next-open carryover is a proposal requiring one-button user confirmation (option A). Confirmed transfer retains existing target funds, obligation/savings identities and full earmarks once; old active cash is cleared, historical revisions remain. No new bank operation is posted.
 
+Owner clarification D26..D28 makes a fresh actual bank check + complete distribution + carry/funding consent one primary atomic update. An equal-balance real check is still a new observation; explicit redistribution-only reuses the old anchor. Detect current period on website access without background financial work. Unconfirmed drafts do not change financial state; carry can be deferred within an ordinary valid update. Check affected carry dependencies, preserving unrelated signed months; do not treat their sign as a global carry rejection. Multi-source UX/negative source-target policy remain open. No changes to pure domain/import boundaries.
+
+Owner D29..D31 adds an explicit,nondefault A CARRY / B FRESH_START choice. FRESH_START confirms a real current observation,one complete new vector and a separate immutable non-carry decision,resetting past active planning balances while preserving their history and all full obligation/savings states. Review funding of those old earmarks into the current period;never infer payment/cancellation/release from reset. One account transaction handles several missed months without per-month transfers/checks/closes. Only unresolved A proposal details retain policy gates;B remains available regardless of old signs/count. Selection,validation and atomic repository boundaries are unchanged;no new runtime layer.
+
 ## Core read models
 - Latest confirmed bank balance by account (observed, not calculated from inferred net changes).
 - One active complete allocation revision anchored to the bank observation, full reserves and savings, period free balances; historical revisions are selected separately, not summed.
 - Daily forecast with observed timestamp, as-of date and stale indicator.
 - Month closing versions with actual last-observed dates, historical allocation/earmark references, completeness flags and UNKNOWN end balance when no month-end observation exists. Closing never requires a final-day checkpoint. Later transfer does not erase old reports; HB-002 specifies cutoff/order/version details.
+
+### Accepted HB-002 historical boundary
+
+[Accepted ADR 0002](adr/0002-month-closing-and-corrections.md) specifies `state(historical_through_date, evidence_recorded_cutoff_seq)`:resolve immutable corrections within the knowledge cut,then select historical checkpoint/vector and full obligation/savings states by confirmed effective positions. December transfer/payment positions are excluded from November even when closing in December. Reports pin exact source/ordering revisions and copied snapshot values;current pointers are not historical evidence. Historical/current anchor conflicts require explicit review,not automatic rebasing.
+
+Domain functions receive dates,ordering manifests,revision facts and injected clock. Application preview/confirm use cases authorize and review changes. Infrastructure locks the account/report head and atomically stores immutable facts/snapshot,audit,idempotency result and mutable head pointers. Layers/import permissions are unchanged;the accepted contract is also recorded in `architecture.json`. Older historical entry preserves newer confirmed states;corrected close versions require explicit approval and never rewrite v1. Complex A with several past months or affected negative budgets must reject under Q-HB2-02 until separately approved,without blocking explicit FRESH_START. No algorithm for those A cases is accepted. Final forecast remains HB-003;runtime verification belongs to later implementation.
 
 ## Future statement import
 Use private object storage (e.g. Vercel Blob private mode) and restricted download endpoint. PDF extraction, OCR and categorization are later, asynchronous processing with explicit approval; raw data never sent to analytics. Documents linked by account + statement period + upload timestamp.

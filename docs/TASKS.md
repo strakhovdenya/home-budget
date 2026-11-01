@@ -1,7 +1,7 @@
 # Home Budget — Task Backlog (Codex-ready)
 
 **Source:** [PRD](PRD.md) → [business rules](BUSINESS_RULES.md) → [implementation plan](IMPLEMENTATION_PLAN.md) → these tasks.  
-**Status:** HB-001 documentation/scenarios complete; remaining work planned; **no application code implemented**.
+**Status:** HB-001 and HB-002 documentation/scenarios complete with Accepted ADRs;remaining work planned;**no application code implemented**.
 **Conventions:** `HB-NNN` stable ID; `Ready` = can start after prerequisites, `Planned` = not yet ready, `Blocked` = needs decision, `In progress`, `Review`, `Done`.  
 **Work policy:** one task / coherent PR at a time. Codex must not silently mark tasks complete. GitHub Issues optional later; add each issue URL beside the stable ID rather than duplicating tasks.
 
@@ -27,10 +27,15 @@ MVP common baseline is P0 tasks through HB-021. Inclusion of P1 HB-020 is pendin
 **Completion evidence (2026-11-01):** owner-reported independent review and approval; 77 integer arithmetic checks passed (27 complete vectors, 32 equality/reserve/delta checks, 18 exact quotients); JSON/layer declarations, 20 scenario IDs, local links/anchors and whitespace verified. No app/runtime tests claimed. Acceptance trace: full state/no invented statistics — HB1-001/011/012/020; advances/splits — HB1-003/004/009; confirmed transfer/unchanged observation/earmarks — HB1-010/014/015; optional reconciliation — HB1-005/006/007/019; incomplete historical close — HB1-016/017/018. Local commit reference: branch `docs/hb-001-financial-model`, subject `docs(hb-001): accept checkpoint-first financial model`; final commit hash is reported to the owner. No GitHub issue/PR or push.
 
 ### HB-002 · Specify immutable month versions and backdated corrections
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-001 · **Area:** domain/architecture  
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-001 · **Area:** domain/architecture
 **Deliverables:** `docs/adr/0002-month-closing-and-corrections.md`, scenario updates.
+**Review artifacts:** [Accepted ADR 0002](adr/0002-month-closing-and-corrections.md),[HB2-001..HB2-046 and verification](../tests/scenarios/phase-01/hb-002-month-closing-and-corrections.md). Owner reports independent review of the ADR/all46 scenarios completed and approves the scoped contract. Done as documentation/scenarios only;no runtime tests claimed. Complex A CARRY with several past months or affected negative allocations is explicitly excluded under [Q-HB2-02](OPEN_QUESTIONS.md#hb-002-review-questions),not newly approved. B remains available. HB-003 has not started.
 **Acceptance:** specify complete contract for closing both with month-end observation and with unknown end balance; preserve actual last historical observation/date, known allocation and earmark states, completeness/cutoff metadata and original versions. Closing after a December transfer must retain November history; no final-day checkpoint requirement or invented bank data. Define effective/recorded/same-day order, backdated corrections, transfer lineage/proposal retries and historical versus current lifecycle.
+**Owner UX clarification:** D26..D28 and HB2-031..038 make fresh actual balance + complete vector + consented carry/funding one ordinary atomic update;same-amount real check is new. No background financial work;explicit deferral and technical redistribution-only remain. Untouched negative months do not invalidate otherwise supported carry.
+**Fresh-start decision:** D29..D31 and HB2-039..046 define explicit A/B selection with neither default. B clears past planning allocations in one real-check update even after missed months;negative past balances remain historical,unpaid reserves and savings persist fully with reviewed current funding. No compulsory per-month carry/close chain;excluded complex A policy cannot block B.
 **Cases:** F-009/F-010/F-013/F-018.
+
+**Completion evidence (2026-11-01):** owner-reported independent review and scoped approval;98 exact BigInt arithmetic assertions (41 complete vectors,39 reserve/savings/free checks,18 delta/evidence identities),46 sequential scenario specifications,Berlin DST/month boundaries/leap-year checks,local links/anchors,architecture JSON/layers and whitespace verified. Python unavailable;equivalent bootstrap checks ran through Node,not the Python script. Exact final evidence is in the scenario document. Acceptance trace:closing/completeness HB2-001..005/026/036/040;immutable versions/late corrections HB2-006..009/013/019/022/027/030;ordering HB2-012/021/023;atomicity/retries HB2-014/015/024/028/031..035/045;full earmarks/fresh start HB2-010/011/037..044/046. Scoped exclusion oracles HB2-016/017/025/038. Local commit subject:`docs(hb-002): accept immutable month closing and corrections`,branch`docs/hb-002-month-history`;final hash reported to owner. No push/PR or runtime implementation.
 
 ### HB-003 · Formalize daily forecast and carryover algorithm
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-001, HB-002 · **Area:** finance rules  

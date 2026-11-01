@@ -13,6 +13,23 @@
     "cash_carryover": "proposal_then_explicit_one_button_confirmation",
     "final_day_checkpoint_required": false,
     "incomplete_close_contract_task": "HB-002",
+    "history_contract": {
+      "adr": "docs/adr/0002-month-closing-and-corrections.md",
+      "status": "Accepted",
+      "selection_coordinates": ["historical_through_date", "evidence_recorded_cutoff_seq"],
+      "same_day_order": "confirmed_historical_positions_with_pinned_ordering_revisions",
+      "report_versions": "immutable_explicit_confirmation",
+      "primary_month_transition": "actual_bank_check_explicit_carry_or_fresh_start_complete_vector_in_one_update",
+      "transition_modes": ["CARRY", "FRESH_START", "DEFER"],
+      "default_transition_mode": null,
+      "fresh_start": "explicit_non_carry_history_preserved_all_unpaid_and_savings_earmarks_retained",
+      "missed_months_fresh_start": "one_atomic_update_no_intermediate_checks_transfers_or_closes",
+      "same_amount_actual_check": "new_observation",
+      "redistribution_only": "explicit_reuse_of_confirmed_observation",
+      "month_detection": "on_website_access_no_background_financial_mutation",
+      "carry_sign_validation": "affected_source_target_and_funding_dependencies_preserve_untouched_signed_months",
+      "unresolved_signed_or_multiple_source_carry_proposal": "A_only_not_a_fresh_start_gate"
+    },
     "liquidity_edge_forecast_task": "HB-003",
     "optional_reconciliation_may_mutate_confirmed_budget": false
   },

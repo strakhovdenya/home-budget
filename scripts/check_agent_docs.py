@@ -14,6 +14,8 @@ REQUIRED = [
     "docs/OPEN_QUESTIONS.md", "docs/adr/0001-checkpoints-and-allocations.md",
     "tests/scenarios/phase-01/core-rules.md",
     "tests/scenarios/phase-01/hb-001-checkpoints-and-allocations.md",
+    "docs/adr/0002-month-closing-and-corrections.md",
+    "tests/scenarios/phase-01/hb-002-month-closing-and-corrections.md",
 ]
 SKILLS = [
     "create-milestone", "create-planning-doc", "create-issues",
