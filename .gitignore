@@ -1,5 +1,6 @@
 node_modules/
 .next/
+next-env.d.ts
 out/
 build/
 coverage/
@@ -20,4 +21,10 @@ data/private/
 data/imports/
 data/exports/
 tmp/
+dist/
+*.log
+*.tmp
+*.swp
+*.swo
+*~
 .DS_Store
