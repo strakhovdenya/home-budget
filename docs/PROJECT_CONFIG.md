@@ -1,6 +1,9 @@
 # Tooling configuration contract
 
-HB-004 introduces the minimal Next.js App Router runtime. Financial rules, database and authentication are not implemented. No environment variables are needed; existing `.env.example` entries are placeholders for future tasks.
+HB-004 introduced the Next.js App Router runtime and is accepted by the owner.
+HB-005 adds MUI and next-intl; it is in Review. Financial rules, database and
+authentication are not implemented. No environment variables are needed;
+existing `.env.example` entries are placeholders for future tasks.
 
 ## Pinned versions
 
@@ -36,20 +39,20 @@ Install pnpm 12.16.1, then run `pnpm install --frozen-lockfile`. In Windows Powe
 | `pnpm dev` | Next development server at localhost:3000 |
 | `pnpm lint` | ESLint flat config, JS/TypeScript + official Next rules, zero warnings |
 | `pnpm typecheck` | Generate route types, then strict `tsc --noEmit`; works before a build |
-| `pnpm test` | Vitest run in Node, server-render bootstrap page and assert its heading/status |
+| `pnpm test` | Vitest Node/jsdom: shell, SSR/hydration, preferences, catalogs and import boundaries |
 | `pnpm build` | Next production build; lint runs separately |
 | `pnpm start` | Serve the completed production build |
 
 ## Deliberately pending
 
-- Import-boundary automation, external allowlist and transitive purity verification from `architecture.json` are not implemented by the lint presets. HB-004 has no cross-layer production imports or domain implementation; add these checks before populating the layers.
+- Import-boundary automation now runs in `tests/architecture.test.ts`, using `architecture.json` and an explicit external allowlist for populated layers. It checks static imports/exports, type imports, literal dynamic imports/require, and rejects unclassified paths/nonliteral dynamic imports. Checking every source edge also prevents transitive escapes through shared/pure. Domain and infrastructure have no external allowlist entries yet; extend them explicitly when those tasks begin.
 - Financial unit/scenario execution belongs to HB-008..HB-015. Markdown scenario specs are preserved; they are not executed by the bootstrap test.
 - DB integration, `test:integration` and `db:migrate` await HB-006 and later persistence tasks.
 - Playwright/browser E2E scripts await later UI/quality tasks. No placeholder green commands are provided.
-- MUI/theme/next-intl and RU/DE/EN catalogs await HB-005. Bootstrap copy is static Russian; no finance UI exists.
+- MUI/theme/next-intl and RU/DE/EN catalogs are implemented in HB-005. Financial sections remain explicit placeholders.
 - No PWA, service worker, offline cache, Tailwind, separate backend, production secrets or financial fixtures are introduced.
 
-## Verification evidence
+## HB-004 historical verification evidence
 
 Executed locally on 2026-11-01 with Node 22.23.0 / pnpm 12.16.1:
 
@@ -71,4 +74,52 @@ Source review found no real data, credentials, network/data adapters or service 
 
 Limitations: the in-app browser's Node REPL tool was unavailable, so no visual mobile/desktop or browser-console QA is claimed; responsive CSS was inspected and served HTML checked. `python scripts/check_agent_docs.py` could not run because Python (including py/python3 launchers) is absent; the existing CI workflow remains unchanged. PowerShell commands were executed using `.cmd` shims; Git Bash was not available as a verified runtime. Initial npm access and pnpm's external store lock required sandbox escalation; final authorized install succeeded. Git emits a permission warning for the user's global ignore file, but diff/status commands succeed.
 
-HB-004 is Review, pending independent review and explicit owner acceptance; not Done. No commit, push or PR was made.
+At the time of that evidence HB-004 was Review. The owner subsequently confirmed
+HB-001..HB-004 completed and accepted in the HB-005 request. No new HB-004
+runtime claims are implied.
+
+## HB-005 integration and verification
+
+Pinned additions: `@mui/material` and `@mui/material-nextjs` 9.5.0,
+`@emotion/react` / `@emotion/cache` 11.14.0, `@emotion/styled` 11.14.1,
+`next-intl` 4.14.9. Tests: `@testing-library/react` 16.3.3,
+`@testing-library/dom` 10.4.2, `@testing-library/user-event` 14.6.8,
+`jsdom` 30.1.3. Registry versions were checked before installation; no competing
+UI stack or browser-test framework was added.
+
+The root layout uses `@mui/material-nextjs/v16-appRouter` for streaming styles,
+one CSS-variable ThemeProvider, and InitColorSchemeScript with the matching
+`data-mui-color-scheme` selector and `home-budget-mode` storage key. The default
+is System. MUI owns live OS changes and browser storage synchronization.
+Use CSS variables for color-dependent UI so SSR markup stays stable.
+
+next-intl request configuration lives at `src/shared/i18n/request.ts`, wired by
+its Next plugin. The server validates the `home-budget-locale` cookie, defaults
+to RU, and supplies the same locale/messages to HTML and the client provider.
+The language Server Action writes an HttpOnly, SameSite=Lax, path=/ cookie for
+one year (Secure in production); route refresh retains the current screen.
+There are no locale URL prefixes or browser-language redirects. All routes are
+rendered on demand because locale is request-specific.
+
+`pnpm-workspace.yaml` explicitly denies fallback postinstall scripts for
+`@swc/core` and `@parcel/watcher`; registry platform binaries are optional
+dependencies. Frozen offline install succeeds without running these scripts.
+On this managed Windows environment SWC cannot access the user's native cache
+inside the sandbox. Type generation, build, dev and start were therefore run
+with approved access outside the sandbox. No global cache or permission settings
+were modified.
+
+For HTTP smoke checks against a running server:
+
+```sh
+node scripts/check-shell-http.mjs http://127.0.0.1:3000
+```
+
+This checks server HTML/status/locale, not browser interaction or layout.
+Exact executed evidence and pending browser checks:
+[HB-005 verification report](planning/hb-005-verification.md).
+
+Official integration references: [MUI Next.js](https://mui.com/material-ui/integrations/nextjs/),
+[MUI color schemes](https://mui.com/material-ui/customization/dark-mode/),
+[next-intl App Router](https://next-intl.dev/docs/getting-started/app-router),
+[pnpm build policy](https://pnpm.io/settings/build#allowbuilds).

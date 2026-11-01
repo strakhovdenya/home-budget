@@ -22,6 +22,12 @@ Read [PRD](PRD.md) → normative business rules → architecture/conventions →
 **Current state:** HB-001/HB-002 Done;ADRs0001/0002 re-Accepted for corrected D32..D35 after owner-reported repeated independent review and resolution of all four findings. Original acceptance/reopening/evidence remain historical. HB-003 Done,ADR0003 Accepted after owner-reported final independent review;Q-HB1-01 resolved for D36 safe-main mathematics;D37..D39 settles old-state visibility,informational warnings and Berlin civil age>=7 reminder. A>=0,sum(A)=actual B>=0;F=A-R-S may be negative with full R/S even above A/B. Explicit CARRY/FRESH_START/DEFER,no default,history and actual-check semantics remain. Multi-source CARRY,overdraft and historical-overspend features are not approved. No app/data migration or implementation;HB-004 not started.
 
 ## Safety / quality
+
+**Delivery update (HB-005 request, completed verification 2026-11-02):** the owner
+confirms HB-001..HB-004 completed and accepted. HB-005 is Done with a working
+MUI/next-intl shell; finance remains unimplemented. The earlier current-state
+paragraph above is a retained specification-stage snapshot, not the runtime status.
+See [TASKS](TASKS.md) and [HB-005 evidence](planning/hb-005-verification.md).
 No unreviewed auto-merge, no hidden model delegation or unlimited background loops, no Claude command requirements. Before every change ask: does it preserve latest bank checkpoint, exact cents, full reserves and closed month histories?
 
 ## Related docs

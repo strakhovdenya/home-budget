@@ -1,0 +1,14 @@
+{
+  "shell": {"tagline": "A clear view of your budget", "navigation": "Main navigation", "openMenu": "Open navigation", "closeMenu": "Close navigation", "skip": "Skip to content", "preview": "Application preview", "footer": "Your budget, at your pace.", "metadata": "Home Budget — your personal budget"},
+  "navigation": {"overview": "Overview", "obligations": "Obligations", "savings": "Savings", "months": "Months", "settings": "Settings"},
+  "preferences": {"language": "Language", "theme": "Appearance", "light": "Light", "dark": "Dark", "system": "System", "ru": "Русский", "de": "Deutsch", "en": "English", "saved": "Your preferences are saved in this browser.", "error": "Could not save the language. Please try again."},
+  "notFound": {"title": "Page not found", "description": "This page is unavailable. You can return to your overview.", "back": "Back to overview"},
+  "screens": {
+    "status": "In development", "eyebrow": "A little more clarity, every day", "empty": "No financial data yet", "notice": "This is an interface preview. Financial features are in development; no bank data is connected.",
+    "overview": {"title": "Make room for what matters", "description": "Your confirmed balance and spending guidance will appear here when budget updates are available."},
+    "obligations": {"title": "Keep commitments in view", "description": "Future updates will show unpaid obligations, their full reserves and payment history here."},
+    "savings": {"title": "Space for your plans", "description": "Future updates will let you set money aside for your goals and follow changes over time."},
+    "months": {"title": "Every month has its story", "description": "Budget periods and versioned month reports will appear here in a future update."},
+    "settings": {"title": "Make yourself at home", "description": "Choose your language and appearance. These preferences work now and stay with this browser."}
+  }
+}
