@@ -1,15 +1,15 @@
 # Normative financial business rules (source of truth)
 
-Owner clarification 2026-11-01 takes precedence over earlier source-ledger/automatic-carryover assumptions. See [D21..D31 and HB-002 acceptance](DECISIONS.md). [ADR 0001](adr/0001-checkpoints-and-allocations.md) and [ADR 0002](adr/0002-month-closing-and-corrections.md) are Accepted following owner-reported independent review. HB-003 forecast/liquidity and explicitly excluded complex A under Q-HB2-02 remain open;no runtime implementation is implied.
+Owner correction D32..D35 (2026-11-01) fixes actual-money allocations:A>=0,sum(A)=B>=0;free may be negative from full obligations/savings. [ADR0001](adr/0001-checkpoints-and-allocations.md) and [ADR0002](adr/0002-month-closing-and-corrections.md) are re-Accepted after owner-reported repeated independent review and resolution of all four findings. Original acceptance history is retained. HB-003/Q-HB1-01 is resolved by Accepted ADR0003/D36..D39;multi-source CARRY remains open;no runtime implementation is implied.
 
 ## Vocabulary
 - **Bank balance / checkpoint:** actual user-confirmed card balance on an observation date; recorded time is separate.
 - **Budget period:** named financial month YYYY-MM owning part of the confirmed card balance, independent of bank activity date.
-- **Budget allocation:** a signed month balance in a complete user-confirmed distribution of the WHOLE bank balance; not an inferred receipt/expense.
-- **Planning deficit:** a negative month allocation,not an unpaid liability;may be explicitly left in history by FRESH_START without paying/cancelling real obligations or releasing savings.
+- **Budget allocation:** nonnegative share of actually observed cash in a complete vector summing to B>=0; not expected income or an operation.
+- **Budget deficit:** max(0,-F) where F=A-R-S;negative free is valid and is not a negative cash allocation or automatically a new liability. Historical overspend is a separate optional reporting question.
 - **Allocation revision:** immutable complete distribution anchored to a checkpoint; redistribution/transfer may reuse an unchanged checkpoint.
-- **Obligation:** active unpaid outstanding is fully reserved until paid/cancelled/amended; partial payment is allowed, partial reservation is not.
-- **Savings:** voluntary earmark within allocated card cash, excluded from free funds; persists with history.
+- **Obligation:** full remaining unpaid amount attributed to a funding period. Ordinary unpaid obligations are fully reserved;possible claims are included only when explicitly selected for full reservation. Partial payment is allowed,partial reservation is not.
+- **Savings:** retained voluntary savings amount attributed to a period and deducted once from free funds. It is not necessarily covered by allocated cash;R+S may exceed A or B without creating money or automatically reducing savings.
 - **Bank detail:** optional confirmed operation/evidence; never required to confirm a balance/distribution.
 - **Unexplained net:** optional derived interval difference minus known operations, not a user allocation category or confirmed income/expense.
 
@@ -18,7 +18,7 @@ Owner clarification 2026-11-01 takes precedence over earlier source-ledger/autom
 - Irregular observations are valid. No last-calendar-day checkpoint is required to transfer funds or close a month.
 - The latest chronological active checkpoint defines the observed bank balance, not entry order or optional operations. Backdated inserts/corrections retain newer bank facts and immutable prior revisions.
 - Never interpolate missing observations, use a later balance as month-end balance, assume no intervening spending, or call a net change income/expense without evidence.
-- Show actual last checked date and default gentle reminder after 7 days. Stale projections are estimates.
+- Show the actual last checked date and explicit older-data label for age>0;continue displaying a complete valid state's safe estimate using current Berlin days. Gentle in-app reminder iff ageDays>=7 civil days (D37..D39),including DST;no elapsed-hour shortcut,forced check,background polling or push. Missing/invalid confirmed state is unavailable,not0.
 - Transfer/redistribution alone must not advance the last-checked date or create a bank checkpoint: a Dec 1 transfer anchored to Nov 28 still displays Nov 28 as the last confirmed bank observation.
 - A genuinely new actual bank check creates a new checkpoint/date even if the amount equals the previous observation. Equality of amounts does not select checkpoint reuse; an idempotent retry of the same check still creates no duplicate.
 
@@ -33,17 +33,24 @@ Owner clarification 2026-11-01 takes precedence over earlier source-ledger/autom
 - Reserve 100% of each active unpaid outstanding; negative free budget is valid and labelled deficit. No partial reserve fraction exists.
 - Partial payment may reduce outstanding, with ALL remainder reserved. Fully paid outstanding may be zero; original amount is positive.
 - Reserve edits are not bank transactions. Payment outside tracked card uses reason/history and fresh confirmed unchanged card balance; do not invent a card debit.
-- Possible/pending claims, when reserved, also block their full outstanding.
+- Possible/pending describes isPossible=true,not another lifecycle status. Keep UNPAID/PAID/CANCELLED plus reserveFull:boolean. Ordinary UNPAID requires reserveFull=true. Possible UNPAID may explicitly have reserveFull=false (R contribution0) or true (full outstanding). PAID/CANCELLED requires reserveFull=false and contributes0. No independent reserved-amount or partial-reserve field exists. Selecting/unselecting reservation is explicit,audited and retains identity/full historical state;no automatic inclusion of unelected possible claims or bank debit.
+- R is the sum of included full unpaid amounts;S is the retained voluntary savings amount. R+S may exceed period A or total B,producing negative F rather than new cash. Never cap R at available cash or automatically reduce S.
 
 ## BR-04: Daily spending forecast
 - Guidance covers all discretionary purchases. Normal eligible free is the confirmed CURRENT month allocation less its full obligation reserves and voluntary savings; older funds contribute only after confirmed transfer. Future allocations do not automatically raise current budget.
 - In ordinary funded cases: floor integer cents of max(0, eligible free) divided by remaining Europe/Berlin calendar days, inclusive of today. Future preview uses every calendar day of that future month.
-- Advances already reflected in confirmed month balances are not subtracted again. Today's bank spend is already reflected in a post-spend checkpoint; do not fabricate daily bank amounts.
+- Purchases already reflected in the confirmed balance/vector are not subtracted again. Signed optional financing detail is explanatory only; expected income never increases B/A/free.
 - Negative free is displayed as deficit, with spending guideline zero.
-- If planning funds exceed available physical liquidity (e.g. negative future budget), warning policy and final edge-case forecast formula remain OPEN for HB-003. No liquidity cap is approved here.
+- Owner D36 selects option B:the main current daily limit protects all existing selected full unpaid reserves and retained savings across every period,regardless of due date,and cannot reuse other-month allocations. The ordinary current budget guideline is secondary. Negative A remains invalid;protection never changes funding period,due date,status,selection,savings or bank cash.
+
+### D36 accepted safe-main formula
+
+D36 mathematics and D37..D39 UX are Accepted in ADR0003 after owner-reported final independent review. Contract:E[p]=R[p]+S[p],T=E[current]+sum(max(A[p],E[p])) for every other allocation/funding period,L=B-T,safeAvailable=max(0,L),mainDaily=safeAvailable div inclusiveDays. Equivalent L=F[current]-sum(max(0,E[p]-A[p])) over other periods shows no double reservation. R includes elected possible claims only;all retained S remains protected. No expected income,time horizon or due-date exclusion. B10000/Nov10000/Dec0/R Dec20000 gives shortage10000,safeAvailable0,mainDaily0.
+
+Keep budget deficit=max(0,-F[current]),obligation shortage=max(0,sum(R)-B),earmark shortage=max(0,sum(R+S)-B) and protection shortage=max(0,T-B) distinct;do not add these overlapping comparisons or label any as a new debt/expense. Missing/incomplete/negative-bank states have no safe numeric result. D37 requires continued display of older complete-state estimates with actual date and older-data label;never hide solely for age or replace safe main with budget guidance. D38 warnings are informational,without acknowledgment,view blocking or repeated confirmation;group equal shortage amounts with their meanings and never add overlapping comparisons. Actual financial mutations still require confirmation. D39 reminder is exactly ageDays>=7 Berlin civil dates. Formula/specification is Accepted;this is not runtime implementation evidence.
 
 ## BR-05: Complete period distribution and confirmed transfer
-- For EVERY confirmed checkpoint: sum of its month allocations equals its balance exactly, in integer cents. No suspense/unassigned user category. Negative month balances are allowed for advances while preserving the sum.
+- For EVERY new confirmed ordinary checkpoint: each A[p]>=0 and sum(A)=actual B>=0 in integer cents. No suspense/unassigned category. Reject NEGATIVE_CASH_ALLOCATION even when the total matches. Actual negative bank observations/overdrafts remain a separate open scope question;never infer available credit.
 - User confirms the whole new distribution, not the interval delta. A=80000 Nov becoming B=77000 with Nov=75000/Dec=2000 is valid without operations; -5000/+2000 month changes are not inferred expense/income.
 - Statistics must distinguish allocation-state changes from confirmed bank activity. Without operation evidence, never display a month's allocation delta as actual spending or confirmed income; show known operation totals with incomplete-detail provenance, not an invented total or a claim of zero spending.
 - Past/current/future periods may hold allocations. Optional operation financing may be split across months, but cannot be added again to an already confirmed state.
@@ -53,10 +60,10 @@ Owner clarification 2026-11-01 takes precedence over earlier source-ledger/autom
 - No final-day observation is required. With a changed balance, confirm the new full distribution and transfer together without inventing how net spending divides across months.
 - Owner clarification D26: the ordinary month-transition visit combines a fresh actual balance observation, carry proposal, complete allocation and existing obligation/savings funding changes in one confirmed atomic update. No preliminary old-balance affirmation or mandatory standalone carry. Explicit redistribution-only remains possible without a new check.
 - Detect/open the current Berlin period on website access; no background carry, bank observation or report closing. Opening/abandoning an unconfirmed draft has no financial effect. User may defer carry and still confirm a valid complete ordinary update; old funding does not move automatically. With changed B, unchanged old amounts are only permissible if the full-vector sum still equals B.
-- An unchanged unrelated negative month is not a carry arithmetic error: B=89000,A={Nov:40000,Dec:50000,Jan:-1000} may become {Nov:0,Dec:90000,Jan:-1000}. Validate the full sum and affected source/target/earmark dependencies;no silent January settlement. Remaining detailed multiple-source/signed-source-or-target proposal questions concern A CARRY only;B FRESH_START is approved below. Final liquidity forecast remains HB-003.
-- Owner D29..D31: on a month-transition visit explicitly offer A CARRY and B FRESH_START, with neither preselected. B confirms a fresh actual checkpoint and full new vector, sets past active budget balances to zero with explicit non-carry consent, and preserves prior signed allocations in history. Negative planning balances are not liabilities and need not be carried. No income, expense, debt forgiveness or bank movement is inferred from this reset or the interval net.
-- B works after several missed months in one atomic update without per-month carries, observations or prerequisite closes. Example Nov20 2026 B=10000,A={Nov:-5000,Dec:15000},no December check;Jan5 2027 actual B=8000,A={Nov:0,Dec:0,Jan:8000}. Record the chosen mode, not-carried period IDs/signed before amounts, before/after revisions and consent. Historical December allocation remains known effective Nov20, not an invented December bank observation/end balance.
-- Fresh start never pays/cancels/amends an obligation or releases savings implicitly. Preserve each active unpaid identity and full outstanding reserve and each saving's identity/amount; explicitly review funding of affected old-period earmarks in the current month, count them once. If R+S>B,retain full earmarks and show deficit. Amount/status/release changes require separate explicit normal events. Missing identities, invalid sums, stale dependencies and unauthorized writes remain blockers; old negative balances or number of missed months alone do not block B. Current/future edits are part of the full reviewed vector, never an automatic sweep of unrelated future money.
+- Validate nonnegativity for the entire new vector and sum equality,plus affected transfer/funding dependencies. At B89000,Nov40000/Dec48000/Jan1000 may carry to Nov0/Dec88000/Jan1000;preserve January once. Negative source free does not block ordinary CARRY;negative A anywhere rejects. Simultaneous multi-source CARRY remains a separate policy gate.
+- D29..D35: explicitly offer A CARRY or B FRESH_START with neither preselected. B confirms fresh actual B and one complete nonnegative vector,sets past active allocations to0 with non-carry consent,preserves all prior revisions and does not debit historical free deficits again. No income/expense/debt forgiveness or bank movement is inferred.
+- B works after several missed months in one update without serial carries,observations or closes. Example Nov20 2026 B10000,A={Nov:4000,Dec:6000};no December check;Jan5 2027 actual B8000,A={Nov:0,Dec:0,Jan:8000}. Store mode,not-carried period IDs/prior amounts,before/after revisions and consent. Historical Dec allocation6000 remains known effectiveNov20;Dec31 actual bank balance remains unknown.
+- Fresh start never pays/cancels/amends an obligation or releases savings implicitly. Preserve each active unpaid identity and full outstanding reserve and each saving's identity/amount; explicitly review funding of affected old-period earmarks in the current month, count them once. If R+S>B,retain full earmarks and show deficit. Amount/status/release changes require separate explicit normal events. Missing identities, invalid sums, stale dependencies and unauthorized writes remain blockers; historical negative free or number of missed months alone do not block B. Current/future edits are part of the full reviewed vector, never an automatic sweep of unrelated future money.
 
 ## BR-06: Status and due date
 - Keep unpaid/paid/cancelled status, creation period, current funding period, optional due/bank dates, confirmation date and history.
@@ -65,7 +72,7 @@ Owner clarification 2026-11-01 takes precedence over earlier source-ledger/autom
 - Recurring templates only propose accept/edit/skip; prevent duplicate accepted template+period items. MVP membership is still Q-HB1-03, not decided by these semantics.
 
 ## BR-07: Savings
-- Savings are earmarks WITHIN allocated bank money, subtracted from eligible funds once, never extra cash/debits.
+- Savings are retained voluntary amounts deducted once from allocated cash to derive F;they are not additional cash/debits or a guarantee of funding. R+S can exceed A/B;preserve full S until an explicit savings decision.
 - Persist across months with identity, origin and amount; moving their funding association does not recreate/release them. Release/withdrawal are explicit decisions.
 - Bank withdrawal is reflected only by fresh observed balance; savings release in that update avoids double reduction. Release itself changes free funds, not bank balance.
 
@@ -90,18 +97,18 @@ Owner clarification 2026-11-01 takes precedence over earlier source-ledger/autom
 
 ## BR-11: Invariants (must be tested)
 1. One checkpoint is one bank observation; latest active chronological observation is authoritative. Paid/detail/transfer cannot debit it.
-2. Every confirmed COMPLETE allocation set sums to its checkpoint balance; no user suspense. Select one active revision, never sum revisions.
+2. Every new COMPLETE allocation set has A[p]>=0 and sums to its checkpoint B>=0; no user suspense. Select one active revision, never sum revisions.
 3. Allocation delta is not income/expense; optional evidence does not rewrite user allocation.
-4. Future allocations do not automatically increase current budget; no unconfirmed carryover. Liquidity edge stays HB-003.
-5. Reserve equals full unpaid outstanding; partial payment leaves full remainder; obligation/savings earmarks counted once.
+4. Future allocations do not automatically increase current budget; no unconfirmed carryover. Accepted ADR0003 defines safe-main liquidity under D36..D39.
+5. Reserve equals the full outstanding of UNPAID reserveFull=true identities;ordinary unpaid requires full reservation,elected possible claims count fully,unelected possible claims count0. Partial payment leaves the full reserved remainder;R/S count once and may exceed A/B.
 6. Transfer-only sum(delta month balances)=0; bank unchanged, old source allocation cleared for full transfer, same earmark identities retained.
 7. Optional physical movement appears once even with multiple funding details/PDF sources; never added again to confirmed cash.
-8. Negative month budget creates no bank money; sum(month free)=bank-sum(reserves)-sum(savings).
+8. 0<=A[p]<=B and max(0,F[p])<=A[p];F may be negative because R/S remain full. sum(F)=B-sum(R)-sum(S). Expected income and optional operation detail never create additional cash.
 9. Original allocation history, financial events and every close version survive later transfers/corrections.
 10. Missing end balance stays unknown; actual observation, recording, funding period, transfer confirmation and closing cutoff remain distinct.
 11. Optional K+U=D reconciles evidence without blocking ordinary updates or demanding transaction entry.
 
 ## Pending domain decisions
-[OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) contains only remaining decisions, not superseded mandatory-source/suspense assumptions. HB-002 specifies history/closing detail; HB-003 finalizes forecast.
+[OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) contains remaining decisions and resolved dispositions,not superseded mandatory-source/suspense assumptions. Accepted ADR0002 specifies history/closing;Accepted ADR0003 completes safe-main forecasting and D37..D39 UX. Q-HB1-01 is resolved within HB-003.
 
-Accepted HB-002 does not authorize complex A CARRY involving several past months or affected negative allocations:until Q-HB2-02 is separately approved,reject that A request atomically with OWNER_POLICY_REQUIRED. Do not invent an algorithm or auto-select B;explicit FRESH_START remains available. An untouched unrelated negative month alone does not trigger this restriction. Domain/DB tests must enforce this boundary during later implementation.
+Multiple-source A CARRY remains excluded until Q-HB2-02 is approved;reject with OWNER_POLICY_REQUIRED and zero financial writes. Negative new A is instead invalid input. Explicit FRESH_START remains available;negative source F alone cannot block ordinary CARRY. No real financial records exist yet;no legacy migration is needed. Historical report/revision immutability and optional non-posting evidence remain unchanged.

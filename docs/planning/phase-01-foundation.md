@@ -7,7 +7,7 @@ Deliver a safe authenticated local/preview Next.js app shell and deterministic f
 1. Scaffold Next.js TypeScript + MUI App Router, locale catalogs RU/DE/EN, theme modes; no PWA.
 2. Configure Drizzle PostgreSQL schema for users, accounts, periods, checkpoints, budget update batch, obligation/savings events, allocation, closings; migrations and FK/unique checks.
 3. Google OAuth allowlist, server checks on all reads/writes, protected dashboard skeleton.
-4. Pure finance core: EUR cents, Europe/Berlin dates, authoritative checkpoints with COMPLETE month allocations summing to balance, full earmarks, signed advances and confirmed transfer proposals. No mandatory operation/residual ledger or user suspense; HB-003 approves liquidity-edge forecast.
+4. Pure finance core: EUR cents, Europe/Berlin dates, authoritative checkpoints with COMPLETE month allocations summing to balance, full earmarks, nonnegative cash allocations and signed free deficits and confirmed transfer proposals. No mandatory operation/residual ledger or user suspense; HB-003 approves liquidity-edge forecast.
 5. Atomic update flow and projections; user confirmation of fresh balance with payment changes; optimistic concurrency and idempotency.
 6. Tests and security review, developer documentation, clear local dev setup. Implement in smaller PRs if needed.
 

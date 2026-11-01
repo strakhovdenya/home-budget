@@ -1,12 +1,12 @@
 # HB-002 — month closing and corrections (synthetic specification)
 
-**Status:** Reviewed specification under [Accepted ADR0002](../../../docs/adr/0002-month-closing-and-corrections.md). Owner reports independent review of this ADR/all46 scenarios completed and approves the scoped contract. HB-002 is Done as documentation/scenarios;these are future test oracles,not executed application tests. Complex A under Q-HB2-02 remains explicitly excluded;B stays available.
+**Status:** Reviewed corrected specification under [Accepted ADR0002](../../../docs/adr/0002-month-closing-and-corrections.md). Owner confirms re-acceptance after repeated independent review of D32..D35 and all four fixes. Original acceptance/evidence remains archived;no runtime tests implied.
 
 Requirements: BR-01/02/03/05/06/07/08/09/10/11. All money below is integer EUR cents, all dates Berlin in 2026 unless specified, account A synthetic. Nov/Dec/Jan mean 2026-11/2026-12/2027-01. Unlisted A/R/S are zero. Every checkpoint includes a confirmed complete vector. `F=A-R-S`; date-only observations have null observed_at. K is inclusive account recorded sequence; H is historical through-date. Financial snapshots and their exact source revision IDs remain accessible after each action. Rejected actions have no partial financial/audit/report writes. No forecast formula is added here.
 
 Owner clarification D26..D28: HB2-031 is the primary ordinary month-transition path; HB2-032 confirms that a same-amount actual check is new. Existing transfer-only scenarios (including HB2-010/011/014/024/029) test an explicit technical mode, not a required separate user visit. A proposed same-balance reuse must never replace a real observation based only on equal amounts. No background financial work is assumed.
 
-Owner D29..D31 adds explicit A CARRY / B FRESH_START with neither default. HB2-039..046 cover B after missed months;it is not blocked by earlier A-only signed/multiple-source proposal questions. Earlier references to INCLUDE denote CARRY;DEFER remains distinct from resetting past balances. Historical evidence counts below are retained as dated revision records,not claims of current runtime coverage.
+Owner D29..D31 adds explicit A CARRY / B FRESH_START with neither default. HB2-039..046 cover B after missed months;it is not blocked by earlier A-only multiple-source proposal questions. Earlier references to INCLUDE denote CARRY;DEFER remains distinct from resetting past balances. Historical evidence counts below are retained as dated revision records,not claims of current runtime coverage.
 
 ## HB2-001 — final-day observation, incomplete operation detail (BR-01/08)
 
@@ -104,11 +104,11 @@ GIVEN Dec1 B=90000,A={Oct:10000,Nov:30000,Dec:50000},R[Oct]=5000,R[Nov]=10000,S=
 WHEN request generalized combined carry while Q-HB2-02 is unresolved, and separately preview month closes using their own historical cuts.
 THEN that unresolved A proposal is held with OWNER_POLICY_REQUIRED and zero financial writes;active F={Oct:5000,Nov:20000,Dec:50000},sum(F)=75000. This does not block B:with an actual Dec1 check of90000 and explicit FRESH_START,user may confirm {Oct:0,Nov:0,Dec:90000},same obligations R[Dec]=15000,F[Dec]=75000 in one update. Each close uses its own historical cut,not a Dec1 observation relabelled earlier. Auto-open alone moves nothing;serial per-month confirmations are not mandatory. Final A proposal composition remains pending.
 
-## HB2-017 — negative future month remains valid, carry policy open (BR-04/05)
+## HB2-017 — negative new cash input rejects despite exact sum (BR-04/05)
 
-GIVEN Dec2 confirmed B=8000,A={Dec:9500,Jan:-1500},R=S=0.
-WHEN read current and future allocations or request a generalized transfer that would involve the signed deficit.
-THEN valid vector sum=8000,F[Dec]=9500,F[Jan]=-1500,Jan deficit=1500;no automatic +1500 settlement or income. Unresolved A carry involving that signed source/target may be held;unchanged unrelated January does not block separate carry (HB2-037). B with a fresh check remains available for past balances:when January is current,the user may explicitly decline past December planning cash and confirm a new complete January vector. Never silently choose B or erase a future January allocation in December. Current B/A unchanged by this read/unconfirmed A request. No numerical liquidity oracle is selected;HB-003 remains pending.
+GIVEN Dec2 current confirmed B8000,A={Dec:8000},R=S=0.
+WHEN submit new complete draft {Dec:9500,Jan:-1500},or attempt to preserve that negative January outside a carry write set.
+THEN NEGATIVE_CASH_ALLOCATION,no financial writes,active A/F={Dec:8000};new negative A is not an open signed-carry policy. Expected income cannot validate it. Negative F from full reserves remains valid separately.
 
 ## HB2-018 — later PDF detail does not repost cash or edit v1 (BR-08/09)
 
@@ -152,11 +152,11 @@ GIVEN two ordinary proposals P/P2 based on HB2-011 r and Dec target.
 WHEN confirm P then P2 concurrently against r.
 THEN exactly one succeeds,other STALE_PROPOSAL;B=90000,A={Dec:90000},R=30000 once. Independently, if P is deferred unchanged until Jan1,confirming its Dec target rejects TARGET_PERIOD_CHANGED; no financial writes even if aggregate revision had not changed. A refreshed January proposal needs owner review/generalized policy as applicable.
 
-## HB2-025 — negative old source and negative transfer target (BR-03/05)
+## HB2-025 — negative free does not block ordinary carry (BR-03/05)
 
-GIVEN Dec1 B=80000,A={Oct:-10000,Nov:40000,Dec:50000},R[Nov]=30000,S=0.
-WHEN generate/confirm a proposal sweeping Oct+Nov.
-THEN that unresolved A signed-sweep request is held OWNER_POLICY_REQUIRED;no automatic sweep,unchanged A,sum(F)=50000. B is separately approved:with fresh actual B=80000 and explicit FRESH_START,confirm {Oct:0,Nov:0,Dec:80000},same R[Dec]=30000,F[Dec]=50000,old Oct=-10000 retained historically. Separate input B=8000,A={Nov:9500,Dec:-1500} stays valid;unresolved negative-target A proposal does not block an explicit actual-check B result {Nov:0,Dec:8000}. No invented debt payment/income;only automatic carry policy remains unselected.
+GIVEN Nov28 B10000,A={Nov:10000},o unpaid20000 fundedNov,S0,F[Nov]=-10000.
+WHEN Dec1 ordinary single-source transfer-only explicitly confirms {Nov:0,Dec:10000},same o fundedDec.
+THEN B10000,R[Dec]20000,F[Dec]=-10000,sum(F)=-10000,full reserve retained,count/date unchanged. No OWNER_POLICY_REQUIRED solely for F<0,no bank debit or reserve release. A new negative source/target A instead rejects NEGATIVE_CASH_ALLOCATION. Multi-source A remains gated;explicit FRESH_START is not auto-selected.
 
 ## HB2-026 — missing observation, observed zero and early close (BR-01/08)
 
@@ -224,35 +224,35 @@ GIVEN HB2-031 completed,no Nov30 observation exists;C0/V0 and historical o state
 WHEN user manually closes November after the Dec2 update.
 THEN v1 selects C0,Nov28,last_observed_balance=90000,V0 effectiveNov28,Nov A/R/S/F=40000/30000/0/10000;end_checkpoint=null,end_balance=null,INCOMPLETE,NOT_PROVIDED. Current C1/B=84000,V1={Dec:84000},R[Dec]=30000,F[Dec]=54000 unchanged. Neither Nov28 90000 nor Dec2 84000 is presented as Nov30 balance. If an original November v1 existed before Dec2,its bytes/cutoff/references remain unchanged instead;later reviewed versions follow HB2-006..008.
 
-## HB2-037 — untouched negative January does not invalidate November carry (BR-03/05/07/11)
+## HB2-037 — untouched funded January stays separate (BR-03/05/07/11)
 
-GIVEN Nov28 C0 B=89000,A={Nov:40000,Dec:50000,Jan:-1000},o R[Nov]=30000,s S[Nov]=5000;January has no earmarks.
-WHEN Dec2 actual check confirms unchanged B=89000 and ordinary Nov->Dec carry with final {Nov:0,Dec:90000,Jan:-1000},same o/s funded Dec.
-THEN ACTUAL_CHECK creates one new Dec2 observation,B=89000,sum(A)=89000,R[Dec]=30000,S[Dec]=5000,F[Dec]=55000,F[Jan]=-1000,sum(F)=54000. January amount/funding unchanged,no deficit settlement,no income and no OWNER_POLICY_REQUIRED merely for January's sign. Existing target50000 retained once. With S=0,the owner's base example has F[Dec]=60000,sum(F)=59000. No new liquidity forecast or cap;HB-003 remains pending. The corresponding explicit transfer-only technical mode would produce the same vector without a new observation.
+GIVEN Nov28 C0 B89000,A={Nov:40000,Dec:48000,Jan:1000},o R[Nov]30000,s S[Nov]5000,Jan has no earmarks.
+WHEN Dec2 actual same B89000 and ordinary carry confirms {Nov:0,Dec:88000,Jan:1000},same o/s fundedDec.
+THEN one new actual checkpoint,sum(A)=89000,R[Dec]30000,S[Dec]5000,F[Dec]53000,F[Jan]1000,sum(F)=54000. January remains1000 once;target48000 retained once. With S0,F[Dec]58000,sum(F)59000. No bank operation or automatic forecast cap.
 
-## HB2-038 — affected dependencies and signed-source gates remain enforced (BR-03/05/07/10)
+## HB2-038 — full-vector validation and affected dependencies (BR-03/05/07/10)
 
-GIVEN HB2-037 base proposal explicitly lists sourceNov,targetDec,o/s full funding revisions and unchangedJan=-1000.
-WHEN a supplied confirmation silently changes Jan to0 while retaining proposedDec=90000,or omits s,or uses stale o outstanding/funding revisions.
-THEN reject with no partial writes:January change fails full-vector sum/payload review,omitted saving fails complete carried-funding validation,stale funding fails revision/dependency validation. Reviewed Dec=89000/Jan=0 would sum89000 but expands the affected set;it cannot execute as the previously reviewed unchanged-January carry. Q-HB2-02a/b/c now gates only unresolved A proposal details,not explicit B under D29..D31. B resets past planning balances,not an unreviewed future January deficit or real earmarks. Other account-head changes may conservatively stale previews in either mode.
+GIVEN HB2-037 base proposal with reviewed source/target/o/s and unchangedJan1000.
+WHEN confirmation drops Jan to0 while keeping Dec88000,omits s,or uses stale funding refs.
+THEN reject wrong sum,omitted earmark or stale dependencies with zero financial writes. A separately reviewed Dec89000/Jan0 changes the write set and cannot use the old payload. Any proposed negative January rejects NEGATIVE_CASH_ALLOCATION even outside that set;matching sum alone is insufficient. No silent B fallback.
 
 ## HB2-039 — fresh start after missing December (BR-01/02/05/08/10)
 
-GIVEN Nov20 2026 C0 B=10000,V0={Nov:-5000,Dec:15000},R=S=0;no visits/checkpoints/updates in December;one real checkpoint exists.
+GIVEN Nov20 2026 C0 B=10000,V0={Nov:4000,Dec:6000},R=S=0;no visits/checkpoints/updates in December;one real checkpoint exists.
 WHEN Jan5 2027 user actually checks B=8000,explicitly chooses B FRESH_START,reviews not-carried Nov/Dec values and confirms V1={Nov:0,Dec:0,Jan:8000} once.
-THEN new C1 observed Jan5/B=8000,total checkpoints2,one final V1,F[Jan]=8000. Immutable decision stores modeFRESH_START,not_carried={Nov:-5000,Dec:15000},C0/V0->C1/V1,actor/consent/positions/request;no CARRY cash amount or bank operation. Old Nov=-5000 survives historically;D=-2000 is not income/expense. No invented December point,intermediate vector,carry,close,+5000 compensation or second -15000 removal from B. No per-missed-month confirmation required.
+THEN new C1 observed Jan5/B=8000,total checkpoints2,one final V1,F[Jan]=8000. Immutable decision stores modeFRESH_START,not_carried={Nov:4000,Dec:6000},C0/V0->C1/V1,actor/consent/positions/request;no invented CARRY cash amount or bank operation. Old Nov4000 survives historically;D=-2000 is not income/expense. No invented December point,intermediate vector,carry,close,old-allocation credit or repeated historical-deficit debit. No per-missed-month confirmation required.
 
 ## HB2-040 — skipped December retains only genuinely known data (BR-01/05/08)
 
 GIVEN HB2-039 complete;no later backdated evidence or December observation exists.
 WHEN preview/close November and December with their own H/K after Jan5,or load their preexisting original versions if present.
-THEN November known A=-5000,December known A=15000,each selected from V0 effectiveNov20;last bank observation for both=C0,dateNov20,B=10000. Both actual month-end balances are null/INCOMPLETE,NOT_PROVIDED;there is no claim that December had a bank check or actual unchanged balance. December is not NO_OBSERVATION merely because its month had no check:an earlier real C0 is available. Jan5 V1 cannot replace either historical vector;current Jan B/A/F=8000 and any preexisting original report bytes/heads unchanged. Historical close remains an explicit separate action,not a prerequisite or side effect of B.
+THEN November known A=4000,December known A=6000,each selected from V0 effectiveNov20;last bank observation for both=C0,dateNov20,B=10000. Both actual month-end balances are null/INCOMPLETE,NOT_PROVIDED;there is no claim that December had a bank check or actual unchanged balance. December is not NO_OBSERVATION merely because its month had no check:an earlier real C0 is available. Jan5 V1 cannot replace either historical vector;current Jan B/A/F=8000 and any preexisting original report bytes/heads unchanged. Historical close remains an explicit separate action,not a prerequisite or side effect of B.
 
 ## HB2-041 — real unpaid obligation survives discarded planning deficit (BR-02/03/05/06/08)
 
 GIVEN HB2-039 initial state plus existing o original7000,outstanding5000,statusUNPAID,fundedNov;reserve5000 is already fully recorded before the gap.
 WHEN Jan5 actual B=8000 and explicit FRESH_START confirm old Nov/Dec A=0,Jan A=8000 with same o fundedJan.
-THEN B=8000,o ID/origin/original/outstanding/status unchanged,R[Jan]=5000,F[Jan]=3000;no paid/cancelled event,new obligation or automatic debit. Historical Nov allocation=-5000 and reserve5000 remain separately visible;planning deficit is not an additional5000 liability to subtract from Jan. Funding event explicitly links Nov->Jan with full before/after state. Any payload omitting o rejects atomically instead of producing free8000.
+THEN B=8000,o ID/origin/original/outstanding/status unchanged,R[Jan]=5000,F[Jan]=3000;no paid/cancelled event,new obligation or automatic debit. Historical Nov allocation4000 and reserve5000 (free=-1000) remain separately visible;historical free deficit is not an additional liability to subtract from Jan. Funding event explicitly links Nov->Jan with full before/after state. Any payload omitting o rejects atomically instead of producing free8000.
 
 ## HB2-042 — full unpaid reserve and savings persist beyond fresh cash (BR-03/05/07)
 
@@ -270,7 +270,7 @@ THEN o/R=5000,s/S=3000,F[Jan]=0;reset alone releases nothing. In a separate alte
 
 GIVEN HB2-039 initial C0/V0 and Jan5 website open with draft B=8000;neither A nor B selected.
 WHEN user views the options,leaves,or submits a transition without a mode.
-THEN no financial writes;submitted transition returns TRANSITION_CHOICE_REQUIRED,C0/B=10000,V0 unchanged,count1,no funding movement or default carry/reset. Selecting A with an unresolved signed proposal cannot silently execute B. Selecting B explicitly makes HB2-039 available without signed-carry policy approval. Explicit DEFER is a third distinct ordinary-update action with its own full reviewed vector,not implicit FRESH_START.
+THEN no financial writes;submitted transition returns TRANSITION_CHOICE_REQUIRED,C0/B=10000,V0 unchanged,count1,no funding movement or default carry/reset. Selecting A with an unresolved multiple-source proposal cannot silently execute B. Selecting B explicitly makes HB2-039 available without multiple-source policy approval. Explicit DEFER is a third distinct ordinary-update action with its own full reviewed vector,not implicit FRESH_START.
 
 ## HB2-045 — fresh-start request retry, stale competing carry and rollback (BR-02/05/10)
 
@@ -280,9 +280,13 @@ THEN first commits C1/one vector/one fresh-start decision/funding/audit result,B
 
 ## HB2-046 — one reset spans several old months and preserves future earmarks (BR-01/03/05/07/08)
 
-GIVEN Nov20 2026 C0 B=10000,A={Oct:-2000,Nov:-5000,Dec:15000,Feb2027:2000},o unpaid3000 fundedOct,s amount1000 fundedDec,future saving sf amount500 fundedFeb2027;no December observations/updates.
+GIVEN Nov20 2026 C0 B=10000,A={Oct:0,Nov:4000,Dec:4000,Feb2027:2000},o unpaid3000 fundedOct,s amount1000 fundedDec,future saving sf amount500 fundedFeb2027;no December observations/updates.
 WHEN Jan5 2027 actual B=8000 and explicit FRESH_START confirms {Oct:0,Nov:0,Dec:0,Jan:6000,Feb2027:2000},same o/s fundedJan,sf unchanged inFeb.
-THEN sum(A)=8000,R[Jan]=3000,S[Jan]=1000,F[Jan]=2000,S[Feb]=500,F[Feb]=1500,sum(F)=3500=8000-3000-1500. Decision lists all three past signed states and both moved identity refs;future2000/sf500 preserved once. Exactly one new Jan5 checkpoint/vector/decision,not one per old month;no October/December observations,intermediate transfers or prerequisite closes. Original signed vectors/reports survive;positive/negative old amounts are not posted as expenses/income. Changing future2000 or sf500 would require a separately reviewed explicit edit.
+THEN sum(A)=8000,R[Jan]=3000,S[Jan]=1000,F[Jan]=2000,S[Feb]=500,F[Feb]=1500,sum(F)=3500=8000-3000-1500. Decision lists all three past allocation states and both moved identity refs;future2000/sf500 preserved once. Exactly one new Jan5 checkpoint/vector/decision,not one per old month;no invented October/December observations,intermediate transfers or prerequisite closes. Original complete vectors/reports survive;old allocations are not posted as expenses/income. Changing future2000 or sf500 would require a separately reviewed explicit edit.
+
+## Archived original compatibility and verification
+
+The remaining record documents earlier revisions and original owner-reported acceptance only. Earlier signed-allocation validity and Accepted/Done claims do not govern the amended revision;D32..D35 supersedes them. Current review status is above.
 
 ## Compatibility and requirement review
 

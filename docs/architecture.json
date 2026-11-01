@@ -1,12 +1,12 @@
 {
-  "version": 2,
+  "version": 3,
   "project": "home-budget",
   "note": "Layer declarations are targets for later automated import-boundary tests. Runtime not yet installed.",
   "finance_model": {
     "adr": "docs/adr/0001-checkpoints-and-allocations.md",
     "adr_status": "Accepted",
     "primary_state": ["observed_bank_checkpoint", "complete_user_confirmed_month_allocation_revision"],
-    "allocation_invariant": "sum(month_balances_cents) = anchoring_checkpoint.balance_cents",
+    "allocation_invariant": "each A[p] >= 0; sum(A[p]) = observed B >= 0",
     "operation_details_required": false,
     "user_suspense_category": false,
     "month_opening": "automatic",
@@ -27,11 +27,26 @@
       "same_amount_actual_check": "new_observation",
       "redistribution_only": "explicit_reuse_of_confirmed_observation",
       "month_detection": "on_website_access_no_background_financial_mutation",
-      "carry_sign_validation": "affected_source_target_and_funding_dependencies_preserve_untouched_signed_months",
-      "unresolved_signed_or_multiple_source_carry_proposal": "A_only_not_a_fresh_start_gate"
+      "carry_sign_validation": "all_new_A_nonnegative_negative_F_does_not_block_ordinary_carry",
+      "original_status": "Accepted",
+      "unresolved_multiple_source_carry_proposal": "A_only_not_a_fresh_start_gate"
     },
     "liquidity_edge_forecast_task": "HB-003",
-    "optional_reconciliation_may_mutate_confirmed_budget": false
+    "liquidity_presentation": "safe_main_all_periods_owner_D36",
+    "stale_safe_estimate_display": "visible_with_actual_date_older_data_label_update_action_D37",
+    "warnings": "informational_grouped_no_ack_or_view_block_D38",
+    "reminder": "berlin_civil_age_days_greater_or_equal_7_D39",
+    "liquidity_formula_status": "Accepted",
+    "liquidity_adr": "docs/adr/0003-daily-forecast-and-liquidity.md",
+    "liquidity_formula": "ALL_PERIOD_MAX_V1",
+    "liquidity_question_Q_HB1_01": "resolved_within_HB_003",
+    "optional_reconciliation_may_mutate_confirmed_budget": false,
+    "original_adr_status": "Accepted",
+    "expected_income_is_distributable": false,
+    "negative_free_from_full_earmarks_allowed": true,
+    "negative_bank_balance_scope": "owner_decision_required_no_inferred_credit",
+    "real_legacy_financial_data_exists": false,
+    "historical_overspend_mechanism": "not_selected"
   },
   "layers": [
     {

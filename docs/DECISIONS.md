@@ -1,4 +1,8 @@
-# Product decision log (from interview)
+# Product decision log — current correction and archived chronology
+
+**Current rule:** D32..D35 below supersedes signed actual-cash interpretations in the archived D10/D22/D28..D31 text. Earlier decisions and acceptance records are preserved as chronology,not current permission for negative A.
+
+## Archived original interview and clarifications
 
 - D01: web app on Vercel, **not PWA**, responsive mobile and desktop.
 - D02: user-entered actual card balance is main fact; intermittent updates are normal; optional individual transactions.
@@ -66,3 +70,52 @@ Accepted:fresh actual card check and full confirmed distribution in one atomic u
 **Scope exclusion Q-HB2-02:**complex A CARRY with several past months or affected negative budgets is NOT approved. Future implementation must reject that unsupported A request with OWNER_POLICY_REQUIRED and zero financial writes until a separate owner decision and scenario approval. Do not invent its algorithm,require a per-missed-month transition chain or choose B automatically. Explicit FRESH_START remains available and must preserve full earmarks/history. Q-HB2-01 is resolved by this accepted contract;Q-HB2-02 remains open and is not a completion blocker for the scoped HB-002.
 
 Evidence:[46 reviewed scenarios,acceptance trace and local checks](../tests/scenarios/phase-01/hb-002-month-closing-and-corrections.md). Independent review completion is owner-reported;local checks are not an additional independent/runtime review. Accepted ADR0001 is unchanged. Python is unavailable;Node equivalents do not claim execution of `scripts/check_agent_docs.py`. No app/dependencies/migrations introduced. HB-003 must still decide physical-liquidity warnings/final forecast without assuming a cap;Q-HB1-03 recurring-template MVP scope also remains open. One local HB-002 documentation commit is authorized;no push/PR.
+
+## Actual-money allocation correction — 2026-11-01
+
+The owner reviewed the allocation-error analysis,approved its correction in substance,and explicitly authorized editing all affected documents including previously Accepted ADR0001/0002. These statements supersede the erroneous earlier signed-A interpretation;Git history is not rewritten.
+
+- D32: ordinary one-card B>=0 is distributed as A[p]>=0,sum(A)=B. Negative new A rejects even if its sum matches. F=A-R-S may be negative;deficit=max(0,-F)>=0 and daily=floor(max(0,F)/inclusiveDays). Full reserves persist and savings never release automatically. D10's negative-budget wording means free deficit,not negative distributed cash;D22's signed-A extension is replaced.
+- D33: only actually observed money may be allocated to any financial month. Expected receipts do not enter B/A. A later real checkpoint may include received money without requiring an income operation. D07 split financing remains possible using existing money;optional signed operation details never repost cash.
+- D34: ordinary CARRY moves nonnegative allocated cash and full R/S with consent,even if source F<0. FRESH_START confirms fresh actual B and full nonnegative A after missed months,preserving all history,obligations and savings. D28's untouched-negative-A exception and D30's signed initial example are replaced in active specifications;their original text is archival. No mode is auto-selected;simultaneous multi-source CARRY remains open.
+- D35: no app/user financial records exist,so no migration,tables or legacy-conversion machinery is needed. Earlier negative-A examples survive only as archived interpretation or rejection fixtures. Historical reports/revisions remain immutable;no net difference or old negative A proves historical overspend. A separate historical-overspend feature,overdraft scope and cross-period earmark liquidity presentation require further decisions if needed. No automatic credit/debt mechanism is accepted.
+
+Original HB-001/HB-002 completion and owner-reported review evidence are retained above and in Git. Their tasks are reopened to Review only for the allocation amendment;ADRs0001/0002 are Amendment Review until renewed independent review and owner confirmation. This is owner approval of the corrected requirement,not re-acceptance of amended contracts. ADR0003 remains Proposed,HB-003 Review. No runtime tests,commit,push or PR are authorized/claimed by this entry.
+
+## Corrected ADR 0001 and 0002 re-acceptance — 2026-11-01
+
+The owner confirms repeated independent review of the D32..D35 amendment and that all four subsequent findings are resolved. The corrected financial model is approved: [ADR0001](adr/0001-checkpoints-and-allocations.md) and [ADR0002](adr/0002-month-closing-and-corrections.md) are Accepted again;HB-001 and HB-002 are Done as documentation/scenario tasks. Review completion is owner-reported;this entry does not claim an additional local independent review or runtime tests.
+
+Acceptance applies to B>=0,A[p]>=0,sum(A)=B,F=A-R-S,deficit=max(0,-F);full selected obligation reserves and retained savings may exceed A/B without creating cash or automatic reduction. Possible claims are included only when explicitly fully selected;unselected possible claims contribute0. Expected income never enters B/A before an actual bank check;income operations remain optional. CARRY/FRESH_START consent,full funding/history and no repeated debit are preserved. The four fixes clarify R/S semantics,possible-claim reservation flags,chronological February fixtures,and the separate negative-observation DTO without an invented allocation vector.
+
+The original signed-allocation interpretation was erroneous and is superseded,not retrospectively validated. Earlier acceptance,reopening and document/arithmetic evidence remain preserved as chronology and in Git. Current evidence: [correction regressions and review-fix checks](../tests/scenarios/phase-01/hb-003-allocation-correction.md).
+
+ADR0003 remains Proposed,HB-003 Review,Q-HB1-01 Open;no liquidity policy selected. Multi-source CARRY,overdraft allocation and a separate historical-overspend feature remain unapproved. HB-004 is not started. No app,dependencies,migrations,commit,push or PR are introduced by this status update.
+
+## All-period safe main daily limit — 2026-11-01
+
+- D36 (owner product decision for Q-HB1-01): choose option B. The main current daily limit must protect all existing fully selected unpaid obligations and retained voluntary savings across every financial period,regardless of due date,and must not reuse money allocated to other months. The ordinary current-month budget guideline may be secondary,but cannot replace the main safe estimate. B10000,A={Nov:10000,Dec:0},reserved December unpaid20000 gives obligation shortfall10000,safely available0,main daily0.
+- Protection does not move funding periods,change due dates,status,reservation selections or savings,and does not invent bank debits or November expenses. Financing period,due date and actual bank debit date remain separate. Possible claims enter R only under the existing full-reservation selection rule. Expected income remains excluded;no income/expense operation is mandatory.
+- Exact mathematics is proposed for review in [ADR0003](adr/0003-daily-forecast-and-liquidity.md):protect max(A[p],R[p]+S[p]) for each other period plus current R/S,and floor the nonnegative residual over inclusive remaining days. The proof,numerical fixtures,shortage labels and pure DTO require independent review;this decision selects product behavior,not final acceptance of that formula or ADR0003.
+
+ADR0001/0002 remain Accepted,HB-001/002 Done. ADR0003 stays Proposed,HB-003 Review;Q-HB1-01 presentation choice is resolved to B while formula verification remains open. Multi-source CARRY,overdraft allocation and a historical-overspend feature are not approved;HB-004 not started. Earlier statements that no liquidity presentation was selected are historical stages superseded by D36. No implementation,commit,push or PR.
+
+## HB-003 stale data and informational warnings — 2026-11-01
+
+- D37 (owner choice A):a coherent last confirmed financial state continues to produce the displayed safe daily estimate even when old. Use current Europe/Berlin asOfDate for remaining days;show the real last bank-check date,an explicit older-data label and a gentle Update balance action. Never claim today's observed cash or invent checkpoints/operations. No valid confirmed state means unavailable,not a fabricated0. Calendar opening alone never executes CARRY/FRESH_START;current month uses only its confirmed allocation and explicit transitions.
+- D38 (owner choice A):shortage,underfunding and bank-data-age warnings are visible information. No acknowledgment button,view blocker or repeated confirmation on site open. Warnings never mutate bank/allocation/reserve/savings state. Group overlapping comparisons without adding or repeating identical shortage amounts. Explicit confirmation/authorization for actual financial actions remains mandatory,including updates,allocation/lifecycle edits and CARRY/FRESH_START.
+- D39 (owner choice A):ageDays is the number of Berlin calendar dates between observedDate and current asOfDate;showReminder iff ageDays>=7. Nov20→Nov26 age6:no reminder;Nov27 age7:show;Nov28 age8:keep showing. Count civil dates across DST,not elapsed milliseconds divided by24 hours. This is a gentle in-app reminder,not a required bank check,background bank polling,money action or push-notification system.
+
+D36 safe-main formula remains unchanged. HBL-018 is corrected to independent CARRY/FRESH_START alternatives from the same base,with distinct consent/requests and retained obligation/savings identity. These UX decisions close the remaining owner product questions within HB-003;final independent review and explicit acceptance are still pending. ADR0003 remains Proposed,HB-003 Review;ADR0001/0002 Accepted,HB-001/002 Done. HB-004 is not started;multi-source CARRY,overdraft allocation and historical-overspend features remain outside approval. No implementation,commit,push or PR.
+
+## HB-003 final acceptance — 2026-11-01
+
+The owner confirms final independent review and explicitly accepts [ADR0003](adr/0003-daily-forecast-and-liquidity.md),including the safe-main mathematical model D36 and UX D37..D39. Three final editorial fixes are incorporated:HB3-010 asserts the selected cross-period safe formula,C01..C08 are accepted-policy scenarios,and F-003 explicitly uses already received December funds inside a real confirmed full balance. Review completion is owner-reported;no additional local independent review or runtime test execution is implied.
+
+ADR0003 is Accepted,HB-003 Done,Q-HB1-01 resolved within this specification scope. The contract is B>=0,A[p]>=0,sum(A)=B,E=R+S,protected=E[current]+sum(max(A[p],E[p])) over other periods,L=B-protected,safeAvailable=max(0,L),mainDailyLimit=safeAvailable div inclusive Berlin remaining days. Full selected unpaid obligations and retained savings can exceed A/B;possible claims count only when explicitly fully selected. Budget F/deficit/guideline stays separate,no expected income or duplicate bank debit enters the state.
+
+Accepted UX:display old valid-state estimates with true dates and old-data label;warnings are informational/grouped without acknowledgment or view blocking;reminder iff Berlin civil age>=7. Unknown/incomplete/negative-bank states have no fabricated numerical limit. HBL-018 uses alternative CARRY/FRESH_START branches from one original revision,never sequential double transition. History/identities/explicit financial consent are preserved.
+
+Original drafts,erroneous signed-allocation interpretation,corrections D32..D35,prior acceptance/reopening and all dated verification remain archived and in Git;this final acceptance does not retroactively validate earlier mistakes. Current reviewed cases and exact local evidence:[HB3](../tests/scenarios/phase-01/hb-003-daily-forecast.md),[HBL](../tests/scenarios/phase-01/hb-003-safe-liquidity.md).
+
+ADR0001/0002 remain Accepted,HB-001/002 Done,HB-004 Planned and not started. Q-HB1-03 recurring-template MVP membership,Q-HB2-02 multi-source CARRY,Q-HB3-02 overdraft allocation and Q-HB3-03 historical overspend remain open;none is approved by HB-003 completion. No application,migrations,dependencies,commit,push or PR.
