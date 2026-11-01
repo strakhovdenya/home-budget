@@ -1,79 +1,73 @@
 {
-  "version": 1,
+  "version": 2,
   "project": "home-budget",
   "note": "Layer declarations are targets for later automated import-boundary tests. Runtime not yet installed.",
+  "finance_model": {
+    "adr": "docs/adr/0001-checkpoints-and-allocations.md",
+    "adr_status": "Accepted",
+    "primary_state": ["observed_bank_checkpoint", "complete_user_confirmed_month_allocation_revision"],
+    "allocation_invariant": "sum(month_balances_cents) = anchoring_checkpoint.balance_cents",
+    "operation_details_required": false,
+    "user_suspense_category": false,
+    "month_opening": "automatic",
+    "cash_carryover": "proposal_then_explicit_one_button_confirmation",
+    "final_day_checkpoint_required": false,
+    "incomplete_close_contract_task": "HB-002",
+    "liquidity_edge_forecast_task": "HB-003",
+    "optional_reconciliation_may_mutate_confirmed_budget": false
+  },
   "layers": [
     {
       "name": "domain",
       "description": "Pure finance rules, cents, budgets and projections",
-      "paths": [
-        "src/domain/**"
-      ],
-      "may_depend_on": [
-        "shared"
-      ],
-      "must_not_depend_on": [
-        "app",
-        "features",
-        "infrastructure"
-      ]
+      "paths": ["src/domain/**"],
+      "may_depend_on": ["shared-pure"],
+      "must_not_depend_on": ["app", "features", "infrastructure", "shared-ui", "shared-i18n"],
+      "forbidden_external_imports": ["react", "react/**", "react-dom", "react-dom/**", "next", "next/**", "@mui/**", "@emotion/**", "drizzle-orm", "drizzle-orm/**", "next-intl", "next-intl/**"]
     },
     {
       "name": "features",
       "description": "Application use cases and feature UI",
-      "paths": [
-        "src/features/**"
-      ],
-      "may_depend_on": [
-        "domain",
-        "shared"
-      ],
-      "must_not_depend_on": [
-        "app"
-      ]
+      "paths": ["src/features/**"],
+      "may_depend_on": ["domain", "shared-pure", "shared-ui", "shared-i18n"],
+      "must_not_depend_on": ["app"]
     },
     {
       "name": "infrastructure",
       "description": "DB/auth/documents implementations of ports",
-      "paths": [
-        "src/infrastructure/**"
-      ],
-      "may_depend_on": [
-        "domain",
-        "shared"
-      ],
-      "must_not_depend_on": [
-        "app",
-        "features"
-      ]
+      "paths": ["src/infrastructure/**"],
+      "may_depend_on": ["domain", "shared-pure"],
+      "must_not_depend_on": ["app", "features", "shared-ui", "shared-i18n"]
     },
     {
       "name": "app",
       "description": "Next.js routing and composition",
-      "paths": [
-        "src/app/**"
-      ],
-      "may_depend_on": [
-        "domain",
-        "features",
-        "infrastructure",
-        "shared"
-      ],
+      "paths": ["src/app/**"],
+      "may_depend_on": ["domain", "features", "infrastructure", "shared-pure", "shared-ui", "shared-i18n"],
       "must_not_depend_on": []
     },
     {
-      "name": "shared",
-      "description": "Pure utilities, MUI theme and i18n helpers",
-      "paths": [
-        "src/shared/**"
-      ],
+      "name": "shared-pure",
+      "description": "Framework-free utilities; transitive UI/framework/ORM imports forbidden",
+      "paths": ["src/shared/pure/**"],
       "may_depend_on": [],
-      "must_not_depend_on": [
-        "domain",
-        "features",
-        "infrastructure",
-        "app"
-      ]
+      "must_not_depend_on": ["domain", "features", "infrastructure", "app", "shared-ui", "shared-i18n"],
+      "forbidden_external_imports": ["react", "react/**", "react-dom", "react-dom/**", "next", "next/**", "@mui/**", "@emotion/**", "drizzle-orm", "drizzle-orm/**", "next-intl", "next-intl/**"]
+    },
+    {
+      "name": "shared-ui",
+      "description": "MUI theme and UI components",
+      "paths": ["src/shared/ui/**"],
+      "may_depend_on": ["shared-pure", "shared-i18n"],
+      "must_not_depend_on": ["domain", "features", "infrastructure", "app"]
+    },
+    {
+      "name": "shared-i18n",
+      "description": "Locale catalogs and framework locale integration",
+      "paths": ["src/shared/i18n/**"],
+      "may_depend_on": ["shared-pure"],
+      "must_not_depend_on": ["domain", "features", "infrastructure", "app", "shared-ui"]
     }
-  ]
+  ],
+  "unclassified_shared_paths_policy": "Reject root shared barrels and paths outside declared sublayers. Check external imports transitively; define an external package allowlist before implementation. Deny patterns are minimum constraints, not exhaustive purity proof."
 }

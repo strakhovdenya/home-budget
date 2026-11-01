@@ -1,6 +1,6 @@
 # Home Budget — Implementation Plan
 
-**Status:** planned; no application code yet  
+**Status:** HB-001 specification accepted; remaining tasks planned; no application code yet
 **Execution:** Codex in VS Code, small feature branches and reviewable PRs  
 **Scope policy:** PRD defines WHAT, business rules define finance semantics, this plan defines WHEN/HOW TO SHIP.
 
@@ -15,7 +15,7 @@ The biggest product risk is **incorrect money accounting**, not making a pretty 
 **Goal:** make finance calculations implementable, not ambiguous.
 
 1. Read PRD + BR-* normative rules; reconcile any contradictions with documented approval.
-2. Write ADR for period allocations / net checkpoint differences / bank movement reconciliation.
+2. Write ADR for complete checkpoint-first balance distributions and optional independent bank reconciliation; no mandatory source/residual allocation ledger.
 3. Write ADR for month closing, late changes and spending old free carryover.
 4. Define deterministic projection of time-stamped events and account period balances.
 5. Extend test scenarios for exact ledger conservation, race/idempotency and cents rounding.
@@ -31,7 +31,7 @@ Deliver in small PRs:
 2. Neon PostgreSQL + Drizzle schema/migrations, private env configuration, dev/CI test scripts.
 3. Google OAuth only for allowlisted user, consistent authorization at every server operation.
 4. Domain primitives: EUR integer cents, calendar period/date, stable ordering for backdated checkpoints.
-5. Append-only finance events, one-card account model, period allocations, full outstanding obligation reserves, savings; atomic and idempotent updates.
+5. Append-only audit, one-card checkpoints and complete confirmed allocation revisions, full outstanding obligation reserves/savings; atomic/idempotent updates, same-bank redistribution and consented transfer.
 6. Derived projections: card balance checkpoints, period funds, deficit, carryover, dynamic daily forecast.
 7. Vitest unit + DB integration scenarios, foundational CI. Validate M0/M1 exit before UI.
 
@@ -42,15 +42,17 @@ Deliver in small PRs:
 **Goal:** user can run their budget without manual spreadsheet.
 
 1. Overview: physical balance, last check, reserved, voluntary savings, available, deficit, daily guideline, period switch and warning if old balance.
-2. Single "Update Budget" wizard: checkpoint date/amount + obligations/savings changes + optionally allocate net changes across months + single confirmation.
+2. Single "Update Budget" wizard: actual checkpoint date/amount + REQUIRED full balance distribution by month + optional obligation/savings changes + one confirmation. No operation entry, net-change allocation or explanation required.
 3. Obligations CRUD: full amount reserves, paid/cancelled, amount changes, partial payment of obligation (not partial reserve), event timeline.
 4. Savings: create/increase/decrease/release; optional proposal to free savings when deficit.
-5. Period allocations: current default; split between prior/current/future and future advances; preserve physical activity date separately.
-6. Monthly open/close: next month auto-open, old 'awaiting close', manual close with original version and later corrections.
-7. Recurring templates: suggestions requiring user confirmation, duplicate prevention.
+5. Complete period allocation state: sum equals checkpoint; user confirms suggested/current/past/future amounts, including negative advances, without suspense. State deltas are not inferred income/expenses; optional physical operation details stay separate.
+6. Monthly open/close: next month auto-opens; next-open carryover proposal requires one-button user confirmation (option A), preserving full reserves/savings and target funds once. Manual close supports unknown month-end balance without requiring last-day checkpoint; retain historical states and original/revised versions (HB-002). Liquidity-edge forecast remains HB-003.
+7. Recurring templates: suggestions requiring user confirmation, duplicate prevention; **MVP membership pending Q-HB1-03**, because HB-020/PRD classify them P1. This line is not approval to expand MVP.
 8. Responsive, multilingual, accessibility and e2e budget paths.
 
 **Exit gate:** user acceptance for the real routine: open once per week, enter new card balance, close paid liabilities, get accurate daily forecast; close last month without losing historical outcome.
+
+**Shared MVP definition:** P0 tasks through HB-021 are the common baseline; recurring templates HB-020 remain a scope decision in [Q-HB1-03](OPEN_QUESTIONS.md#hb-001-approval-register--unresolved-no-business-rule-changed). M3/M4 are outside MVP. Align all scope documents after owner decision; do not infer approval from milestone placement.
 
 ## Milestone M3 — History, reports and safe onboarding
 

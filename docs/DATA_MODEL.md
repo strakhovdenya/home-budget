@@ -1,45 +1,47 @@
-# Logical data model (draft, not migrated)
+# Logical data model — checkpoint-first (draft, not migrated)
 
-All records have UUID PK, owner_user_id where appropriate, created_at/updated_at UTC timestamps and optimistic version. DATE values mean Europe/Berlin **calendar** dates; EUR amounts are signed BIGINT cents unless stated otherwise. Only one account in v1, explicit account_id foreign keys for future.
+All money is signed integer EUR cents (BIGINT storage with checked conversion/range), calendar dates Europe/Berlin, recorded timestamps UTC. UUID identities and owner/account scope are explicit. Financial facts and revision sets are append-only; optimistic aggregate revisions protect the active head. Neon PostgreSQL + Drizzle remains selected. This is an unmigrated logical model based on [Accepted ADR 0001](adr/0001-checkpoints-and-allocations.md), not SQL; HB-002/HB-003 implementation details remain open.
 
 | Entity | Key fields | Purpose |
 |---|---|---|
-| users | google_subject unique, email_verified, preferred_locale, theme | One allowlisted user in v1 |
-| accounts | owner_user_id, currency, display_name, status | Primary bank card now; more later |
-| budget_periods | owner_user_id, YYYY-MM, state, close_version | Financial month independent of bank dates |
-| balance_checkpoints | account_id, observed_date, observed_at optional, recorded_at, balance_cents, revision, supersedes_id | Actual bank balance points, can be backdated |
-| budget_updates | account_id, checkpoint_id, idempotency_key unique, actor, recorded_at | Atomic batch boundary |
-| period_allocations | source_kind, source_id, period_id, amount_cents, kind, origin_period_id optional | Allocation of income/movement/advance/release to period; debit/credit clear |
-| cash_movements | account_id, occurred_date optional, recorded_at, amount_cents, kind, description, classification_status | User-supplied *known* bank activity, not all checkpoint diffs |
-| reconciliation_intervals | from_checkpoint_id, to_checkpoint_id, observed_net_cents, known_net_cents, unresolved_net_cents | Derived/checkable, avoids fake transactions |
-| obligations | owner_user_id, originating_period_id, label, kind (confirmed/potential/planned), current_outstanding_cents, status | Full reserve from unpaid outstanding |
-| obligation_events | obligation_id, type, delta, funding_period_id, confirmed_at, bank_date optional, budget_update_id | Created, amended, payment, cancellation, carry state |
-| recurring_templates | title, amount_cents, recurrence, effective_periods, enabled | Suggestions, never auto-obligations |
-| template_decisions | template_id, budget_period_id, action (accepted/skipped), obligation_id optional | Idempotent per period |
-| savings_goals | label, origin_period_id, status | Voluntary money set aside |
-| savings_events | savings_id, amount_delta_cents, effective_period_id, action, budget_update_id | Increase, release, withdrawal, carry history |
-| month_closings | period_id, version_number, closed_at, snapshot_json, previous_version_id, reason | Immutable closed reports |
-| categories | owner_user_id, key, display_name optional | Optional taxonomy |
-| transaction_categories | cash_movement_id, category_id, change_event_id | Categorization and corrections |
-| documents | account_id, statement_period_id, private_blob_key, mime, size, hash, status | PDF metadata only (future) |
-| imported_statement_items | document_id, source_ref, amount/date/description, match_status, cash_movement_id nullable | Proposed/approved details (future) |
-| audit_events | actor_user_id, aggregate_type/id, event_kind, before_after_json, effective_date, recorded_at | Complete audit log |
+| users | google_subject unique, email_verified, locale, theme | One allowlisted user |
+| accounts | owner_user_id, currency, display_name, active_allocation_revision_id, aggregate_revision | Current authorized budget head; historical sets remain separate |
+| budget_periods | owner_user_id, YYYY-MM, state, close_version | Calendar opening distinct from transfer consent |
+| balance_checkpoints | account_id, observed_date, observed_at optional, recorded_at, balance_cents, revision, supersedes_id | Actual immutable bank observations; never fabricated by transfer/PDF |
+| budget_updates | account_id, checkpoint_id (new or reused anchor), allocation_revision_id, idempotency_key, payload_identity, expected_revision, actor, recorded_at | Atomic update/redistribution/transfer boundary |
+| allocation_revisions | account_id, checkpoint_revision_id, previous_revision_id, change_kind, effective_date, recorded_at, confirmed_by, budget_update_id | COMPLETE user-confirmed state vector; no bank movement source required |
+| period_allocations | allocation_revision_id, period_id, amount_cents | One signed month balance per revision+period; rows sum to anchoring checkpoint balance |
+| budget_transfers | budget_update_id, source/target_period_id, before/after_allocation_revision_id, transfer_confirmed_at, carried_funding_refs | User-approved internal action, no bank debit; no duplicate application |
+| obligations | owner_user_id, originating_period_id, current_funding_period_id, original_amount_cents, outstanding_cents, status | Full active outstanding reserve, original identity retained through transfer |
+| obligation_events | obligation_id, type, before/after, effective_date, confirmed_at, bank_date optional, funding_period_id, budget_update_id | Lifecycle and historical funding changes; paid not a cash posting |
+| savings_goals | owner_user_id, origin_period_id, current_funding_period_id, status | Persistent voluntary earmark identity |
+| savings_events | savings_id, amount_delta_cents, funding_period_id, action, effective_date, budget_update_id | Earmark/release and funding history, no automatic bank debit |
+| month_closings | period_id, version, closed_at, evidence_recorded_cutoff, last_historical_checkpoint_revision_id, historical_allocation_revision_id, end_balance_cents nullable, bank_data_completeness, snapshot_json, previous_version_id, reason | Immutable historical report, including unknown actual month-end balance |
+| recurring_templates / template_decisions | template_id, period_id, accepted/skipped, obligation_id | User-confirmed proposals, idempotent per period |
+| cash_movements (optional detail) | account_id, occurred_date optional, signed_amount_cents, evidence/status, revision, recorded_at | Confirmed explanatory bank operations, not required for A or B |
+| operation_funding_details (optional) | movement_revision_id, financial_period_id, signed_amount_cents, detail_revision_id | Optional split description, separate from active period_allocations; no automatic posting |
+| reconciliation_intervals (optional derived view) | from/to_checkpoint_revision_id, D, K, U, evidence_revision | K+U=D only; U is NOT a residual financial source requiring allocations |
+| movement_interval_links (optional) | movement_id, interval_revision_id, approval/evidence_ref | Unique active interval membership when known; ambiguous evidence stays pending |
+| categories / transaction_categories (later optional) | movement_id, category_id, change_event_id | Classification without cash effects |
+| documents / imported_statement_items (later) | account_id, statement_period, uploaded_at, private_key/hash, row_source_ref, candidate/match status | Private PDF proposals; uploads do not create observations |
+| movement_evidence_links (later) | movement_id, document_id, row_source_ref, match_decision, audit_ref | Several evidence sources may explain one operation; overlapping statement dedup |
+| audit_events | actor, aggregate/id, event_kind, before_after, effective_date, recorded_at, request_id, reason | Inspectable consent and immutable change history |
 
-## Important boundaries
-- Bank balance is a checkpoint **observation**, not reconstructed from obligation paid flags.
-- A checkpoint net difference is **not** automatically a cash_movements income/expense. Derived unresolved change must not be double-booked when a PDF later supplies detail.
-- Obligation reserved amount is derived from outstanding cents at as-of date. No user-set partial reservation fraction.
-- An obligation payment event can be confirmed with no known real bank date. Paid flags do not issue a cash debit.
-- Period allocations must reconcile per source movement; permit an explicitly labeled unresolved/suspense allocation.
-- A cross-month split is a single bank observation/known movement with multiple allocations; never duplicate bank item.
-- A closed month uses immutable versioned JSON + normalized historical aggregates; later corrections create a new version.
-- Do not pretend current outstanding equals obligation's historical as-of outstanding.
+## State and persistence invariants
 
-## Projection plan
-Finance engine is pure, takes ordered events + as-of clock + historical checkpoints, returns read models with provenance. Projection ordered by effective date and deterministic sequence for same-day updates; recorded_at is distinct for audit. Latest observed bank balance by observation date does not move when a backdated checkpoint is inserted; interval boundaries change and future projection may need rebuilding.
+- For EVERY committed allocation revision, sum(period_allocations.amount_cents)=referenced checkpoint.balance_cents. No unassigned/suspense row. Negative month balances allowed. First checkpoint follows exactly the same complete-distribution rule; no opening-income/source entity.
+- Choose one allocation head for the active view; select historical revisions separately. Do not sum all revisions or derive active A from operation financing details.
+- Same-balance redistribution/confirmed transfer reuses the bank observation and creates a full vector revision. Transfer confirmation time does not replace observed_date. A newly changed balance and transfer may share one atomic update.
+- Read models keep last_bank_observed_date from the checkpoint, never transfer_confirmed_at: a Dec 1 transfer against Nov 28 leaves last_bank_observed_date=Nov 28 and checkpoint count unchanged. Allocation deltas are budget history, not confirmed operation income/spending aggregates; without operation evidence those statistics remain incomplete, not inferred from the vector.
+- R[p] and S[p] are earmarks within A[p], not extra allocations. F[p]=A[p]-R[p]-S[p]; sum(F)=B-sum(R)-sum(S). Count each obligation/saving once with its effective funding association.
+- Original obligation amount >0, outstanding>=0; paid implies outstanding=0 and active reserve=0. Cancelled implies active reserve=0 without inventing a payment. Partial payment leaves full remaining reserve.
+- Transfer preserves obligation/savings identity, origin, amounts and full reserve; changes funding associations with history. Closing uses their historical state, not current outstanding/funding.
+- Completed-month cash is not moved merely by opening a new period. Transfer lineage is explicit and retry-safe. Existing target funds are retained once.
+- Unknown month-end balance is nullable/unknown, never zero by default or copied from last/later observation. Keep actual last historical observation date, allocation effective date and recorded evidence cutoff. End balance observation does not imply complete transaction evidence.
+- Optional K/U and PDF links never drive ordinary update validation, cash redistribution or automatic report rewriting. No `provisional_residual` or mandatory `allocation_source` entity. Movement funding details may sum to the signed movement only as optional evidence, not as primary cash ledger.
 
-## DB-level constraints (when implemented)
-CHECK currency='EUR' in v1; UNIQUE (owner_user_id, period key), UNIQUE(idempotency_key, owner_user_id); CHECK positive obligation original/outstanding values; CHECK document mime/size; FK references account/user; CASCADE deletion prohibited for events/closures; rows of period allocations must be balanced for each source update. Add migration and transaction tests before UI.
+## Transactions, constraints and unresolved implementation detail
 
-## To finalize before migrations
-See docs/OPEN_QUESTIONS.md. Schema is **logical proposal**, not definitive SQL.
+Later implementation must enforce UNIQUE(owner,period), UNIQUE(allocation_revision,period), scoped idempotency/payload identity, account ownership/FKs and expected-revision checks; prohibit destructive cascades over history. Cross-row sum equality requires atomic aggregate validation/appropriate DB enforcement, not a per-row CHECK alone. No migration is introduced here.
+
+HB-002 must specify effective/recorded ordering, same-day observations, historical allocation selection when closing after transfer, reviewed corrections and transfer proposal lineage. HB-003 must specify final forecast and liquidity warning/edge formula. Until approved, this document does not choose a policy for complex negative/multiple-old-month transfer proposals. Preserve existing confirmed later checkpoints on backdated input. See [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md).
