@@ -1,5 +1,7 @@
 # Phase 01: finance acceptance scenarios (synthetic)
 
+Owner clarification 2026-11-01: all checkpoint cases include COMPLETE confirmed month balances summing to bank balance (single-month cases assign all cash to that month). Operations mentioned below are optional explanatory data, never required user entry; no mandatory source/residual allocation or suspense. Only user-confirmed transfers make older cash eligible in the new month. Revised detailed oracles: [HB1-001..020](hb-001-checkpoints-and-allocations.md); HB-003 still owns the physical-liquidity forecast edge.
+
 ## F-001 — paid obligation does not double-debit
 Given checkpoint €1000.00 and full unpaid reserve €200.00, free €800.00.
 When user enters new checkpoint €900.00 and confirms €54.00 obligation as paid in same batch.
@@ -39,7 +41,7 @@ Then free €150. When user releases €20 savings with confirmed unchanged bank
 
 ## F-009 — carry and historical close
 Given October closes bank €600, reserves €500, free €100.
-When November begins, free €100 remains eligible for November in addition to new money; later paying October obligations does not edit October original closing snapshot.
+When November begins, propose transfer; before confirmation old cash is not automatically eligible in November. After user confirms transfer, cash €600 and the same full reserve €500 are funded in November, free €100 (plus separately confirmed new-month money). Later payment/transfer does not edit October original closing snapshot. No final-day checkpoint is required; if actual end balance was unobserved, label that unknown instead of calling last-known €600 the confirmed end balance.
 
 ## F-010 — backdated point preserves latest known bank
 Given Nov 5 checkpoint €500 and Nov 10 checkpoint €450 recorded.
@@ -48,7 +50,7 @@ Then latest bank €450 (Nov 10), inserted point appears in history, affected in
 
 ## F-011 — checkpoint diff not assumed income
 Given bank checkpoint €400 then €1500, known income €1200 and known expenses €100 during interval.
-Then net +€1100 explains both; do not label +€1100 as gross income. Distribute €1200 independently to next month and €100 expense to current as user directs.
+Then user may confirm the complete new distribution November €300 / December €1200, sum €1500, without entering either operation. If optional gross detail is supplied, +€1200 and -€100 explain net +€1100; do not label net as gross income or apply detail again to the confirmed vector.
 
 ## F-012 — PDF reconciliation is non-posting
 Given two confirmed checkpoints €1000 then €900, underlying unknown net -€100.
@@ -66,7 +68,7 @@ Then operation accepted as unclassified; optional future categorization does not
 
 ## F-015 — split cash origin not duplicated
 Given one known €1000 incoming transfer in November assigned €50 November and €950 December.
-Then physical bank amount +€1000 exactly once, period allocation sum €1000, current daily allowance only +€50, not +€1000.
+Then the confirmed new WHOLE-balance distribution includes only €50 extra November / €950 extra December, preserving any prior allocations and exact bank total. Optional receipt funding details sum €1000; they do not add another €1000 to bank or active distribution. Current eligible free rises only €50; no receipt entry is required for the checkpoint update.
 
 ## F-016 — recurrence proposal not duplicate
 Given enabled template €54 per month, confirmed November obligation created from it.

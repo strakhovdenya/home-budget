@@ -1,42 +1,47 @@
 # Home Budget — Task Backlog (Codex-ready)
 
 **Source:** [PRD](PRD.md) → [business rules](BUSINESS_RULES.md) → [implementation plan](IMPLEMENTATION_PLAN.md) → these tasks.  
-**Status:** planning only; **no tasks implemented yet**.  
+**Status:** HB-001 documentation/scenarios complete; remaining work planned; **no application code implemented**.
 **Conventions:** `HB-NNN` stable ID; `Ready` = can start after prerequisites, `Planned` = not yet ready, `Blocked` = needs decision, `In progress`, `Review`, `Done`.  
 **Work policy:** one task / coherent PR at a time. Codex must not silently mark tasks complete. GitHub Issues optional later; add each issue URL beside the stable ID rather than duplicating tasks.
 
 ### Priority legend
 P0 = indispensable for a correct first usable version; P1 = useful post-MVP; P2 = deferred functionality.
 
+MVP common baseline is P0 tasks through HB-021. Inclusion of P1 HB-020 is pending owner decision [Q-HB1-03](OPEN_QUESTIONS.md#hb-001-approval-register--unresolved-no-business-rule-changed); do not silently promote it or treat milestone placement as approval. M3/M4 remain later.
+
 ## M0 — Close domain gaps before implementation
 
-### HB-001 · Formalize checkpoint net changes and financing allocations
-**Status:** Ready · **Priority:** P0 · **Dependencies:** none · **Area:** domain/architecture  
+### HB-001 · Formalize checkpoint-first full balance distributions
+**Status:** Done · **Priority:** P0 · **Dependencies:** none · **Area:** domain/architecture
 **Inputs:** [BR-01, BR-05, BR-09, BR-11](BUSINESS_RULES.md), [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md), F-003/004/005/011/012/015.
 **Deliverables:** ADR in `docs/adr/0001-checkpoints-and-allocations.md`; update data model if needed; new acceptance scenarios.
+**Review artifacts:** [Accepted ADR 0001 revision 2 with final clarifications](adr/0001-checkpoints-and-allocations.md), [HB1-001..HB1-020 scenarios and verification record](../tests/scenarios/phase-01/hb-001-checkpoints-and-allocations.md). Owner reports independent review completed and approves the architecture. HB-001 is complete as a documentation/scenario task; runtime finance tests belong to later implementation tasks, not claimed here.
 **Acceptance:**
-- Distinguish physical confirmed balance, net unexplained movement, actual income/outgoings and internal period allocations without inventing bank cash.
-- One physical movement may be funded by several months, including an advance; conservation and no double booking are formalized.
-- A known gross receipt > net checkpoint increase is supported when spending happened between checks.
-- Later PDF import can explain previous provisional differences without subtracting from bank balance again.
-- At least three edge-case scenario tests can be implemented deterministically; document any unresolved choice.
+- Confirm actual balance and complete month distribution with exact sum, no required operations/categories/explanations or user suspense; allocation deltas are not inferred income/expenses.
+- Preserve negative advance months and optional split operation details without reposting cash or deriving primary allocations from them.
+- Automatic month opening is separate from one-button confirmed transfer; same-bank redistribution/transfer preserves full earmarks and history without a fake checkpoint.
+- Optional PDF/gross-flow reconciliation explains bank changes without altering confirmed balance/distribution or requiring detail for ordinary work.
+- Deterministic synthetic cases cover incomplete-data closing without a last-day checkpoint; HB-002 owns history/closing detail, HB-003 final forecast/liquidity edge.
+
+**Completion evidence (2026-11-01):** owner-reported independent review and approval; 77 integer arithmetic checks passed (27 complete vectors, 32 equality/reserve/delta checks, 18 exact quotients); JSON/layer declarations, 20 scenario IDs, local links/anchors and whitespace verified. No app/runtime tests claimed. Acceptance trace: full state/no invented statistics — HB1-001/011/012/020; advances/splits — HB1-003/004/009; confirmed transfer/unchanged observation/earmarks — HB1-010/014/015; optional reconciliation — HB1-005/006/007/019; incomplete historical close — HB1-016/017/018. Local commit reference: branch `docs/hb-001-financial-model`, subject `docs(hb-001): accept checkpoint-first financial model`; final commit hash is reported to the owner. No GitHub issue/PR or push.
 
 ### HB-002 · Specify immutable month versions and backdated corrections
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-001 · **Area:** domain/architecture  
 **Deliverables:** `docs/adr/0002-month-closing-and-corrections.md`, scenario updates.
-**Acceptance:** original close survives corrections; backdated point does not erase later bank observation; late payment vs historical outstanding are separate; changes to old-period carryover are explicit; full event ordering recorded.
+**Acceptance:** specify complete contract for closing both with month-end observation and with unknown end balance; preserve actual last historical observation/date, known allocation and earmark states, completeness/cutoff metadata and original versions. Closing after a December transfer must retain November history; no final-day checkpoint requirement or invented bank data. Define effective/recorded/same-day order, backdated corrections, transfer lineage/proposal retries and historical versus current lifecycle.
 **Cases:** F-009/F-010/F-013/F-018.
 
 ### HB-003 · Formalize daily forecast and carryover algorithm
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-001, HB-002 · **Area:** finance rules  
 **Deliverables:** examples, pure function input/output contract, edge-case specs.
-**Acceptance:** inclusive remaining-day count, future-period exclusion, prev-month rollover with origin trace, negative available shows 0 forecast and deficit, floor to exact cents; future-month preview uses full month days.
+**Acceptance:** use confirmed current month budget and only confirmed old-month transfers, full earmarks once, inclusive days/exact floor; future preview uses full month days. Present options for physical-liquidity warning/forecast when negative future budgets make planning funds exceed cash; obtain decision before implementing edge formula. No automatic rollover or preselected liquidity cap. Coordinate complex negative/multiple-old-month proposal policy with HB-002.
 **Cases:** F-003/F-005/F-006/F-009.
 
 ## M1 — Platform, authentication, persistence, pure finance
 
 ### HB-004 · Bootstrap Next.js TypeScript project
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-001 review at least · **Area:** platform  
+**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-001, HB-002, HB-003 (reviewed M0 exit gate) · **Area:** platform
 **Deliverables:** Next.js App Router, package lockfile, lint/typecheck/test/build scripts, setup docs.
 **Acceptance:** local dev + build commands run; TypeScript strict; no PWA, no service worker; project retains docs/ and .agents/skill files.
 
@@ -48,7 +53,7 @@ P0 = indispensable for a correct first usable version; P1 = useful post-MVP; P2 
 ### HB-006 · Define and migrate database schema (Neon + Drizzle)
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-001, HB-002, HB-004 · **Area:** persistence  
 **Deliverables:** schema, migration scripts, synthetic fixtures, DB integration tests.
-**Acceptance:** account_id on bank financial records; unique period and idempotency keys; audit/month closure history non-destructive; local migration reproducible; no actual bank data.
+**Acceptance:** account_id and ownership on financial records; complete allocation revision+month uniqueness and atomic sum validation; idempotency/expected revision; immutable audit/month close references with unknown end-balance support; local migration reproducible; synthetic data only.
 
 ### HB-007 · Google OAuth with single-user allowlist
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-004, HB-006 · **Area:** security  
@@ -67,8 +72,8 @@ P0 = indispensable for a correct first usable version; P1 = useful post-MVP; P2 
 
 ### HB-010 · Bank checkpoints and reconciliation intervals
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-001, HB-006, HB-008, HB-009 · **Area:** finance  
-**Deliverables:** enter/check/backdate bank balances; projection of latest real observation; known/unresolved interval net.
-**Acceptance:** later confirmed bank value remains authoritative after late insert; checkpoint delta isn't called income; not required to record each purchase.
+**Deliverables:** enter/check/backdate actual balances with complete confirmed allocation revision; latest real observation; optional known/unexplained net read model independent of normal update validation.
+**Acceptance:** every checkpoint has full allocation sum equal balance; late input preserves newer observation and active state through explicit revision handling; no transaction/explanation required, no inferred income, no synthetic final-day checkpoint. Interval K/U is explanatory only.
 **Cases:** F-010/F-011/F-018.
 
 ### HB-011 · Obligations: full reserve and lifecycle
@@ -85,8 +90,8 @@ P0 = indispensable for a correct first usable version; P1 = useful post-MVP; P2 
 
 ### HB-013 · Period allocations, deficits, advances, rollover
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-001, HB-003, HB-009..HB-012 · **Area:** finance  
-**Deliverables:** split receipt/outgoings across period allocations, future advance/negative period, carryover projections.
-**Acceptance:** future income excluded from current forecast; split movement counted once; previous free included in next; negative shown as deficit; all allocations reconcile.
+**Deliverables:** complete user-confirmed allocation vectors, same-bank redistribution, signed advances, one-button confirmed transfer with full reserve/savings funding history; optional financing-detail proposals separate from cash state.
+**Acceptance:** sum(month balances)=anchoring bank balance, future money isolated; no required delta allocation/suspense; transfer requires consent, target cash/earmarks count once and old active cash clears. No automatic application of operation details or invented income/expense from state deltas; negative future months preserve total.
 **Cases:** F-003/F-004/F-005/F-009/F-015.
 
 ### HB-014 · Daily forecast and full budget projection API
@@ -96,21 +101,22 @@ P0 = indispensable for a correct first usable version; P1 = useful post-MVP; P2 
 **Cases:** F-003/F-006/F-008/F-009.
 
 ### HB-015 · Finance domain tests and CI gate
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-006..HB-014 · **Area:** quality  
+**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-004, HB-006..HB-014 · **Area:** quality
 **Deliverables:** Vitest unit, DB integration, CI guard for business invariants.
+**Execution:** this task consolidates coverage and CI evidence, not the first writing of tests. HB-004 establishes the runner; HB-006..HB-014 add/run their relevant tests alongside each implementation. No UI use of finance projections before the HB-015 gate.
 **Acceptance:** scenario IDs mapped to executed tests; authentication and concurrency covered; exact command output recorded; no claims of success without running.
 
 ## M2 — End-to-end first usable version
 
 ### HB-016 · Dashboard and period switch
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-005, HB-007, HB-014 · **Area:** UI  
+**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-005, HB-007, HB-014, HB-015 · **Area:** UI
 **Deliverables:** prominent actual balance, free, reserved, savings, daily forecast, date of last observation, deficit/period indicators.
 **Acceptance:** usable responsive phone/desktop; no future receipts in current monthly forecast; stale balance warning after ~7 days; text labels accompany colors.
 
 ### HB-017 · Single atomic 'Update budget' flow
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-010..HB-014, HB-016 · **Area:** UI/application  
 **Deliverables:** observation date/balance form, paid/cancelled + reserve/savings edits, split allocations, review/submit.
-**Acceptance:** one save, old bank amount not assumed confirmed; 'paid but same bank balance' warns; no auto debit; changes visible on dashboard and timeline.
+**Acceptance:** one save for actual checkpoint plus full balance distribution, optional earmark changes, no required operations/net explanation; paid with same balance warns and requires fresh affirmation. Redistribution/transfer alone reuses confirmed unchanged balance; no auto debit or synthetic observation; show consent and revision timeline.
 
 ### HB-018 · Obligations and savings management screens
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-011, HB-012, HB-016, HB-017 · **Area:** UI  
@@ -120,7 +126,7 @@ P0 = indispensable for a correct first usable version; P1 = useful post-MVP; P2 
 ### HB-019 · Manual month closing, versions and rollover
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-002, HB-013, HB-014, HB-017 · **Area:** finance/UI  
 **Deliverables:** auto-start next calendar period, await-manual-close state, immutable closing snapshot, correction versions.
-**Acceptance:** old-month as-closed reserve remains after future payment; next budget inherits free/savings/open obligations; no PDF required to close.
+**Acceptance:** calendar opens automatically, cash transfer only after one-button confirmation; preserve full reserves/savings and existing target cash once. Support manual close with unknown actual end balance and real last observation/date, known historical allocations/earmarks, completeness flag and immutable versions; no PDF or final-day checkpoint required. Old history survives later transfer/payment; coordinate HB-002 contract.
 **Cases:** F-009/F-013.
 
 ### HB-020 · Recurring payment templates (confirm, don't auto-create)

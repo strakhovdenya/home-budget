@@ -27,4 +27,4 @@ Schema/API/test impact, security and migration implications.
 Synthetic scenario IDs, test names and exact results (if executed).
 ```
 
-First ADR: `0001-checkpoints-and-allocations.md`, to be produced under task HB-001; **not yet decided**. Do not pre-mark an ADR Accepted on behalf of the user.
+First ADR: [0001-checkpoints-and-allocations.md](0001-checkpoints-and-allocations.md), revision 2 with final observation-date/statistics clarifications under HB-001; **Accepted** after owner-reported independent review and approval. The model selects checkpoint-first full allocations, confirmed transfer and incomplete-data closing. HB-002 details closing/history, HB-003 final forecast. Future ADRs still require explicit owner approval.

@@ -1,94 +1,97 @@
 # Normative financial business rules (source of truth)
 
+Owner clarification 2026-11-01 takes precedence over earlier source-ledger and automatic-carryover assumptions. See [D21..D25](DECISIONS.md). Technical [ADR 0001](adr/0001-checkpoints-and-allocations.md) is Accepted after owner-reported independent review; HB-002/HB-003 details remain open.
+
 ## Vocabulary
-- **Account / bank balance**: one physically observed card balance at a timestamp/date (EUR cents).
-- **Checkpoint**: user-verified actual balance on a chosen historical or today's date. Carries provenance/time of entry and observation date.
-- **Budget period**: named calendar month (YYYY-MM) that owns spendable allocation, not necessarily the month when bank transfer happened.
-- **Obligation**: payment or possible future repayment; whole *outstanding* amount blocks spendable funds until paid/cancelled/amended.
-- **Savings**: voluntary earmark; still in the bank, excluded from spendable funds, carries forward.
-- **Budget allocation**: assigns an amount of known/inferred bank movement to one or more periods. It does not create new bank money.
-- **Unexplained movement**: balance difference not yet fully described by confirmed transactions. It is provisional and can later be reconciled with statement items.
-- **Actual bank activity month** vs **financing month**: always display separately in reports.
+- **Bank balance / checkpoint:** actual user-confirmed card balance on an observation date; recorded time is separate.
+- **Budget period:** named financial month YYYY-MM owning part of the confirmed card balance, independent of bank activity date.
+- **Budget allocation:** a signed month balance in a complete user-confirmed distribution of the WHOLE bank balance; not an inferred receipt/expense.
+- **Allocation revision:** immutable complete distribution anchored to a checkpoint; redistribution/transfer may reuse an unchanged checkpoint.
+- **Obligation:** active unpaid outstanding is fully reserved until paid/cancelled/amended; partial payment is allowed, partial reservation is not.
+- **Savings:** voluntary earmark within allocated card cash, excluded from free funds; persists with history.
+- **Bank detail:** optional confirmed operation/evidence; never required to confirm a balance/distribution.
+- **Unexplained net:** optional derived interval difference minus known operations, not a user allocation category or confirmed income/expense.
 
 ## BR-01: Balance authority and cadence
-- User may enter balances irregularly (daily/weekly). Never require individual transactions.
-- The most recent chronological checkpoint defines the observed bank balance; more recent entries supersede older observations in time, not by entry order.
-- Every checkpoint is immutable in history. Back-dated inserts/corrections create revisions, retain later checkpoints and recalculate affected forecasts/snapshots with audit.
-- Show 'last checked on' and low-key reminder after 7 days by default. Forecast based on old data is an estimate, not a live bank feed.
+- Ordinary work requires only actual balance/date and a complete confirmed allocation by month. No purchases, income entries, categories or difference explanations are required.
+- Irregular observations are valid. No last-calendar-day checkpoint is required to transfer funds or close a month.
+- The latest chronological active checkpoint defines the observed bank balance, not entry order or optional operations. Backdated inserts/corrections retain newer bank facts and immutable prior revisions.
+- Never interpolate missing observations, use a later balance as month-end balance, assume no intervening spending, or call a net change income/expense without evidence.
+- Show actual last checked date and default gentle reminder after 7 days. Stale projections are estimates.
+- Transfer/redistribution alone must not advance the last-checked date or create a bank checkpoint: a Dec 1 transfer anchored to Nov 28 still displays Nov 28 as the last confirmed bank observation.
 
 ## BR-02: Atomic budget update; no double debit
-- User enters a **freshly confirmed bank balance** and, in the same logical action, changes paid status, obligation amounts, savings and allocation.
-- Marking obligation **paid** removes the entire paid portion from active reserves but does **not** automatically lower the bank balance. The fresh checkpoint already reflects bank debits when from card.
-- Warn and require explicit confirmation if paid status is chosen but confirmed bank balance is unchanged; unchanged may be valid.
-- If status changes without a fresh confirmed balance, do not silently recalculate free as trustworthy; prompt for a fresh confirmation first.
-- Cancellation removes a reserve but is distinct from payment and documented separately.
+- Confirm fresh actual bank balance and its full month distribution in one logical update; obligation/savings changes may be included. Suggested amounts require user confirmation.
+- Marking paid reduces the full reserve by the paid portion; it never automatically lowers bank balance. The fresh observation already includes any tracked-card debit.
+- Paid with unchanged bank balance requires warning and explicit affirmation; without fresh confirmation do not claim trustworthy updated free funds.
+- Redistribution/transfer alone against an already confirmed unchanged balance need not re-enter the same bank amount. If it changed, combine a new checkpoint with the new complete distribution. This does not waive payment affirmation rules.
+- Cancellation releases active reserve, has distinct history and no cash movement. All changes are atomic/idempotent.
 
 ## BR-03: Full reserve only
-- New unpaid obligation reserves 100% of outstanding amount. Negative free budget is permitted and labelled 'deficit'.
-- Partial reservation is **not supported**. Partial **payment** may reduce outstanding balance; *all* remainder stays reserved.
-- Reserve creation/change is not a bank transaction. For paid in cash from outside tracked account, user simply closes the obligation with a confirmed unchanged card balance, preserving the reason/status in history.
-- Potential claims (e.g. pending benefit repayment) are marked possible/pending; they still block full amount if user chooses to reserve them.
+- Reserve 100% of each active unpaid outstanding; negative free budget is valid and labelled deficit. No partial reserve fraction exists.
+- Partial payment may reduce outstanding, with ALL remainder reserved. Fully paid outstanding may be zero; original amount is positive.
+- Reserve edits are not bank transactions. Payment outside tracked card uses reason/history and fresh confirmed unchanged card balance; do not invent a card debit.
+- Possible/pending claims, when reserved, also block their full outstanding.
 
 ## BR-04: Daily spending forecast
-- Daily amount is guidance for **all discretionary purchases**, not food-only category envelope.
-- Within current calendar month: floor-to-cents(max(0, eligible free money) / count of remaining calendar days inclusive of today).
-- Eligible free = amount available to spend from current and earlier rolled-over free balances **minus** active full obligation reserves, savings and advance spending allocated to this period. Funds earmarked strictly to future periods are excluded.
-- Current-day spend is included in latest balance checkpoint if already occurred; day counts including today, even late in day. Never interpolate unobserved daily bank amounts.
-- Before next month starts, its preview uses entire number of calendar days in that upcoming month even if advance purchases have occurred.
-- If free < 0: display deficit as negative separately; forecast 0, not negative spending limit. After any update recompute.
+- Guidance covers all discretionary purchases. Normal eligible free is the confirmed CURRENT month allocation less its full obligation reserves and voluntary savings; older funds contribute only after confirmed transfer. Future allocations do not automatically raise current budget.
+- In ordinary funded cases: floor integer cents of max(0, eligible free) divided by remaining Europe/Berlin calendar days, inclusive of today. Future preview uses every calendar day of that future month.
+- Advances already reflected in confirmed month balances are not subtracted again. Today's bank spend is already reflected in a post-spend checkpoint; do not fabricate daily bank amounts.
+- Negative free is displayed as deficit, with spending guideline zero.
+- If planning funds exceed available physical liquidity (e.g. negative future budget), warning policy and final edge-case forecast formula remain OPEN for HB-003. No liquidity cap is approved here.
 
-## BR-05: Period accounting and carryover
-- At bank receipt, actual activity date and financial period allocation(s) are independent. Multiple allocations must sum to source amount, including 0 for current month.
-- Checkpoint difference is NET movement, **not necessarily income**. If known income and purchases overlap in interval, user may describe both; avoid incorrectly labeling net delta as income.
-- Funds may be allocated to past/current/future budgets; purchases may draw partially from multiple periods, even as an advance from a future period before income arrives (negative month allocation).
-- Future-month allocations do not raise current-month daily forecast. When new month begins, carry the unused free funds from older periods into current free automatically; retain origin tags for historical reports.
-- Carrying debt does not produce a second obligation or a second cash transaction.
-- Deficit can be covered by later cash/income allocated to that period or by releasing voluntary savings; not a new 'expense'.
-- When allocating a checkpoint interval net difference, treat it as provisional categorically unclassified movement until matched with ledger events/statement.
+## BR-05: Complete period distribution and confirmed transfer
+- For EVERY confirmed checkpoint: sum of its month allocations equals its balance exactly, in integer cents. No suspense/unassigned user category. Negative month balances are allowed for advances while preserving the sum.
+- User confirms the whole new distribution, not the interval delta. A=80000 Nov becoming B=77000 with Nov=75000/Dec=2000 is valid without operations; -5000/+2000 month changes are not inferred expense/income.
+- Statistics must distinguish allocation-state changes from confirmed bank activity. Without operation evidence, never display a month's allocation delta as actual spending or confirmed income; show known operation totals with incomplete-detail provenance, not an invented total or a claim of zero spending.
+- Past/current/future periods may hold allocations. Optional operation financing may be split across months, but cannot be added again to an already confirmed state.
+- New calendar month opens automatically. On next open, PROPOSE transfer from completed month; one-button user confirmation (option A) is required before funds move or become part of new-month free. No automatic cash carryover.
+- Transfer is internal: total bank/allocation cash unchanged; existing new-month allocations count once; old active allocation becomes zero for the confirmed full transfer. Retain historical origin and before/after revisions.
+- Unpaid obligations persist with identity and full reserve, and voluntary savings persist; funding associations follow the confirmed transfer without duplication or release. Their continued existence is not conditional on a new obligation being created.
+- No final-day observation is required. With a changed balance, confirm the new full distribution and transfer together without inventing how net spending divides across months.
 
 ## BR-06: Status and due date
-- Obligation statuses: pending/unpaid, paid, cancelled. Keep creation period, funding period, due date optional, confirmation date, and later actual bank transaction date optional.
-- The date user **noticed/confirmed paid** is recorded; actual bank debit date is optional and may be refined after PDF statement import.
-- Editing amount changes active full reserve and frees/blocks the difference without bank movement; keep old amount in audit history.
-- Cancelling obligation releases full reserved remainder into free funds automatically, without changing bank balance.
-- A recurring template only **proposes** a new obligation for a period; user accepts/edits/skips; prevent duplicate accepted suggestions.
+- Keep unpaid/paid/cancelled status, creation period, current funding period, optional due/bank dates, confirmation date and history.
+- Confirmation date is not a guessed bank debit date; optional later PDF evidence may refine the latter.
+- Amend outstanding with immutable history and full reserve adjustment, no bank movement. Cancellation releases reserve without payment; funding-period treatment in unusual cases must be explicit, not inferred from net cash.
+- Recurring templates only propose accept/edit/skip; prevent duplicate accepted template+period items. MVP membership is still Q-HB1-03, not decided by these semantics.
 
 ## BR-07: Savings
-- Voluntary savings are earmarked on the card and excluded from daily eligible money.
-- They persist automatically each month, retain origin and changes. Release, withdrawal and transfers are explicit decisions.
-- A cash withdrawal from the card shows in the freshly updated actual balance; releasing savings in the same update prevents double reduction.
-- Releasing savings changes allocation but not physical bank balance.
+- Savings are earmarks WITHIN allocated bank money, subtracted from eligible funds once, never extra cash/debits.
+- Persist across months with identity, origin and amount; moving their funding association does not recreate/release them. Release/withdrawal are explicit decisions.
+- Bank withdrawal is reflected only by fresh observed balance; savings release in that update avoids double reduction. Release itself changes free funds, not bank balance.
 
 ## BR-08: Closing and corrections
-- New calendar month opens automatically. Previous is 'awaiting manual close' until user reviews; no PDF required.
-- Close creates **versioned snapshot**: bank balance as-of, last observed date, free, deficit, obligation reserve list, savings, cash activity known, unclassified differences, period allocations, daily forecast history, source flags.
-- Never rewrite a closed month's old snapshot silently. Later backdated corrections create revised snapshot version, preserve original and explain downstream impacts.
-- A later payment of an October obligation must not make October look like it was paid in October if it was outstanding on close.
-- Report tab 'as closed' vs 'current lifecycle of those obligations'. Distinguish observed vs inferred amounts.
+- Auto-open new month; previous awaits manual close. Neither PDF nor final-day checkpoint is required.
+- Support close with a confirmed month-end observation AND close with incomplete bank data. In the latter, actual end balance is UNKNOWN (not last observed value or zero).
+- Snapshot retains last available historical checkpoint and its actual date, known historical allocation revision/effective date, historical obligation/savings states, completeness/uncertainty flags, recorded evidence cutoff and closure version. Do not relabel later observations as earlier ones or infer complete cash activity.
+- December transfer clears old active cash allocation but does not erase November's report/allocation history. Distinguish as-closed view from later lifecycle.
+- Later backdated observations, corrections or statement detail may create reviewed new report versions. Original versions remain accessible. HB-002 owns full ordering, cutoff and correction contract.
 
-## BR-09: PDF reconciliation (later)
-- PDF statement is assigned to its actual bank statement calendar month, which may differ from upload date and financing period.
-- Extracted items are proposals until user approval. Match by account, amount, date window, description, transaction reference and reconcile intervals between checkpoints.
-- When statement explains a provisional difference, **reclassify** instead of re-subtracting from checkpoint-authoritative balance. Never double count already entered manual transactions.
-- Statement/category changes have history; no implicit update of closed snapshots without versioned correction.
+## BR-09: Optional PDF reconciliation (later)
+- Everyday budget confirmation never depends on transaction completeness or K/U. Bank date, statement month, upload date and financing month are distinct.
+- Extracted rows are proposals; approval matches existing optional operations before creating distinct explanatory records, using account/reference/amount/date/description with review for ambiguity.
+- Optional interval model: D=B1-B0, K=distinct confirmed operations in interval, U=D-K. U is derived signed unexplained NET, not a balance allocation. U=0 does not prove all gross movements known.
+- Statement explanation/category change never reposts a debit or silently alters any confirmed bank/month distribution. A user-approved budget correction is separate and audited.
+- Retain evidence/history, deduplicate repeated and overlapping statements, preserve closed original versions.
 
 ## BR-10: Data quality and privacy
-- All monetary values integer EUR cents; sign direction explicit, never binary float.
-- Every mutating update is transactional and idempotent (client request id); no duplicate accept for recurring template or statement import.
-- Sensitive bank information, real documents and production exports must not enter repository or client logs.
-- Recompute from events/projections as needed; audit actor, effective date and recorded_at.
+- Integer EUR cents, explicit signs, checked ranges, no floating money math; Europe/Berlin calendar dates. Audit actor/effective date/recorded time and consent.
+- All writes transactional, authorized and idempotent by request id; stale conflicts reject without partial writes. Reject same id/different payload.
+- No real financial data, identifiers, PDFs, secrets or production exports in repository/logs; synthetic fixtures only.
 
 ## BR-11: Invariants (must be tested)
-1. One checkpoint = one observed bank balance; paid flag cannot itself debit that balance.
-2. Sum allocations of a source movement equals that movement (or unassigned suspense remainder); no creation/destruction of cash.
-3. Future-period funds must not raise current-period daily allowance.
-4. Reserves equal full current unpaid outstanding, never arbitrary fraction.
-5. A money movement matched from PDF does not modify an already-authoritative checkpoint's cash balance.
-6. Every closed month snapshot version and every previous financial event remain inspectable.
-7. Cross-period split of a single physical payment creates one bank movement, multiple period allocation rows, and one logical transaction.
-8. Funding deficits cannot silently manufacture bank money.
-9. Display sum of period views must not double-count rolled-over free funds.
-10. Historical confirmation date must not be misrepresented as unknown actual bank debit date.
+1. One checkpoint is one bank observation; latest active chronological observation is authoritative. Paid/detail/transfer cannot debit it.
+2. Every confirmed COMPLETE allocation set sums to its checkpoint balance; no user suspense. Select one active revision, never sum revisions.
+3. Allocation delta is not income/expense; optional evidence does not rewrite user allocation.
+4. Future allocations do not automatically increase current budget; no unconfirmed carryover. Liquidity edge stays HB-003.
+5. Reserve equals full unpaid outstanding; partial payment leaves full remainder; obligation/savings earmarks counted once.
+6. Transfer-only sum(delta month balances)=0; bank unchanged, old source allocation cleared for full transfer, same earmark identities retained.
+7. Optional physical movement appears once even with multiple funding details/PDF sources; never added again to confirmed cash.
+8. Negative month budget creates no bank money; sum(month free)=bank-sum(reserves)-sum(savings).
+9. Original allocation history, financial events and every close version survive later transfers/corrections.
+10. Missing end balance stays unknown; actual observation, recording, funding period, transfer confirmation and closing cutoff remain distinct.
+11. Optional K+U=D reconciles evidence without blocking ordinary updates or demanding transaction entry.
 
 ## Pending domain decisions
-See docs/OPEN_QUESTIONS.md for implementation-level edge cases that need an explicit ADR before coding, not made-up business behavior.
+[OPEN_QUESTIONS.md](OPEN_QUESTIONS.md) contains only remaining decisions, not superseded mandatory-source/suspense assumptions. HB-002 specifies history/closing detail; HB-003 finalizes forecast.

@@ -19,7 +19,7 @@ Additional project-specific skill: verify-financial-invariants.
 ## Recommended sequence
 Read [PRD](PRD.md) → normative business rules → architecture/conventions → [Implementation Plan](IMPLEMENTATION_PLAN.md) → choose **one Ready HB-* task** in [Tasks](TASKS.md) → scenario specs → small implementation with tests → independent review → phase overview. GitHub actions require user authorization; a skill describes procedure, it does not auto-execute a cloud factory.
 
-**Current start:** HB-001, specification of checkpoint net differences, month allocations and reconciliation, before any finance UI. The initial task ledger is docs/TASKS.md; GitHub Issues may be linked to HB-* identifiers when created. A completed document task still requires review, not just a changed checkbox.
+**Current state:** HB-001 documentation/scenarios complete and ADR 0001 Accepted after owner-reported independent review. The next specification task is HB-002; no finance implementation starts yet. The accepted model uses complete checkpoint-first balance distributions, user-confirmed month transfer and optional independent reconciliation. User enters balance and confirms all month amounts; never require a transaction/residual source ledger. HB-002 details incomplete-data closing/history, HB-003 final forecast/liquidity edge. The initial task ledger is docs/TASKS.md; GitHub Issues may be linked when created. A completed document task still requires review, not just a changed checkbox.
 
 ## Safety / quality
 No unreviewed auto-merge, no hidden model delegation or unlimited background loops, no Claude command requirements. Before every change ask: does it preserve latest bank checkpoint, exact cents, full reserves and closed month histories?
