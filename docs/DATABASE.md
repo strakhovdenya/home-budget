@@ -1,5 +1,12 @@
 # HB-006 database runbook and physical contract
 
+HB-009 extends the private batch primitive, with no schema/migration changes.
+Server composition authorizes via HB-007; the transaction rechecks scope before
+replay. Mandatory versioned before/after audit replaces the technical placeholder
+audit, and effective dates are explicit. Receipt validation, normalized frozen
+commands, checked counters and safe transaction-outcome errors are described in
+[HB-009 contract](planning/hb-009-audit-idempotency.md).
+
 HB-007 adds a lazy runtime identity repository using the existing users and
 accounts tables, with no migration. Only a verified allowlisted Google callback
 may provision an identity; existing subjects are never replaced. See [AUTH.md](AUTH.md).
@@ -25,8 +32,9 @@ Vercel deployment or a Neon connectivity test.
 
 Remote URLs must specify sslmode=require or verify-full. No insecure custom TLS
 override is installed. Do not log driver exceptions, SQL parameters or URLs.
-The migration runner suppresses driver details. Runtime application error
-translation and authenticated commands belong to subsequent tasks.
+The migration runner suppresses driver details. HB-009 adds runtime safe error
+translation and authenticated server composition; concrete financial commands
+remain subsequent tasks.
 
 Official references consulted:
 [Drizzle node-postgres](https://orm.drizzle.team/docs/get-started-postgresql),
@@ -97,8 +105,9 @@ pnpm.cmd test:integration -t DB17
 ```
 
 Integration tests fail if configuration is missing; there is no silent skip or
-mock fallback. `pnpm test` intentionally runs only the existing shell/i18n/
-architecture tests. The integration configuration maps server-only to that
+mock fallback. `pnpm test` runs unit tests, including shell/i18n, architecture,
+money/calendar and update/audit validation, without database connections.
+The integration configuration maps server-only to that
 package's actual empty server entry; all database/transaction code runs normally.
 No ORM or PostgreSQL behavior is mocked.
 
@@ -117,11 +126,12 @@ main and pushes to main, using a GitHub-hosted Ubuntu runner, Node.js 24, pnpm
 `pnpm install --frozen-lockfile`. Separate steps run lint, typecheck, unit tests,
 production build, db:migrate twice, all integration tests and DB17 alone.
 
-The disposable service publishes only 127.0.0.1:5432. Its image-created synthetic
+The disposable service publishes only 127.0.0.1 on an automatically assigned port. Its image-created synthetic
 hb_ci user can CREATE DATABASE; beforeAll creates a fresh child database for each
-integration invocation. Trust authentication avoids placing a password in service
-startup logs; it is confined to this ephemeral loopback service and must not be
-copied to a deployed database. All three connection variables are explicitly
+integration invocation. Password authentication uses a clearly synthetic CI-only
+password; HB9 tests verify that a wrong TCP password is rejected. The workflow
+exports the assigned host port and masks the full URL before use. This service
+configuration must not be copied to a deployed database. All three connection variables are explicitly
 overridden, masked before exporting to subsequent steps, and checked by the
 existing local-only guard. No GitHub database Secrets, Neon connection, deploy or
 cloud migration is used. Workflow permissions are limited to contents: read.
@@ -165,7 +175,7 @@ so they inherit that batch's recorded_at/actor/request. No destructive cascades.
 | budget_transfers | Unique proposal and decision, scoped before/after vectors, source/target, immutable funding manifest |
 | month_closings | Immutable version/predecessor, historical date, knowledge cut, exact bank/vector refs and copied facts, nullable end balance, A/R/S/F, completeness, snapshot/manifest/version metadata |
 | report_heads | Scoped unique period head plus external correction-pending flag; report payload stays immutable |
-| audit_events | Immutable batch, event kind, effective date, reason and payload/result provenance |
+| audit_events | Immutable batch, event kind, explicit effective date/reason, versioned entity before/after snapshots and batch provenance |
 
 JSON money is serialized as decimal strings. Drizzle BIGINT columns use bigint
 mode without Number conversion; PostgreSQL enforces the signed 64-bit range.

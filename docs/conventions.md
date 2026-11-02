@@ -3,7 +3,8 @@
 - Strict TypeScript, named functions for finance domain, no any in domain, no money Number fractions. Use branded MoneyCents / PeriodKey / AccountId where practical.
 - All finance domain calculations are pure and deterministic with injected clock. Database updates within transaction, idempotency key, optimistic version.
 - Layer imports follow docs/architecture.json; domain never imports Next/MUI/Drizzle.
-- Server-side auth, input Zod validation, no trust in client account ids or period state.
+- Server-side auth and explicit runtime input validation, no trust in client account ids or period state. HB-009 uses checked constructors and a bounded data-descriptor normalizer; Zod is not installed and is not required by this convention.
+- HB-009 commands are normalized/copy-frozen once before asynchronous authorization; only that graph enters hashing and the trusted writer. Unknown actor/owner fields reject. Audit before/after comes from state under the account lock. Replays return validated persisted receipts; errors expose codes only and never driver SQL/parameters. Unknown COMMIT outcome requires the same request ID and payload, never a new ID or automatic rebase.
 - UI locale keys in RU/DE/EN dictionaries; no hardcoded finance copy in components. Default RU and Europe/Berlin.
 - Semantic MUI, WCAG contrast, keyboard access; correct currency format and locale.
 - Feature tests cover BR-* IDs using deterministic fixtures in tests/scenarios. E2E for update budget and closing flow.

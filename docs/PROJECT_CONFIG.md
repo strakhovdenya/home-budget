@@ -1,5 +1,12 @@
 # Tooling configuration contract
 
+HB-009 extends the existing transactional write primitive and adds pure unit and
+real PostgreSQL concurrency/audit tests. Integration config now resolves the
+existing @/ alias; the app allowlist permits the installed server-only marker.
+CI's disposable PostgreSQL service now uses a synthetic password and an automatic
+127.0.0.1 host port, passed through job.services.postgres.ports[5432]. No packages
+or scripts were added. See [HB-009 verification](planning/hb-009-verification.md).
+
 HB-008 raises the TypeScript target from ES2017 to ES2020 for native bigint
 literals. No dependency or package script changes. Pure money/date/period tests
 run under the existing Vitest configuration; compile-time negative assertions in

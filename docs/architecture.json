@@ -1,7 +1,15 @@
 {
   "version": 3,
   "project": "home-budget",
-  "note": "Layer declarations are targets for later automated import-boundary tests. Runtime not yet installed.",
+  "hb009_write_boundary": {
+    "authorization": "app_HB007_before_repository_and_scoped_account_lock_before_replay",
+    "transaction": "existing_Drizzle_read_committed_account_row_lock",
+    "audit": "mandatory_versioned_before_after_atomic_with_state_and_receipt",
+    "commands": "normalized_frozen_graph_with_private_runtime_provenance_no_public_generic_endpoint",
+    "app_external_marker": "server-only",
+    "layer_directions_changed": false
+  },
+  "note": "Layer declarations and explicit external allowlists are enforced by tests/architecture.test.ts.",
   "finance_model": {
     "adr": "docs/adr/0001-checkpoints-and-allocations.md",
     "adr_status": "Accepted",

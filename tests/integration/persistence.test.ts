@@ -4,7 +4,8 @@ import { beforeAll, afterAll, expect, it } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { createDatabase } from '../../src/infrastructure/db/client';
-import { canonicalPayload, commitBatch, type CommitRequest } from '../../src/infrastructure/db/commit';
+import { canonicalPayload } from '../../src/infrastructure/db/commit';
+import { commitBatch, type CommitRequest } from '../fixtures/legacy-commit';
 import * as s from '../../src/infrastructure/db/schema';
 import { requireLocalDatabaseTargets } from '../../src/infrastructure/db/local-target';
 
@@ -139,7 +140,7 @@ it('DB14 rolls back facts, account, audit and idempotency result on mid-batch fa
   await expect(commitBatch(database.db,f.request,async(tx,b)=>{
     await tx.insert(s.historicalPositions).values({id:randomUUID(),ownerUserId:f.ownerUserId,accountId:f.accountId,budgetUpdateId:b.id,recordedSeq:b.recordedSeq,historicalDate:'2020-11-20',kind:'TEST'});
     throw new Error('SIMULATED_FAILURE');
-  })).rejects.toThrow('SIMULATED_FAILURE');
+  })).rejects.toThrow('TRANSACTION_FAILED');
   for(const table of [s.historicalPositions,s.budgetUpdates,s.auditEvents]) expect(await database.db.select().from(table).where(eq(table.accountId,f.accountId))).toHaveLength(0);
   const [a]=await database.db.select().from(s.accounts).where(eq(s.accounts.id,f.accountId));
   expect(a.aggregateRevision).toBe(n(0)); expect(a.recordedSeq).toBe(n(0));
@@ -174,7 +175,7 @@ it('DB17 round-trips BIGINT above Number.MAX_SAFE_INTEGER exactly through Drizzl
 it('DB18 authorization precedes replay; typed payloads are canonical without bigint/object collisions',async()=>{
   const f=await fixture(),other=await fixture();
   await commitBatch(database.db,f.request,async()=>{});
-  await expect(commitBatch(database.db,{...f.request,ownerUserId:other.ownerUserId},async()=>{})).rejects.toThrow('ACCOUNT_NOT_FOUND');
+  await expect(commitBatch(database.db,{...f.request,ownerUserId:other.ownerUserId},async()=>{})).rejects.toThrow('FORBIDDEN');
   expect(canonicalPayload({b:n(1),a:'1'})).toBe(canonicalPayload({a:'1',b:n(1)}));
   expect(canonicalPayload(n(1))).not.toBe(canonicalPayload({$bigint:'1'}));
   expect(()=>canonicalPayload(1.5)).toThrow();

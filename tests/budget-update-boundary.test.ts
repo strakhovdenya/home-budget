@@ -1,0 +1,21 @@
+import { expect, it, vi } from 'vitest';
+import { accountId, ownerId, rawCommand } from './fixtures/hb-009';
+const mocks = vi.hoisted(() => ({ authorize: vi.fn(), database: vi.fn(), repository: vi.fn() }));
+vi.mock('@/infrastructure/auth/auth', () => ({ requireOwnedAccount: mocks.authorize }));
+vi.mock('@/infrastructure/db/client', () => ({ databaseFromEnvironment: mocks.database }));
+vi.mock('@/infrastructure/db/update-repository', () => ({ createUpdateRepository: mocks.repository }));
+import { createBudgetUpdateBoundary } from '@/app/budget-update-boundary';
+it('HB9-U18 actual app composition calls HB-007 authorization before any DB factory/replay', async () => {
+  mocks.authorize.mockRejectedValue(new Error('UNAUTHORIZED'));
+  const execute = createBudgetUpdateBoundary('TEST_METADATA', async () => []);
+  expect(await execute(accountId, rawCommand())).toEqual({ ok: false, code: 'UNAUTHORIZED' });
+  expect(mocks.database).not.toHaveBeenCalled();
+  expect(mocks.repository).not.toHaveBeenCalled();
+  mocks.authorize.mockResolvedValue({ ownerUserId: ownerId, accountId });
+  mocks.database.mockReturnValue({});
+  const commit = vi.fn(async () => ({ ok: true as const, value: { updateId: ownerId, recordedSeq: '1', aggregateRevision: '1' } }));
+  mocks.repository.mockReturnValue({ commit });
+  expect((await execute(accountId, rawCommand())).ok).toBe(true);
+  expect(commit.mock.calls).toHaveLength(1);
+  expect(mocks.authorize).toHaveBeenLastCalledWith(accountId);
+});

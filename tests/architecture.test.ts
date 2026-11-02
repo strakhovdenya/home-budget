@@ -7,7 +7,7 @@ import architecture from '../docs/architecture.json';
 const root = resolve('src');
 const prefixes = Object.fromEntries(architecture.layers.map((layer) => [layer.name, layer.paths[0].replace('/**', '')]));
 const allowedExternal: Record<string, string[]> = {
-  app: ['next', 'react', 'next-auth', 'next-intl', '@mui/material', '@mui/material-nextjs'],
+  app: ['server-only', 'next', 'react', 'next-auth', 'next-intl', '@mui/material', '@mui/material-nextjs'],
   features: ['next', 'react', 'react-dom', 'next-intl', '@mui/material'],
   'shared-ui': ['next', 'react', 'next-intl', '@mui/material'],
   'shared-i18n': ['next', 'next-intl'],
