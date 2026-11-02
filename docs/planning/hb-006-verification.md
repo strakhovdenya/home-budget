@@ -259,3 +259,34 @@ HB-006 remains Review; no commit, push or PR. Final status is recorded below.
 
 The local container was stopped after the tests. .vscode/extensions.json retains
 its original SHA256 recorded above and remains outside the task changes.
+
+## Basic GitHub Actions CI before PR merge
+
+The owner authorized a CI-only follow-up on the existing HB-006 branch/PR #6.
+The workflow runs for pull_request targeting main and push to main. It uses
+Ubuntu, Node 24, exact pnpm 12.16.1, frozen-lockfile installation and a disposable,
+health-checked PostgreSQL 18 service published only on 127.0.0.1:5432.
+
+Automated steps: lint, typecheck, unit tests, build, two migration CLI runs,
+all 19 PostgreSQL integration tests and the independently filtered DB17 test.
+Every integration invocation prepares a new database through beforeAll. The
+synthetic service user has CREATE DATABASE privileges. All three URLs are
+explicit local overrides, masked before export; local-target flags are set.
+The service uses ephemeral loopback-only trust authentication, so no password or
+real database Secret is present in workflow/service logs.
+
+The earlier executed checks above are local Windows/Node 22/PostgreSQL 16
+evidence. Linux/Node 24/PostgreSQL 18 results are reported separately by the
+GitHub Actions run associated with the CI commit on PR #6. The workflow does not
+deploy or connect to Neon production, development or hb006-test. It grants only
+contents: read, avoids pull_request_target, and leaves .env.local and
+.vscode/extensions.json untouched. No financial logic or SQL schema changed.
+
+HB-006 remains Done; HB-015 remains Planned. Basic CI does not claim the later
+finance/E2E coverage or establish branch-protection required checks.
+
+Pre-publication validation: actionlint successfully checked ci.yml in its official
+Docker image (exit 0), with only that workflow mounted read-only and networking
+disabled inside the checker. git diff --check passed. Actions are pinned to the
+commit SHAs of the official checkout v6, setup-node v6 and pnpm/action-setup v4
+tags. No package, application, test or SQL changes were required for this follow-up.

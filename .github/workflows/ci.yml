@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Node 24 / PostgreSQL 18
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      PGUSER: hb_ci
+      PGDATABASE: hb_ci
+      HB_DATABASE_TARGET: isolated-development
+      HB_TEST_DATABASE_TARGET: disposable-local-container
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: hb_ci
+          POSTGRES_DB: hb_ci
+          # Disposable loopback-only service: no password to expose in startup logs.
+          # The image-created test user can CREATE DATABASE for integration setup.
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - '127.0.0.1:5432:5432'
+        options: >-
+          --health-cmd "pg_isready -U hb_ci -d hb_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        with:
+          version: 12.16.1
+          run_install: false
+
+      - name: Configure masked local database destinations
+        shell: bash
+        run: |
+          database_url="postgresql://${PGUSER}@127.0.0.1:5432/${PGDATABASE}"
+          echo "::add-mask::$database_url"
+          {
+            echo "DATABASE_URL=$database_url"
+            echo "DATABASE_URL_UNPOOLED=$database_url"
+            echo "TEST_DATABASE_URL=$database_url"
+          } >> "$GITHUB_ENV"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Apply migrations
+        run: pnpm db:migrate
+
+      - name: Reapply migrations
+        run: pnpm db:migrate
+
+      - name: PostgreSQL integration tests
+        run: pnpm test:integration
+
+      - name: Isolated DB17 test
+        run: pnpm test:integration -t DB17

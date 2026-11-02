@@ -104,6 +104,29 @@ application runtime. The generation config has no connection credentials and
 db:generate does not open a database connection. Runtime Neon compatibility is
 unchanged, but the migration/test entry points are intentionally local-only.
 
+## GitHub Actions verification
+
+The basic CI workflow at .github/workflows/ci.yml runs on pull requests targeting
+main and pushes to main, using a GitHub-hosted Ubuntu runner, Node.js 24, pnpm
+12.16.1 and a health-checked PostgreSQL 18 service. Installation uses
+`pnpm install --frozen-lockfile`. Separate steps run lint, typecheck, unit tests,
+production build, db:migrate twice, all integration tests and DB17 alone.
+
+The disposable service publishes only 127.0.0.1:5432. Its image-created synthetic
+hb_ci user can CREATE DATABASE; beforeAll creates a fresh child database for each
+integration invocation. Trust authentication avoids placing a password in service
+startup logs; it is confined to this ephemeral loopback service and must not be
+copied to a deployed database. All three connection variables are explicitly
+overridden, masked before exporting to subsequent steps, and checked by the
+existing local-only guard. No GitHub database Secrets, Neon connection, deploy or
+cloud migration is used. Workflow permissions are limited to contents: read.
+
+The earlier evidence is from local Windows/Node 22/PostgreSQL 16 runs; CI adds
+independent Linux/Node 24/PostgreSQL 18 execution. Workflow results appear on the
+Pull Request and in GitHub Actions; they do not replace those historical local
+results. HB-006 stays Done; HB-015's expanded financial coverage remains Planned.
+Branch protection/required status checks are not configured by this workflow.
+
 ## Physical tables
 
 All scoped rows have id, owner_user_id and account_id. Composite foreign keys
