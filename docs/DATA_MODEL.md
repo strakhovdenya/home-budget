@@ -104,3 +104,14 @@ are mandatory typed audit evidence. Corrections append new states/audits and kee
 all original facts. H/K selection resolves corrections before date filtering and
 checks all later confirmed payment meanings without rebasing.
 [Contract and limitations](planning/hb-011-obligations.md).
+
+## HB-012 savings state and evidence
+
+Savings identity/origin remain immutable. savings_events adds revisioned required
+title (1?200 Unicode code points). ACTIVE requires positive retained amount;
+RELEASED requires zero and is terminal for ordinary commands. Each revision has
+one exact SAVINGS_STATE audit; INCREASE/release store confirmed input amounts,
+complete before/after and revision/batch/position refs. Reader validates evidence
+at K without reconstructing amounts. Same-position action-preserving reviewed
+corrections retain original evidence and validate the whole suffix. Funding stays
+unchanged until future HB-013. [Contract](planning/hb-012-savings.md).

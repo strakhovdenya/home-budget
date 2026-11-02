@@ -8,7 +8,8 @@ import { berlinDateOfInstant, parseInstant } from '@/shared/pure/instant';
 import { loadCheckpointHistory } from './checkpoint-history';
 import { persistCheckpointPlan } from './checkpoint-persistence';
 import { rejectBatch, type BatchWriter } from './commit';
-import { obligationEvents } from './schema';
+import { obligationEvents, savingsEvents, reportHeads } from './schema';
+import { checkRetainedSavings } from './savings-compatibility';
 export const writeBankCheckpoint: BatchWriter = async (tx, batch) => {
   const parsed = parseCheckpoint(batch.command.payload);
   if (!parsed.ok) return rejectBatch(parsed.code);
@@ -19,12 +20,14 @@ export const writeBankCheckpoint: BatchWriter = async (tx, batch) => {
   if (!today.ok) return rejectBatch('STORAGE_ERROR');
   const ownerUserId = batch.account.ownerUserId, accountId = batch.account.id, scope = { ownerUserId, accountId };
   const history = await loadCheckpointHistory(tx, scope, batch.account.recordedSeq);
+  const originalPending = new Map((await tx.select().from(reportHeads).where(and(eq(reportHeads.ownerUserId, ownerUserId), eq(reportHeads.accountId, accountId)))).map(h => [h.id, h.correctionPending]));
   if (parsed.value.correction) {
     const target = history.checkpoints.find(c => c.id === parsed.value.correction!.checkpointId);
     if (target) {
       const attached = await tx.select({ id: obligationEvents.id }).from(obligationEvents).where(and(eq(obligationEvents.ownerUserId, ownerUserId),
         eq(obligationEvents.accountId, accountId), eq(obligationEvents.positionId, target.positionId)));
-      if (attached.length) return rejectBatch('HISTORICAL_STATE_CONFLICT');
+      const attachedSavings = await tx.select({ id: savingsEvents.id }).from(savingsEvents).where(and(eq(savingsEvents.ownerUserId, ownerUserId), eq(savingsEvents.accountId, accountId), eq(savingsEvents.positionId, target.positionId)));
+      if (attached.length || attachedSavings.length) return rejectBatch('HISTORICAL_STATE_CONFLICT');
     }
   }
   const previous = selectState(history, today.value);
@@ -34,5 +37,7 @@ export const writeBankCheckpoint: BatchWriter = async (tx, batch) => {
     checkpointId: randomUUID(), vectorId: randomUUID(), positionId: randomUUID(), orderingId: randomUUID(), oldDayOrderingId: randomUUID(),
   }, today.value, now.value);
   if (!plan.ok) return rejectBatch(plan.code);
-  return persistCheckpointPlan(tx, batch, history, plan.value, previous.value);
+  const audits = await persistCheckpointPlan(tx, batch, history, plan.value, previous.value);
+  audits.push(...await checkRetainedSavings(tx, scope, history, plan.value.history, originalPending));
+  return audits;
 };
