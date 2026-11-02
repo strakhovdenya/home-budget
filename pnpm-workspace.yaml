@@ -1,5 +1,6 @@
-# Registry packages include platform-specific native binaries as optional dependencies.
-# Do not run fallback download/build scripts during installation.
+# Only esbuild's reviewed install scripts are allowed.
+# Other native packages use registry-provided optional platform binaries.
 allowBuilds:
+  esbuild: true
   '@swc/core': false
   '@parcel/watcher': false

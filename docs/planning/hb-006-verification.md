@@ -290,3 +290,22 @@ Docker image (exit 0), with only that workflow mounted read-only and networking
 disabled inside the checker. git diff --check passed. Actions are pinned to the
 commit SHAs of the official checkout v6, setup-node v6 and pnpm/action-setup v4
 tags. No package, application, test or SQL changes were required for this follow-up.
+
+### CI install-policy correction
+
+The first CI run reached dependency installation, then failed with
+ERR_PNPM_IGNORED_BUILDS for esbuild 0.18.20, 0.25.12 and 0.28.2; no tests ran.
+Per the owner's explicit decision and the official pnpm 12 allowBuilds docs,
+pnpm-workspace.yaml now sets esbuild: true while preserving the existing
+@swc/core and @parcel/watcher false entries. strictDepBuilds is not disabled;
+no wildcard/all-dependency approval is added. The interrupted, uncommitted
+esbuild: false attempt was replaced before publication.
+
+No financial logic, SQL migration, scenario, credential file or dependency
+version was changed for this correction. The frozen install and new GitHub
+Actions run provide separate validation of the approved install policy.
+
+Executed locally: pnpm.cmd install --frozen-lockfile passed with pnpm 12.16.1;
+postinstall completed for all three esbuild versions. The lockfile remained
+unchanged and dependency resolution was skipped. The initial sandbox attempt
+could not open the external pnpm store lock; the scoped approved retry passed.

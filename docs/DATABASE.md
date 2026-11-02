@@ -127,6 +127,12 @@ Pull Request and in GitHub Actions; they do not replace those historical local
 results. HB-006 stays Done; HB-015's expanded financial coverage remains Planned.
 Branch protection/required status checks are not configured by this workflow.
 
+Clean-runner installation explicitly allows only esbuild install scripts in
+pnpm-workspace.yaml, covering the three locked esbuild versions. Existing
+SWC/watcher denials remain. pnpm's strict build-policy check stays enabled;
+unreviewed packages are not automatically allowed and no failure is ignored.
+This follows the official [pnpm allowBuilds configuration](https://pnpm.io/settings/build#allowbuilds).
+
 ## Physical tables
 
 All scoped rows have id, owner_user_id and account_id. Composite foreign keys
