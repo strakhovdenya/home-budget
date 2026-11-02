@@ -13,3 +13,15 @@
 - Logging: no full bank balances, names, account identifiers, PDFs, OAuth tokens; redact server logs.
 - Conventional commit/PR title; PR includes scope, risks, proof and screenshots for UI.
 - No PWA, no offline state, no automatic bill double-debit, no partial reserves.
+
+HB-010 refinements: money DTOs accept canonical decimal cents or bigint, never
+number; preserve the original frozen HB-009 command identity through typed decoding.
+UTC instants have explicit offsets and at most six fractional digits; normalize to
+fixed UTC microseconds for comparison, not JavaScript millisecond timestamps.
+Calendar calculations reuse HB-008's Gregorian date/period primitives.
+Expected trusted-writer refusals call `rejectBatch(code): never` so they roll back;
+returning Result.error from a PostgreSQL transaction callback is not rollback.
+Historical positions/manifests are immutable; corrections resolve at K before H.
+No automatic rebasing or inferred ordering. JSON ordering/dependency contract v1
+and conservative report-impact refusal are documented in the
+[HB-010 contract](planning/hb-010-bank-checkpoints.md).

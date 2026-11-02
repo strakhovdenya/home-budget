@@ -92,10 +92,19 @@ MVP common baseline is P0 tasks through HB-021. Inclusion of P1 HB-020 is pendin
 **Review artifacts:** [implementation contract](planning/hb-009-audit-idempotency.md), [executed evidence and skill usage](planning/hb-009-verification.md), [HB9 scenarios](../tests/scenarios/phase-01/hb-009-audit-idempotency.md). Existing account-locked commitBatch extended with immutable normalized commands, mandatory audit, validated replay receipts and explicit transaction outcomes. No public event endpoint or HB-010+ commands. Independent re-review completed; owner accepted HB-009 on 2026-11-02; open findings 0/0/0/0. No new migrations, dependency changes, Neon access, commit, push or PR.
 
 ### HB-010 · Bank checkpoints and reconciliation intervals
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-001, HB-006, HB-008, HB-009 · **Area:** finance
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-001, HB-006, HB-008, HB-009 · **Area:** finance
 **Deliverables:** enter/check/backdate actual balances with complete confirmed allocation revision; latest real observation; optional known/unexplained net read model independent of normal update validation.
 **Acceptance:** every checkpoint has full allocation sum equal balance; late input preserves newer observation and active state through explicit revision handling; no transaction/explanation required, no inferred income, no synthetic final-day checkpoint. Interval K/U is explanatory only.
 **Cases:** F-010/F-011/F-018.
+
+**Review artifacts:** [implementation contract](planning/hb-010-bank-checkpoints.md),
+[executed verification and skill usage](planning/hb-010-verification.md),
+[HB10 scenarios](../tests/scenarios/phase-01/hb-010-bank-checkpoints.md).
+Private HB-007/HB-009 confirmation/read composition, complete checkpoint companions,
+H/K ordering/corrections, protected chronological head, affected-report pending flags
+and D with explicitly unavailable production K/U. One approved forward migration;
+no operation/lifecycle/transfer/forecast/UI workflow. Independent implementation
+review completed; owner accepted HB-010 on 2026-11-02; open findings 0/0/0/0.
 
 ### HB-011 · Obligations: full reserve and lifecycle
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-006, HB-009, HB-010 · **Area:** finance

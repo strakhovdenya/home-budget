@@ -1,5 +1,24 @@
 # HB-006 database runbook and physical contract
 
+## HB-010 forward extension
+
+HB-010 adds exactly `0002_checkpoint_positions.sql`, leaving 0000/0001 unchanged.
+There are still 19 tables. Deferred triggers enforce checkpoint/position date,
+allocation/position effective date and ordering predecessor scope/day/earlier seq;
+unique partial indexes enforce one root per account/day and one child per
+predecessor. Existing scoped foreign keys additionally reject foreign predecessors.
+Full manifest membership, JSON dependency semantics and coherent historical
+selection remain runtime-owned, not SQL guarantees. Custom 0002 snapshot metadata
+carries the unchanged generated schema; do not regenerate away custom SQL guards.
+
+The private HB-010 writer uses the same account lock, receipt/audit boundary and
+safe outcome errors. Expected domain refusals throw to roll back actual writes.
+Report-head pending flags can change with audit; immutable closing versions do not.
+No operation tables, public endpoint or automatic migration execution on startup.
+See [HB-010 contract](planning/hb-010-bank-checkpoints.md) and
+[isolated PostgreSQL evidence](planning/hb-010-verification.md). The sections below
+retain HB-006/009 delivery history; their future-command statements predate HB-010.
+
 HB-009 extends the private batch primitive, with no schema/migration changes.
 Server composition authorizes via HB-007; the transaction rechecks scope before
 replay. Mandatory versioned before/after audit replaces the technical placeholder
