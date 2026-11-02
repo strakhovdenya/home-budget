@@ -2,7 +2,7 @@
 
 Private, documentation-first personal budget planning web app.
 
-**Status:** HB-001..HB-004 accepted by the owner. HB-005 adds the responsive MUI shell and RU/DE/EN preferences; implementation is in Review, awaiting independent review and owner acceptance. Financial features are not implemented.
+**Status:** HB-001..HB-006 accepted by the owner. The PostgreSQL/Drizzle storage foundation is complete within HB-006 scope. Financial application use cases and authentication are not implemented.
 
 ## Run locally (Windows / Git Bash)
 
@@ -44,7 +44,7 @@ src/
   app/              routes, SSR layout, globals.css
   features/shell/   navigation and placeholder screens
   domain/           future pure finance core
-  infrastructure/   future adapters
+  infrastructure/db/ PostgreSQL schema, server-only connection and batch adapter
   shared/
     pure/           future framework-free utilities
     ui/             MUI theme, provider, preferences
@@ -54,7 +54,8 @@ tests/
   scenarios/        existing financial specifications
 ```
 
-Domain, infrastructure and shared/pure remain empty. Database, auth and finance are later tasks.
+Domain and shared/pure remain empty. The shell does not connect to the database.
+Database setup, migrations and isolated integration tests: [database runbook](docs/DATABASE.md).
 
 ## Key principles
 - User-entered **bank balance checkpoints are authoritative** for card balance; no requirement to log each purchase.
@@ -66,9 +67,9 @@ Domain, infrastructure and shared/pure remain empty. Database, auth and finance 
 
 ## Stack decisions
 Implemented: Next.js App Router, React, strict TypeScript, pnpm, ESLint, Vitest,
-MUI light/dark/system and next-intl RU/DE/EN. Planned: Google OAuth single
-allowlisted user, Vercel, selected Neon PostgreSQL + Drizzle, EUR cents and
-Europe/Berlin dates.
+MUI light/dark/system, next-intl RU/DE/EN, Neon-compatible PostgreSQL and Drizzle.
+Storage uses BIGINT EUR cents and Berlin calendar dates. Google OAuth, Vercel
+deployment and financial application behavior remain later tasks.
 
 ## Start reading: what → how → tasks
 1. **Product:** [PRD](docs/PRD.md) and supporting [product feature inventory](docs/PRODUCT.md).
@@ -78,9 +79,10 @@ Europe/Berlin dates.
 5. **Codex:** [AGENTS.md](AGENTS.md), [Codex Workflow](docs/CODEX_WORKFLOW.md), [VS Code Setup](docs/VS_CODE_CODEX.md).
 
 ### Current Codex task
-**HB-005** from [TASKS.md](docs/TASKS.md) is ready for independent review.
-See the [scope and acceptance plan](docs/planning/hb-005-ui-shell.md) and
-[verification report](docs/planning/hb-005-verification.md). Owner approval is required before Done.
+**HB-006** from [TASKS.md](docs/TASKS.md) is Done after independent review,
+resolution of both findings and owner acceptance.
+See the [database verification report](docs/planning/hb-006-verification.md).
+The Pull Request still requires the final check before merging.
 
 The .agents/skills/ tree contains original **Codex adaptations of Dark Factory's nine foundational planning workflows**, not the Claude-only Dark Factory runtime.
 

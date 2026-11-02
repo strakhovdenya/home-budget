@@ -66,9 +66,10 @@ MVP common baseline is P0 tasks through HB-021. Inclusion of P1 HB-020 is pendin
 **Review artifacts:** [Scope and scenarios](planning/hb-005-ui-shell.md), [actual verification and limitations](planning/hb-005-verification.md). Five routes, MUI SSR integration, Light/Dark/System, RU/DE/EN and browser preferences implemented. Independent review and owner acceptance remain pending; not Done. No commit, push or PR.
 
 ### HB-006 · Define and migrate database schema (Neon + Drizzle)
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-001, HB-002, HB-004 · **Area:** persistence
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-001, HB-002, HB-004 · **Area:** persistence
 **Deliverables:** schema, migration scripts, synthetic fixtures, DB integration tests.
 **Acceptance:** account_id and ownership on financial records; complete allocation revision+month uniqueness and atomic sum validation; idempotency/expected revision; immutable audit/month close references with unknown end-balance support; local migration reproducible; synthetic data only.
+**Accepted scope:** 19 storage tables, versioned generated/custom SQL, private account-locked batch primitive and real PostgreSQL tests. [Implementation, evidence and remaining use-case gates](planning/hb-006-verification.md). Independent review completed, both findings fixed, owner acceptance confirmed on 2026-11-02. HB-007 authorization and later financial preview/selection/confirmation use cases remain unimplemented.
 
 ### HB-007 · Google OAuth with single-user allowlist
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-004, HB-006 · **Area:** security

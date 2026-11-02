@@ -11,7 +11,7 @@ const allowedExternal: Record<string, string[]> = {
   features: ['next', 'react', 'next-intl', '@mui/material'],
   'shared-ui': ['next', 'react', 'next-intl', '@mui/material'],
   'shared-i18n': ['next', 'next-intl'],
-  domain: [], 'shared-pure': [], infrastructure: [],
+  domain: [], 'shared-pure': [], infrastructure: ['server-only', 'pg', 'drizzle-orm', 'node:crypto'],
 };
 
 function files(directory: string): string[] {

@@ -1,4 +1,15 @@
-# Logical data model — checkpoint-first (draft, not migrated)
+# Data model — checkpoint-first
+
+**HB-006 implementation status:** the logical contract below remains the accepted target.
+The physical storage foundation now has 19 Drizzle tables and two versioned PostgreSQL
+migrations. The detailed [physical schema and enforcement map](DATABASE.md) distinguishes
+database constraints from future application validation. Migrations were executed only
+against disposable local synthetic databases; no Neon or production database was created
+or modified. Historical selection, reviewed financial commands and full report-manifest
+validation are not implemented by these tables. [Executed evidence](planning/hb-006-verification.md).
+
+The following specification-stage text is retained as design context; its statements
+that no SQL exists describe the earlier stage, not HB-006's current delivery.
 
 All money is signed integer EUR cents (BIGINT storage with checked conversion/range),calendar dates Europe/Berlin,recorded timestamps UTC. UUID identities and owner/account scope are explicit. Financial facts/revision sets are append-only;optimistic aggregate revisions protect the active head. Neon PostgreSQL + Drizzle remains selected. This unmigrated logical model follows [Accepted ADR 0001](adr/0001-checkpoints-and-allocations.md) and [Accepted ADR 0002](adr/0002-month-closing-and-corrections.md),not SQL. HB-003 forecast is specified in Accepted ADR0003;excluded Q-HB2-02 complex A remains open;database implementation is future work.
 

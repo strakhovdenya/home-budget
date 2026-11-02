@@ -1,9 +1,10 @@
 # Tooling configuration contract
 
 HB-004 introduced the Next.js App Router runtime and is accepted by the owner.
-HB-005 adds MUI and next-intl; it is in Review. Financial rules, database and
-authentication are not implemented. No environment variables are needed;
-existing `.env.example` entries are placeholders for future tasks.
+HB-005 adds MUI and next-intl and is accepted by the owner. HB-006 adds the
+PostgreSQL/Drizzle storage foundation, accepted after independent review. Authentication and financial
+application use cases are not implemented. The UI shell needs no database;
+explicit persistence commands use the environment described in [DATABASE.md](DATABASE.md).
 
 ## Pinned versions
 
@@ -47,7 +48,7 @@ Install pnpm 12.16.1, then run `pnpm install --frozen-lockfile`. In Windows Powe
 
 - Import-boundary automation now runs in `tests/architecture.test.ts`, using `architecture.json` and an explicit external allowlist for populated layers. It checks static imports/exports, type imports, literal dynamic imports/require, and rejects unclassified paths/nonliteral dynamic imports. Checking every source edge also prevents transitive escapes through shared/pure. Domain and infrastructure have no external allowlist entries yet; extend them explicitly when those tasks begin.
 - Financial unit/scenario execution belongs to HB-008..HB-015. Markdown scenario specs are preserved; they are not executed by the bootstrap test.
-- DB integration, `test:integration` and `db:migrate` await HB-006 and later persistence tasks.
+- HB-006 provides `test:integration`, `db:generate` and `db:migrate`; see the runbook and evidence below.
 - Playwright/browser E2E scripts await later UI/quality tasks. No placeholder green commands are provided.
 - MUI/theme/next-intl and RU/DE/EN catalogs are implemented in HB-005. Financial sections remain explicit placeholders.
 - No PWA, service worker, offline cache, Tailwind, separate backend, production secrets or financial fixtures are introduced.
@@ -123,3 +124,22 @@ Official integration references: [MUI Next.js](https://mui.com/material-ui/integ
 [MUI color schemes](https://mui.com/material-ui/customization/dark-mode/),
 [next-intl App Router](https://next-intl.dev/docs/getting-started/app-router),
 [pnpm build policy](https://pnpm.io/settings/build#allowbuilds).
+
+## HB-006 persistence integration
+
+New exact versions: drizzle-orm 0.45.4, pg 8.23.1, server-only 0.0.1;
+development tools drizzle-kit 0.31.11, @types/pg 8.23.1, tsx 4.23.15.
+No existing foundational dependency was upgraded. The generated/custom SQL chain
+is separate from application startup and deployment.
+
+Commands: `pnpm db:generate`, guarded `pnpm db:migrate`, explicit
+`pnpm test:integration`. Regular `pnpm test` needs no database and does not
+silently skip integration tests. The Node-only server adapter uses pg with
+interactive Drizzle transactions and scoped account row locks.
+The infrastructure import allowlist now explicitly permits pg, drizzle-orm,
+server-only and node:crypto; the seven layer boundaries remain unchanged.
+
+Environment requirements, 19 physical tables, custom SQL ownership, database
+versus application enforcement and outstanding use-case gates:
+[database runbook](DATABASE.md). Exact executed checks and limitations:
+[HB-006 evidence](planning/hb-006-verification.md).
