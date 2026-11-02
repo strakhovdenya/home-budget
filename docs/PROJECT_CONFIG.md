@@ -175,3 +175,12 @@ Environment requirements, 19 physical tables, custom SQL ownership, database
 versus application enforcement and outstanding use-case gates:
 [database runbook](DATABASE.md). Exact executed checks and limitations:
 [HB-006 evidence](planning/hb-006-verification.md).
+
+## HB-012 verification configuration
+
+No package/script/config/dependency changes. tests/savings.test.ts and
+tests/integration/savings.test.ts extend existing runners; static assertions in
+tests/savings-types.ts compile in typecheck. Full migrations now include0004.
+Only a new password-authenticated postgres:18 loopback container is authorized;
+verify ID/labels/port before explicitly overriding all three database URLs.
+[Executed HB-012 results](planning/hb-012-verification.md).

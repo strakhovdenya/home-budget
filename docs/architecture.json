@@ -1,6 +1,17 @@
 {
-  "version": 4,
+  "version": 5,
   "project": "home-budget",
+  "hb012_savings": {
+    "composition": "private_HB007_HB009_single_tx_optional_actual_checkpoint",
+    "history": "immutable_full_states_exact_audit_evidence_same_K_whole_resolved_suffix",
+    "ordering": "one_new_position_per_day_per_batch_existing_corrections_reuse_positions",
+    "release": "explicit_confirmed_amount_no_bank_change_no_freshness_reset",
+    "sql": "forward_0004_title_lifecycle_lineage_position_terminal_guards_evidence_runtime_owned",
+    "reports": "pinned_savingsRevisionIds_and_S_relevant_heads_pending_only_original_flags_preserved",
+    "funding_transfer": false,
+    "public_endpoint": false,
+    "layer_directions_changed": false
+  },
   "hb011_obligations": {
     "composition": "private_HB007_HB009_single_tx_with_internal_HB010_checkpoint_persistence",
     "history": "immutable_full_states_corrections_before_H_whole_suffix_payment_consistency",

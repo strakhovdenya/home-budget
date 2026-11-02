@@ -263,3 +263,14 @@ the existing immutable/correction protections. Same-batch predecessors require
 the same update and strict historical order, never insertion order or UUID.
 Complete manifests and historical payment meaning remain runtime-owned.
 See [contract](planning/hb-011-obligations.md) and [evidence](planning/hb-011-verification.md).
+
+## HB-012 forward extension
+
+One forward 0004_savings_lifecycle_guards.sql adds savings_events.title and
+lifecycle checks/deferred relational guards, no tables. Nonempty legacy events
+refuse without metadata backfill. Original CREATE uniqueness excludes corrections.
+Existing position-order SQL is extracted compatibly; same-batch predecessors
+require proven strict historical order. Full evidence completeness/meaning, H/K,
+JSON manifests and suffix compatibility remain trusted-runtime guarantees.
+Direct-SQL evidence tests assert runtime refusal, not SQL audit enforcement.
+[HB-012 contract](planning/hb-012-savings.md), [evidence](planning/hb-012-verification.md).

@@ -98,7 +98,7 @@ it('DB08 full R/S may exceed B; ordinary partial reserve rejects',async()=>{
       await tx.insert(s.obligations).values({...base,id:obligationId,originatingPeriodId:f.periodIds[0]});
       await tx.insert(s.obligationEvents).values({ title: 'Synthetic obligation',...base,id:randomUUID(),logicalFactId:randomUUID(),obligationId,positionId,fundingPeriodId:f.periodIds[0],effectiveDate:'2020-11-20',action:'CREATE',originalCents:n(20000),outstandingCents:n(20000),status:'UNPAID',isPossible:false,reserveFull});
       await tx.insert(s.savingsGoals).values({...base,id:savingsId,originatingPeriodId:f.periodIds[0]});
-      await tx.insert(s.savingsEvents).values({...base,id:randomUUID(),logicalFactId:randomUUID(),savingsId,positionId,fundingPeriodId:f.periodIds[0],effectiveDate:'2020-11-20',action:'CREATE',amountCents:n(5000),status:'ACTIVE'});
+      await tx.insert(s.savingsEvents).values({ title: 'Synthetic savings',...base,id:randomUUID(),logicalFactId:randomUUID(),savingsId,positionId,fundingPeriodId:f.periodIds[0],effectiveDate:'2020-11-20',action:'CREATE',amountCents:n(5000),status:'ACTIVE'});
     });
   }
   await expect(earmarks(false)).rejects.toThrow();

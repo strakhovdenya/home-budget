@@ -14,6 +14,8 @@ import { loadObligationHistory } from './obligation-history';
 import { persistCheckpointPlan, affectedReports } from './checkpoint-persistence';
 import { rejectBatch, type BatchWriter } from './commit';
 import * as s from './schema';
+import { insertHistoricalPosition } from './historical-placement';
+import { checkRetainedSavings } from './savings-compatibility';
 
 export const writeObligations: BatchWriter = async (tx, batch) => {
   const input = parseObligationBatch(batch.command.payload);
@@ -26,6 +28,7 @@ export const writeObligations: BatchWriter = async (tx, batch) => {
   const scope = { ownerUserId: batch.account.ownerUserId, accountId: batch.account.id };
   const base = { ...scope, budgetUpdateId: batch.id, recordedSeq: batch.recordedSeq };
   const original = await loadObligationHistory(tx, scope, batch.account.recordedSeq);
+  const originalPending = new Map((await tx.select().from(s.reportHeads).where(and(eq(s.reportHeads.ownerUserId, scope.ownerUserId), eq(s.reportHeads.accountId, scope.accountId)))).map(h => [h.id, h.correctionPending]));
   const baseline = validateLifecycleHistory(original);
   if (!baseline.ok) return rejectBatch(baseline.code);
   const bankHead = selectState(original, today.value);
@@ -78,19 +81,10 @@ export const writeObligations: BatchWriter = async (tx, batch) => {
         || (old.payment.unchangedBalanceAcknowledged && !change.paymentConfirmation.unchangedBalanceAcknowledged)) return rejectBatch('PAYMENT_CONFIRMATION_REQUIRED');
     } else if (!old) {
       if (freshDays.has(change.effectiveDate)) return rejectBatch('ORDERING_CONFLICT');
-      const day = index.value.days.get(change.effectiveDate), members = [...(day?.positionIds ?? [])], p = change.placement;
-      if (!p && members.length) return rejectBatch('ORDERING_CONFLICT');
-      const at = p?.afterPositionId ? members.indexOf(p.afterPositionId) + 1 : 0;
-      if (p && (p.expectedOrderingRevisionId !== (day?.id ?? null) || (p.afterPositionId && !at) || (members[at] ?? null) !== p.beforePositionId)) return rejectBatch('ORDERING_CONFLICT');
-      members.splice(at, 0, positionId);
-      const order = { id: randomUUID(), historicalDate: change.effectiveDate, recordedSeq: batch.recordedSeq, previousRevisionId: day?.id ?? null,
-        positionIds: members, edges: day?.edges ?? [] };
-      await tx.insert(s.historicalPositions).values({ ...base, id: positionId, historicalDate: change.effectiveDate, kind: 'OBLIGATION' });
-      await tx.insert(s.orderingRevisions).values({ ...base, id: order.id, historicalDate: order.historicalDate, previousRevisionId: order.previousRevisionId,
-        manifest: { schemaVersion: 1, positionIds: members }, dependencies: { schemaVersion: 1, edges: order.edges } });
-      history = { ...history, knowledgeCut: batch.recordedSeq, positions: [...history.positions, { id: positionId, historicalDate: change.effectiveDate, recordedSeq: batch.recordedSeq }], orderings: [...history.orderings, order] };
+      const placed = await insertHistoricalPosition(tx, batch, history, change.effectiveDate, positionId, change.placement, 'OBLIGATION');
+      history = { ...placed.history, events: history.events };
       freshDays.add(change.effectiveDate);
-      audits.push({ entityType: 'DAY_ORDERING', entityId: order.id, before: { revisionId: order.previousRevisionId }, after: { date: order.historicalDate, positionIds: members } });
+      audits.push(placed.audit);
     }
     history = { ...history, knowledgeCut: batch.recordedSeq };
     const ordering = indexHistory(history);
@@ -156,5 +150,6 @@ export const writeObligations: BatchWriter = async (tx, batch) => {
       audits.push({ entityType: 'REPORT_REVIEW_REQUIRED', entityId: head.id, before: { closingId: head.closingId, correctionPending: false }, after: { closingId: head.closingId, correctionPending: true } });
     }
   }
+  audits.push(...await checkRetainedSavings(tx, scope, original, history, originalPending));
   return audits;
 };

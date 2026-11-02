@@ -17,6 +17,8 @@ import { prepareCommand } from '@/domain/updates/validation';
 import { MAX_CENTS } from '@/domain/money/money';
 import { input, date, value } from '../fixtures/checkpoints';
 import * as s from '@/infrastructure/db/schema';
+import { savingAuditAfter } from '@/domain/savings/evidence';
+import type { SavingEvent } from '@/domain/savings/contracts';
 
 let database: ReturnType<typeof createDatabase>, admin: pg.Pool, testUrl: string;
 beforeAll(async () => {
@@ -63,7 +65,7 @@ it('HB10-DB01 fresh migration chain has 19 tables and reapplication twice is a n
   expect(before.rows).toHaveLength(19);
   await migrate(database.db, { migrationsFolder: './drizzle' }); await migrate(database.db, { migrationsFolder: './drizzle' });
   expect((await database.db.execute(sql`SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name`)).rows).toEqual(before.rows);
-  expect((await database.db.execute(sql`SELECT * FROM drizzle.__drizzle_migrations`)).rows).toHaveLength(4);
+  expect((await database.db.execute(sql`SELECT * FROM drizzle.__drizzle_migrations`)).rows).toHaveLength(5);
 });
 it('HB10-DB02 first confirmation atomically stores actual B, full A, shared position, audit and provenance', async () => {
   const f = await fixture();
@@ -306,9 +308,14 @@ it('HB10-DB24 existing R/S above B survives a new actual checkpoint without auto
     await tx.insert(s.obligationEvents).values({ title: 'Synthetic obligation', ...base, id: randomUUID(), logicalFactId: randomUUID(), obligationId, positionId: state.checkpoint!.positionId,
       fundingPeriodId: period.id, effectiveDate: '2026-10-05', action: 'CREATE', originalCents: 20000n, outstandingCents: 20000n, status: 'UNPAID', isPossible: false, reserveFull: true });
     await tx.insert(s.savingsGoals).values({ ...base, id: savingsId, originatingPeriodId: period.id });
-    await tx.insert(s.savingsEvents).values({ ...base, id: randomUUID(), logicalFactId: randomUUID(), savingsId, positionId: state.checkpoint!.positionId,
-      fundingPeriodId: period.id, effectiveDate: '2026-10-05', action: 'CREATE', amountCents: 5000n, status: 'ACTIVE' });
-    return [{ entityType: 'TEST_EARMARK', entityId: obligationId, before: null, after: { savingsId } }];
+    const eventId = randomUUID();
+    const saving: SavingEvent = { ...base, title: 'Synthetic savings', id: eventId, logicalFactId: eventId, savingsId,
+      originatingPeriodId: period.id, positionId: state.checkpoint!.positionId, fundingPeriodId: period.id, effectiveDate: date('2026-10-05'),
+      action: 'CREATE', amountCents: 5000n, status: 'ACTIVE', previousRevisionId: null, supersedesId: null, beforeState: null,
+      confirmedAt: b.recordedAt, confirmedIncreaseAmount: null, confirmedReleasedAmount: null };
+    await tx.insert(s.savingsEvents).values({ ...base, ...saving });
+    return [{ entityType: 'TEST_EARMARK', entityId: obligationId, before: null, after: { savingsId } },
+      { entityType: 'SAVINGS_STATE', entityId: saving.id, before: null, after: savingAuditAfter(saving) }];
   });
   const beforeO = await database.db.select().from(s.obligationEvents).where(eq(s.obligationEvents.accountId, f.accountId));
   const beforeS = await database.db.select().from(s.savingsEvents).where(eq(s.savingsEvents.accountId, f.accountId));

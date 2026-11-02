@@ -84,6 +84,7 @@ export const savingsGoals = pgTable('savings_goals', {
 }, t => [...factKeys(t), ]);
 
 export const savingsEvents = pgTable('savings_events', {
+  title: text('title').notNull(),
   ...fact(), savingsId: uuid('savings_id').notNull(), previousRevisionId: uuid('previous_revision_id'), supersedesId: uuid('supersedes_id'), logicalFactId: uuid('logical_fact_id').notNull(), positionId: uuid('position_id').notNull(), fundingPeriodId: uuid('funding_period_id').notNull(), effectiveDate: date('effective_date').notNull(), confirmedAt: instant('confirmed_at').notNull().defaultNow(), action: text('action').notNull(), beforeState: jsonb('before_state'), amountCents: money('amount_cents').notNull(), status: text('status').notNull(),
 }, t => [...factKeys(t), check('savings_nonnegative', sql`${t.amountCents}>=0`), check('saving_status', sql`${t.status} IN ('ACTIVE','RELEASED') AND (${t.status}<>'RELEASED' OR ${t.amountCents}=0)`),]);
 

@@ -116,3 +116,13 @@ Complete ordering/consent/history/audit semantics remain runtime-owned.
 Report heads alone may be marked pending; old versions remain immutable.
 No import allowance/direction, UI, savings/funding transition or ledger is added.
 Contract: [HB-011](planning/hb-011-obligations.md).
+
+## HB-012 savings
+
+Private savings boundaries compose HB-007/HB-009; full-state domain revisions use
+existing HB-010 ordering/correction primitives and immutable confirmed release/
+increase audit evidence. Shared historical-placement is extracted from HB-011;
+checkpoint and obligation writers validate retained savings at the same K.
+Report impact reuses bank/order proof with pinned savings refs, marking only
+affected heads. No import direction/allowlist, UI, ledger or funding transition.
+Contract: [HB-012](planning/hb-012-savings.md). Implementation awaits independent review.

@@ -32,3 +32,11 @@ server facts; payment evidence is stored explicitly in immutable audit, not only
 the command hash. Same-batch dependencies require reviewed keys and strict
 historical position order; recordedSeq equality does not imply ordering.
 Historical payment conflicts reject the entire batch with no automatic rebase.
+
+HB-012 wire savings amounts are canonical decimal-cent strings. Full-state
+revisions carry mandatory immutable SAVINGS_STATE audit; never infer confirmed
+increase/release amounts from state deltas. Decoder normalizes bounded audit
+documents and rejects malformed evidence with HISTORICAL_SAVINGS_CONFLICT.
+At most one new position per date/batch; corrections reuse retained positions.
+Capture original report pending flags before sibling writes: a new pending flag
+in the same transaction must not hide pre-existing unflagged source drift.

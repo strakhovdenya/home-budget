@@ -115,10 +115,11 @@ review completed; owner accepted HB-010 on 2026-11-02; open findings 0/0/0/0.
 **Review artifacts:** [implementation contract](planning/hb-011-obligations.md), [executed verification](planning/hb-011-verification.md), [HB11 scenarios](../tests/scenarios/phase-01/hb-011-obligations.md). Immutable full lifecycle/metadata, H/K, audited payment evidence, atomic actual checkpoint payments and one forward SQL migration. Independent implementation review completed; Medium resolved in R2; owner accepted HB-011 on 2026-11-02; open findings 0/0/0/0. Commit, push and PR follow acceptance.
 
 ### HB-012 · Savings events and release
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-009, HB-010 · **Area:** finance
-**Deliverables:** voluntary earmark/release history and carryover.
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-009, HB-010 · **Area:** finance
+**Deliverables:** immutable savings lifecycle/evidence, H/K, voluntary release and calendar persistence; confirmed funding carryover remains HB-013.
 **Acceptance:** savings subtract from free but not bank balance; changes don't auto-debit; deficit offers release but never does it silently.
 **Cases:** F-008.
+**Review artifacts:** [contract](planning/hb-012-savings.md), [scenario matrix](../tests/scenarios/phase-01/hb-012-savings.md), [executed verification](planning/hb-012-verification.md). Approved plan implemented; independent review completed; owner accepted on 2026-11-02. No commit, push, PR or Neon access.
 
 ### HB-013 · Period allocations, deficits, advances, rollover
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-001, HB-003, HB-009..HB-012 · **Area:** finance
