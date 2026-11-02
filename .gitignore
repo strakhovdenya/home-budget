@@ -28,3 +28,5 @@ dist/
 *.swo
 *~
 .DS_Store
+
+.vscode/
