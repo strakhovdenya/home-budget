@@ -1,6 +1,18 @@
 {
-  "version": 3,
+  "version": 4,
   "project": "home-budget",
+  "hb011_obligations": {
+    "composition": "private_HB007_HB009_single_tx_with_internal_HB010_checkpoint_persistence",
+    "history": "immutable_full_states_corrections_before_H_whole_suffix_payment_consistency",
+    "payment_evidence": "typed_immutable_audit_original_amount_source_affirmation_checkpoint_before_after_refs",
+    "metadata": "event_title_200_Unicode_code_points_nullable_dueDate",
+    "sql": "one_forward_0003_legacy_refusal_metadata_lineage_transitions_canonical_before_terminal",
+    "runtime_owned": "complete_manifests_H_K_semantic_payment_consistency_user_consent_audit_completeness",
+    "corrections": "same_action_same_position_reviewed_sets_same_batch_ordered_dependencies_no_rebase",
+    "reports": "pinned_obligationRevisionIds_and_reserved_amount_affected_heads_pending_only",
+    "layer_directions_changed": false,
+    "public_endpoint": false
+  },
   "hb010_bank_checkpoints": {
     "composition": "private_server_HB007_auth_and_HB009_account_locked_commit",
     "domain": "complete_cash_validation_ordering_corrections_state_H_K",

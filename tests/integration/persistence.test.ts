@@ -96,7 +96,7 @@ it('DB08 full R/S may exceed B; ordinary partial reserve rejects',async()=>{
       const positionId=randomUUID(),obligationId=randomUUID(),savingsId=randomUUID();
       await tx.insert(s.historicalPositions).values({...base,id:positionId,historicalDate:'2020-11-20',kind:'EARMARK'});
       await tx.insert(s.obligations).values({...base,id:obligationId,originatingPeriodId:f.periodIds[0]});
-      await tx.insert(s.obligationEvents).values({...base,id:randomUUID(),logicalFactId:randomUUID(),obligationId,positionId,fundingPeriodId:f.periodIds[0],effectiveDate:'2020-11-20',action:'CREATE',originalCents:n(20000),outstandingCents:n(20000),status:'UNPAID',isPossible:false,reserveFull});
+      await tx.insert(s.obligationEvents).values({ title: 'Synthetic obligation',...base,id:randomUUID(),logicalFactId:randomUUID(),obligationId,positionId,fundingPeriodId:f.periodIds[0],effectiveDate:'2020-11-20',action:'CREATE',originalCents:n(20000),outstandingCents:n(20000),status:'UNPAID',isPossible:false,reserveFull});
       await tx.insert(s.savingsGoals).values({...base,id:savingsId,originatingPeriodId:f.periodIds[0]});
       await tx.insert(s.savingsEvents).values({...base,id:randomUUID(),logicalFactId:randomUUID(),savingsId,positionId,fundingPeriodId:f.periodIds[0],effectiveDate:'2020-11-20',action:'CREATE',amountCents:n(5000),status:'ACTIVE'});
     });

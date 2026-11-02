@@ -75,6 +75,7 @@ export const obligations = pgTable('obligations', {
 }, t => [...factKeys(t), ]);
 
 export const obligationEvents = pgTable('obligation_events', {
+  title: text('title').notNull(), dueDate: date('due_date'),
   ...fact(), obligationId: uuid('obligation_id').notNull(), previousRevisionId: uuid('previous_revision_id'), supersedesId: uuid('supersedes_id'), logicalFactId: uuid('logical_fact_id').notNull(), positionId: uuid('position_id').notNull(), fundingPeriodId: uuid('funding_period_id').notNull(), effectiveDate: date('effective_date').notNull(), bankDate: date('bank_date'), confirmedAt: instant('confirmed_at').notNull().defaultNow(), action: text('action').notNull(), beforeState: jsonb('before_state'), originalCents: money('original_cents').notNull(), outstandingCents: money('outstanding_cents').notNull(), status: text('status').notNull(), isPossible: boolean('is_possible').notNull(), reserveFull: boolean('reserve_full').notNull(),
 }, t => [...factKeys(t), check('obligation_state', sql`${t.originalCents}>0 AND ${t.outstandingCents}>=0 AND ${t.status} IN ('UNPAID','PAID','CANCELLED') AND (${t.status}<>'UNPAID' OR (${t.outstandingCents}>0 AND (${t.isPossible} OR ${t.reserveFull}))) AND (${t.status}='UNPAID' OR NOT ${t.reserveFull}) AND (${t.status}<>'PAID' OR ${t.outstandingCents}=0)`),]);
 

@@ -92,3 +92,15 @@ The ordinary new-month update atomically commits a real checkpoint, full confirm
 Owner D29..D31 adds FRESH_START as an alternative to CARRY in that same atomic boundary. It requires ACTUAL_CHECK and one full vector, clears affected past active allocations with explicit not-carried lineage and preserves every past revision. Every affected unpaid/savings identity receives reviewed current funding while retaining full amounts/status/origin unless separately explicitly amended. No unpaid identity can disappear because its old allocation is zero. Entire missed interval is one update;no intermediate checkpoint/vector/transfer/close rows. Multiple-source A policy remains pending;historical negative free does not block ordinary CARRY/FRESH_START. New financial heads change only after confirmation;closed report heads/payloads remain untouched.
 
 There is no runtime app or real financial data to migrate. Do not add legacy tables/converters. Earlier signed examples are archived only;future constraints validate new nonnegative cash while retaining immutable reports/events. Expected receipts are not cash. Original acceptance evidence remains in DECISIONS;the amended contract is now re-Accepted after owner-reported repeated independent review.
+
+## HB-011 delivered state contract
+
+Obligation identity/origin remains in obligations. Every immutable obligation_events
+state now also stores title (required, <=200 Unicode code points) and nullable
+due_date, distinct from funding period, effective position and bank date.
+No mutable metadata head is introduced. Originally confirmed payment amount,
+source/affirmation/acknowledgment/checkpoint and exact before/after revision refs
+are mandatory typed audit evidence. Corrections append new states/audits and keep
+all original facts. H/K selection resolves corrections before date filtering and
+checks all later confirmed payment meanings without rebasing.
+[Contract and limitations](planning/hb-011-obligations.md).

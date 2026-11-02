@@ -103,3 +103,16 @@ Adopt **human-owned specs**, phased issues, scenario acceptance criteria, separa
 These need deterministic scenario tests before app UI implementation.
 
 D32..D35 corrects cash semantics without changing layers: A>=0,sum(A)=actual B>=0;F=A-R-S may be negative. Expected income and optional signed details cannot post cash. Prior ADR acceptance is historical;ADRs0001/0002 are re-accepted after owner-reported repeated independent review. There are no actual legacy financial records or migrations. Negative bank/overdraft and separate historical-overspend semantics remain owner questions.
+
+## HB-011 obligations
+
+Private server composition reuses HB-007/HB-009 and the extracted internal
+checkpoint-persistence helper for one atomic payment + actual checkpoint/vector.
+Pure obligations validates full lifecycle states, metadata, H/K and the complete
+affected payment suffix against immutable originally confirmed audit evidence.
+Reviewed same-action correction sets may depend on earlier positions in one batch.
+One forward 0003 adds title/dueDate and relational guards with legacy refusal.
+Complete ordering/consent/history/audit semantics remain runtime-owned.
+Report heads alone may be marked pending; old versions remain immutable.
+No import allowance/direction, UI, savings/funding transition or ledger is added.
+Contract: [HB-011](planning/hb-011-obligations.md).
