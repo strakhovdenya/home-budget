@@ -251,3 +251,15 @@ validators, which must exist before financial commands become callable:
 These gates belong to HB-007..HB-014/HB-019 and remain acceptance work there.
 No future income/operation posting, PDF, recurring templates, overdraft allocation,
 historical debt mechanism, UI wizard or production data is introduced.
+
+## HB-011 forward extension
+
+0003_obligation_lifecycle_guards.sql adds only title NOT NULL and due_date NULL
+to obligation_events, no tables. Its first statement refuses nonempty legacy
+events with HB011_LEGACY_METADATA_REVIEW_REQUIRED and no fake backfill. Existing
+0000?0002 are unchanged. Action/title/amount, unique original CREATE, same-obligation
+lineage, canonical before-state, position/transition and terminal guards supplement
+the existing immutable/correction protections. Same-batch predecessors require
+the same update and strict historical order, never insertion order or UUID.
+Complete manifests and historical payment meaning remain runtime-owned.
+See [contract](planning/hb-011-obligations.md) and [evidence](planning/hb-011-verification.md).

@@ -107,10 +107,12 @@ no operation/lifecycle/transfer/forecast/UI workflow. Independent implementation
 review completed; owner accepted HB-010 on 2026-11-02; open findings 0/0/0/0.
 
 ### HB-011 · Obligations: full reserve and lifecycle
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-006, HB-009, HB-010 · **Area:** finance
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-006, HB-009, HB-010 · **Area:** finance
 **Deliverables:** create/amend/paid/cancelled, optional partial settlement, potential claims.
 **Acceptance:** reserve 100% unpaid remainder; no partial reserve UI/API; marking paid never debits card; cancelled separately releases reserve; previous states visible.
 **Cases:** F-001/F-002/F-006/F-007/F-017.
+
+**Review artifacts:** [implementation contract](planning/hb-011-obligations.md), [executed verification](planning/hb-011-verification.md), [HB11 scenarios](../tests/scenarios/phase-01/hb-011-obligations.md). Immutable full lifecycle/metadata, H/K, audited payment evidence, atomic actual checkpoint payments and one forward SQL migration. Independent implementation review completed; Medium resolved in R2; owner accepted HB-011 on 2026-11-02; open findings 0/0/0/0. Commit, push and PR follow acceptance.
 
 ### HB-012 · Savings events and release
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-009, HB-010 · **Area:** finance

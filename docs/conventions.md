@@ -25,3 +25,10 @@ Historical positions/manifests are immutable; corrections resolve at K before H.
 No automatic rebasing or inferred ordering. JSON ordering/dependency contract v1
 and conservative report-impact refusal are documented in the
 [HB-010 contract](planning/hb-010-bank-checkpoints.md).
+
+HB-011: titles use Unicode code points (max200), not UTF-16 length. Nullable
+dueDate is planning metadata only. Canonical before-state is built from retained
+server facts; payment evidence is stored explicitly in immutable audit, not only
+the command hash. Same-batch dependencies require reviewed keys and strict
+historical position order; recordedSeq equality does not imply ordering.
+Historical payment conflicts reject the entire batch with no automatic rebase.
