@@ -9,7 +9,7 @@ import { Preferences } from '@/shared/ui/preferences';
 import { SectionIcon } from './section-icon';
 import { sectionPaths, sections } from './sections';
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, sessionControl }: { children: ReactNode; sessionControl?: ReactNode }) {
   const t = useTranslations('shell');
   const nav = useTranslations('navigation');
   const path = usePathname();
@@ -44,7 +44,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Typography sx={{ display: { md: 'none' }, fontWeight: 700 }}>Home Budget</Typography>
             <Chip size="small" variant="outlined" label={t('preview')} sx={{ display: { xs: 'none', md: 'flex' }, color: 'text.secondary' }} />
           </Stack>
-          <Preferences />
+          <Stack spacing={1}><Preferences />{sessionControl}</Stack>
         </Stack>
       </Box>
       <Box component="main" id="main-content" tabIndex={-1} sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, sm: 4, lg: 6 }, outline: 'none' }}>{children}</Box>

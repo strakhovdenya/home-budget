@@ -21,3 +21,5 @@ Rules:
 Work loop: requirement → small HB-* task/spec → scenarios/tests → implementation → self-review → independent review where available → report exact evidence. Do not claim tests passed unless run.
 
 Skills: .agents/skills/ contains nine original Codex adaptations of Dark Factory's project scaffolding workflows plus project finance verification. Consult docs/CODEX_WORKFLOW.md.
+
+Additional project-local Codex skills: use `.agents/skills/vercel-react-best-practices/SKILL.md` for React/Next.js work, `.agents/skills/security-best-practices/SKILL.md` for server authorization, and `.agents/skills/web-design-guidelines/SKILL.md` for the login page. Read relevant references before use; inspect scripts before running them. Project ADRs, architecture and installed Next.js APIs take precedence over generic skill advice. Do not add libraries or change architecture merely to follow a skill.

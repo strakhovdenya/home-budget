@@ -6,6 +6,9 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import { AppThemeProvider } from '@/shared/ui/app-theme-provider';
 import { AppShell } from '@/features/shell/app-shell';
+import { Button, Stack, Typography } from '@mui/material';
+import { currentOwner } from '@/infrastructure/auth/auth';
+import { logout } from './auth-actions';
 import './globals.css';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -14,14 +17,19 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const locale = await getLocale();
-  const messages = await getMessages();
+  const [locale, messages, owner, t] = await Promise.all([
+    getLocale(), getMessages(), currentOwner(), getTranslations('auth'),
+  ]);
+  const sessionControl = owner ? <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+    <Typography variant="caption">{t('signedIn')}</Typography>
+    <form action={logout}><Button type="submit" size="small">{t('logout')}</Button></form>
+  </Stack> : <Typography variant="caption">{t('signedOut')}</Typography>;
   return <html lang={locale} suppressHydrationWarning>
     <body>
       <InitColorSchemeScript attribute="data-mui-color-scheme" defaultMode="system" modeStorageKey="home-budget-mode" />
       <AppRouterCacheProvider>
         <NextIntlClientProvider locale={locale} messages={messages} timeZone="Europe/Berlin">
-          <AppThemeProvider><AppShell>{children}</AppShell></AppThemeProvider>
+          <AppThemeProvider><AppShell sessionControl={sessionControl}>{children}</AppShell></AppThemeProvider>
         </NextIntlClientProvider>
       </AppRouterCacheProvider>
     </body>

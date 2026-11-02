@@ -46,6 +46,12 @@ Use private object storage (e.g. Vercel Blob private mode) and restricted downlo
 Optional operation evidence and interval K/U are separate from the primary allocation state. PDF matching updates explanatory records, never automatically B or confirmed month balances. Repeated/overlapping evidence links to one operation; ambiguous matches stay pending without blocking normal budget updates.
 
 ## Auth / security
+
+HB-007 implementation keeps Google/Auth.js configuration and the lazy Drizzle
+identity repository in `src/infrastructure/auth/`; app composes protected page
+checks, auth routes and Server Actions. The shell receives a rendered session
+control slot, with no auth/database import in client components. Identity is bound
+to the existing users table; no schema or finance-engine change. See [AUTH.md](AUTH.md).
 Google OAuth with explicit email allowlist (verified Google identity), server-side authorization for every read/write and document download; secure session cookie, CSRF where applicable, no public signup. Never trust client amounts or account ids. Protect rate limits, logs, and backups.
 
 ## Multi-account evolution
