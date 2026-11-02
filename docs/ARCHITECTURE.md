@@ -18,6 +18,18 @@ app → features → domain; infrastructure implements domain ports invoked by a
 PostgreSQL with **Neon as the selected provider** + Drizzle migrations, serializable or appropriate row-lock transactional update for each financial mutation. Provisioning, current plan limits and exact package versions remain implementation work; provider selection is not pending. No local file-based SQLite on Vercel serverless. Snapshot-based reporting + append-only audit/financial-event stream, not an opaque full event sourcing framework. Read models may be cached but are regenerable.
 
 ## Financial write boundary
+HB-009 provides the authenticated write foundation without exposing financial
+commands or an arbitrary-event endpoint. App composes HB-007 ownership checks
+with a feature executor and injected domain repository port. Infrastructure
+extends the existing account-locked Drizzle transaction, records mandatory
+versioned before/after audit, and validates idempotent receipts. The app external
+allowlist permits the existing `server-only` marker; no layer direction changes.
+Commands are copied/frozen once before authorization yields. A private WeakSet
+marks validated command provenance in memory only; it stores no financial state.
+The private writer rechecks owner/account under the row lock, checks replay before
+expected revision, and distinguishes confirmed rollback from unknown commit outcome.
+See [HB-009 contract](planning/hb-009-audit-idempotency.md).
+
 An ordinary B>=0 budget update saves an actual checkpoint AND one complete confirmed nonnegative distribution atomically;obligation/savings changes may be included. Validate exact sum,integer cents,scope,request/revisions. No operations or net-change explanation required. The forecast input contract separately represents a real negative bank observation without A and returns OVERDRAFT_POLICY_REQUIRED;no negative-balance write workflow,credit or allocation policy is implemented. R/S are period requirements,not necessarily funded subsets of A,and can exceed A/B. Possible claims enter R only when explicitly fully selected;ordinary unpaid remains fully reserved. Reject invalid updates without partial writes.
 
 Redistribution/confirmed transfer against an already confirmed unchanged balance saves a new complete allocation revision anchored to that observation; it does not fabricate a bank observation or require re-entry of the same amount. A changed balance and transfer may share one update. Payment still requires fresh balance affirmation and the unchanged-balance warning. Allocation changes are state changes, not inferred bank operations.

@@ -2,69 +2,92 @@ import 'server-only';
 import { randomUUID, createHash } from 'node:crypto';
 import { and, eq, sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { MAX_CENTS } from '@/domain/money/money';
+import { encodeCanonical } from '@/domain/updates/canonical-value';
+import type { AuditDescriptor, AuthorizedScope, PreparedCommand, UpdateErrorCode } from '@/domain/updates/contracts';
+import { isPreparedCommand, parseReceipt, validUuid } from '@/domain/updates/validation';
+import { berlinDateFromEpochMilliseconds } from '@/shared/pure/berlin-date';
+import { auditDocuments } from './audit-writer';
 import * as schema from './schema';
 
+export { canonicalPayload } from '@/domain/updates/canonical-value';
 type Database = NodePgDatabase<typeof schema>;
-type Transaction = Parameters<Parameters<Database['transaction']>[0]>[0];
-
-// Private persistence primitive, not an authenticated application use case or public API.
-// The caller must supply a server-authenticated owner, validated dates and reviewed facts.
+export type Transaction = Parameters<Parameters<Database['transaction']>[0]>[0];
 export interface CommitRequest {
-  ownerUserId: string;
-  accountId: string;
-  requestId: string;
-  expectedRevision: bigint;
-  kind: string;
-  payload: unknown;
+  readonly scope: AuthorizedScope; readonly kind: string; readonly command: PreparedCommand;
 }
-
-export function canonicalPayload(value: unknown): string {
-  if (typeof value === 'bigint') return 'bigint:' + value.toString();
-  if (value === null || typeof value === 'string' || typeof value === 'boolean') return JSON.stringify(value);
-  if (typeof value === 'number' && Number.isSafeInteger(value)) return JSON.stringify(value);
-  if (Array.isArray(value)) return '[' + value.map(canonicalPayload).join(',') + ']';
-  if (value && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype) {
-    return '{' + Object.keys(value).sort().map(key => JSON.stringify(key) + ':' + canonicalPayload((value as Record<string, unknown>)[key])).join(',') + '}';
-  }
-  throw new Error('INVALID_CANONICAL_PAYLOAD');
+export type BatchContext = Readonly<{
+  id: string; recordedSeq: bigint; recordedAt: string;
+  account: Readonly<typeof schema.accounts.$inferSelect>; command: PreparedCommand;
+}>;
+export type BatchWriter = (tx: Transaction, context: BatchContext) => Promise<readonly AuditDescriptor[]>;
+export class BatchFailure extends Error {
+  constructor(readonly code: UpdateErrorCode) { super(code); }
 }
-
-export async function commitBatch(
-  db: Database, request: CommitRequest,
-  write: (tx: Transaction, batch: { id: string; recordedSeq: bigint }) => Promise<void>,
-) {
-  const identity = createHash('sha256').update(canonicalPayload({
-    owner: request.ownerUserId, account: request.accountId, kind: request.kind,
-    expectedRevision: request.expectedRevision.toString(), payload: request.payload,
-  })).digest('hex');
-  return db.transaction(async tx => {
-    const scope = and(eq(schema.accounts.ownerUserId, request.ownerUserId), eq(schema.accounts.id, request.accountId));
-    const [account] = await tx.select().from(schema.accounts).where(scope).for('update');
-    if (!account) throw new Error('ACCOUNT_NOT_FOUND');
-    const [prior] = await tx.select().from(schema.budgetUpdates).where(and(
-      eq(schema.budgetUpdates.ownerUserId, request.ownerUserId), eq(schema.budgetUpdates.accountId, request.accountId),
-      eq(schema.budgetUpdates.requestId, request.requestId),
-    ));
-    if (prior) {
-      if (prior.payloadIdentity !== identity) throw new Error('REQUEST_PAYLOAD_CONFLICT');
-      return prior.result as { updateId: string; recordedSeq: string; aggregateRevision: string };
+/** Walks Drizzle error causes; never returns raw driver messages/SQL. */
+export function classifyTransactionError(error: unknown, callbackCompleted: boolean): UpdateErrorCode {
+  const seen = new Set<unknown>();
+  let current = error;
+  while (current && typeof current === 'object' && !seen.has(current)) {
+    seen.add(current);
+    if (current instanceof BatchFailure) return current.code;
+    if ('code' in current && typeof current.code === 'string') {
+      if (['40001', '40P01', '55P03', '57014'].includes(current.code)) return 'RETRYABLE_STORAGE_ERROR';
+      if (/^(?:22|23|25|42)[0-9A-Z]{3}$/.test(current.code)) return 'TRANSACTION_FAILED';
     }
-    if (account.aggregateRevision !== request.expectedRevision) throw new Error('STALE_REVISION');
-    const batch = { id: randomUUID(), recordedSeq: account.recordedSeq + BigInt(1) };
-    const result = { updateId: batch.id, recordedSeq: batch.recordedSeq.toString(), aggregateRevision: (account.aggregateRevision + BigInt(1)).toString() };
-    await tx.insert(schema.budgetUpdates).values({
-      ...batch, ownerUserId: request.ownerUserId, accountId: request.accountId,
-      requestId: request.requestId, payloadIdentity: identity, expectedRevision: request.expectedRevision,
-      actorId: request.ownerUserId, kind: request.kind, result,
-    });
-    await write(tx, batch);
-    await tx.insert(schema.auditEvents).values({
-      id: randomUUID(), ownerUserId: request.ownerUserId, accountId: request.accountId,
-      budgetUpdateId: batch.id, recordedSeq: batch.recordedSeq, eventKind: request.kind,
-      effectiveDate: sql`(CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Berlin')::date`,
-      reason: 'Persistence batch committed', beforeAfter: { payloadIdentity: identity, result },
-    });
-    await tx.update(schema.accounts).set({ aggregateRevision: account.aggregateRevision + BigInt(1), recordedSeq: batch.recordedSeq }).where(scope);
-    return result;
-  }, { isolationLevel: 'read committed' }); // Account row lock serializes this account's batches.
+    current = 'cause' in current ? current.cause : null;
+  }
+  return callbackCompleted ? 'COMMIT_OUTCOME_UNKNOWN' : 'TRANSACTION_FAILED';
+}
+/** Private persistence boundary; app composes authentication before invoking it. */
+export async function commitBatch(db: Database, request: CommitRequest, write: BatchWriter) {
+  let { ownerUserId, accountId } = request.scope;
+  const { kind, command } = request;
+  if (!validUuid(ownerUserId) || !validUuid(accountId)) throw new BatchFailure('FORBIDDEN');
+  ownerUserId = ownerUserId.toLowerCase(); accountId = accountId.toLowerCase();
+  if (typeof kind !== 'string' || kind !== kind.trim() || !/^[A-Z][A-Z0-9_]{0,63}$/.test(kind) || !isPreparedCommand(command)) throw new BatchFailure('INVALID_INPUT');
+  const identity = createHash('sha256').update(encodeCanonical({ owner: ownerUserId, account: accountId, kind,
+    expectedRevision: command.expectedRevision.toString(), payload: command.payload,
+    effectiveDate: command.effectiveDate, reason: command.reason })).digest('hex');
+  let callbackCompleted = false;
+  try {
+    return await db.transaction(async tx => {
+      const scope = and(eq(schema.accounts.ownerUserId, ownerUserId), eq(schema.accounts.id, accountId));
+      const [account] = await tx.select().from(schema.accounts).where(scope).for('update');
+      if (!account) throw new BatchFailure('FORBIDDEN');
+      const [prior] = await tx.select().from(schema.budgetUpdates).where(and(
+        eq(schema.budgetUpdates.ownerUserId, ownerUserId), eq(schema.budgetUpdates.accountId, accountId),
+        eq(schema.budgetUpdates.requestId, command.requestId),
+      ));
+      if (prior) {
+        if (prior.payloadIdentity !== identity) throw new BatchFailure('REQUEST_PAYLOAD_CONFLICT');
+        const receipt = parseReceipt(prior.result);
+        if (!receipt.ok || prior.expectedRevision < 0n || prior.expectedRevision >= MAX_CENTS || receipt.value.updateId !== prior.id || receipt.value.recordedSeq !== prior.recordedSeq.toString() ||
+          receipt.value.aggregateRevision !== (prior.expectedRevision + 1n).toString()) throw new BatchFailure('STORAGE_ERROR');
+        callbackCompleted = true;
+        return receipt.value;
+      }
+      if (account.aggregateRevision !== command.expectedRevision) throw new BatchFailure('STALE_REVISION');
+      if (account.aggregateRevision < 0n || account.recordedSeq < 0n || account.aggregateRevision >= MAX_CENTS || account.recordedSeq >= MAX_CENTS) throw new BatchFailure('REVISION_RANGE');
+      const timestamp = await tx.execute<{ recorded_at: string }>(sql`SELECT clock_timestamp()::text AS recorded_at`);
+      const recordedAt = timestamp.rows[0].recorded_at;
+      const today = berlinDateFromEpochMilliseconds(Date.parse(recordedAt));
+      if (!today.ok || command.effectiveDate > today.value) throw new BatchFailure('INVALID_INPUT');
+      const batch = Object.freeze({ id: randomUUID(), recordedSeq: account.recordedSeq + 1n, recordedAt,
+        account: Object.freeze({ ...account }), command });
+      const result = Object.freeze({ updateId: batch.id, recordedSeq: batch.recordedSeq.toString(), aggregateRevision: (account.aggregateRevision + 1n).toString() });
+      await tx.insert(schema.budgetUpdates).values({ id: batch.id, ownerUserId, accountId,
+        recordedSeq: batch.recordedSeq, recordedAt, requestId: command.requestId, payloadIdentity: identity,
+        expectedRevision: command.expectedRevision, actorId: ownerUserId, kind, result });
+      const descriptors = await write(tx, batch);
+      let documents: ReturnType<typeof auditDocuments>;
+      try { documents = auditDocuments(descriptors); } catch { throw new BatchFailure('INVALID_AUDIT'); }
+      await tx.insert(schema.auditEvents).values(documents.map(beforeAfter => ({ id: randomUUID(), ownerUserId, accountId,
+        budgetUpdateId: batch.id, recordedSeq: batch.recordedSeq, eventKind: kind,
+        effectiveDate: command.effectiveDate, reason: command.reason, beforeAfter })));
+      await tx.update(schema.accounts).set({ aggregateRevision: account.aggregateRevision + 1n, recordedSeq: batch.recordedSeq }).where(scope);
+      callbackCompleted = true;
+      return result;
+    }, { isolationLevel: 'read committed' });
+  } catch (error) { throw new BatchFailure(classifyTransactionError(error, callbackCompleted)); }
 }

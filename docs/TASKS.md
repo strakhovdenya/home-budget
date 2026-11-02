@@ -85,9 +85,11 @@ MVP common baseline is P0 tasks through HB-021. Inclusion of P1 HB-020 is pendin
 **Review artifacts:** [approved scope and implemented API](planning/hb-008-money-dates.md), [executed verification and acceptance](planning/hb-008-verification.md). Pure signed-int64 bigint primitives, exact string/JSON codecs, Gregorian dates for years 0001..9999, Berlin instant conversion and financial periods implemented. Independent review completed with Critical/High/Medium/Low: 0/0/0/0; approved without corrections. Owner explicitly accepted HB-008 on 2026-11-02. Reviewer additionally reports 27212 primitive checks in each of TZ=UTC and TZ=America/Los_Angeles; earlier lint/typecheck/Vitest/build evidence belongs to Codex, not a reviewer rerun. No database/auth/dependency changes, commit, push or PR.
 
 ### HB-009 · Event/audit storage and idempotent updates
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-006, HB-008 · **Area:** domain/persistence
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-006, HB-008 · **Area:** domain/persistence
 **Deliverables:** event writers, optimistic version and transaction-safe batch interface.
 **Acceptance:** repeat request doesn't duplicate action; concurrent writes reject/retry safely; partial writes never persist; audit retains before/after and effective/recorded dates.
+
+**Review artifacts:** [implementation contract](planning/hb-009-audit-idempotency.md), [executed evidence and skill usage](planning/hb-009-verification.md), [HB9 scenarios](../tests/scenarios/phase-01/hb-009-audit-idempotency.md). Existing account-locked commitBatch extended with immutable normalized commands, mandatory audit, validated replay receipts and explicit transaction outcomes. No public event endpoint or HB-010+ commands. Independent re-review completed; owner accepted HB-009 on 2026-11-02; open findings 0/0/0/0. No new migrations, dependency changes, Neon access, commit, push or PR.
 
 ### HB-010 · Bank checkpoints and reconciliation intervals
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-001, HB-006, HB-008, HB-009 · **Area:** finance
