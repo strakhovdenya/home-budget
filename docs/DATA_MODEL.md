@@ -1,5 +1,31 @@
 # Data model — checkpoint-first
 
+## HB-013 delivered extension
+
+obligation_events and savings_events add nullable transition_decision_id,
+mandatory exactly for FUNDING_TRANSFER. Such events preserve full business state
+except funding, link to the same scoped batch/position/decision and retain canonical
+before-state plus immutable state/funding evidence. Existing ordinary lifecycle
+actions retain null decision refs and cannot change funding. Terminal identities
+are retained without transfer/reopen. One selected full state contributes once.
+
+transfer_proposals adds mode/observation_mode and nullable source_period_id for
+non-CARRY proposals. Its immutable document contains the original input and exact
+server review: base vectors/funding refs, affected past, preserved future, explicit
+future edits, proposed full after-states/draft refs and A/R/S/F preview.
+transition_decisions adds unique scoped proposal_id; budget_transfers remains
+CARRY-only. transfer_proposal_cancellations is the20th table, with scoped control
+idempotency, actor, canonical document/hash, reason and UTC confirmation time.
+CONFIRMED/CANCELLED are mutually exclusive; status STALE is derived without mutation.
+
+Generated commit revision IDs are bound to proposal draft refs by immutable
+decision/funding/confirmation evidence. Semantic replay validates the original
+mapping/receipt and never creates another financial update. Current target and
+untouched future earmarks retain exact revisions; FRESH_START only moves active
+past funding. Future cash changes require explicit edits against the pinned vector.
+See [contract](planning/hb-013-period-allocations.md). Older sections below retain
+their original delivery-stage context.
+
 **HB-010 implementation:** private bank-checkpoint confirmation now persists one
 actual observation and complete companion vector at a shared historical position,
 with immutable ordering revisions/corrections and protected chronological current

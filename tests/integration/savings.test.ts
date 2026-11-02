@@ -253,8 +253,8 @@ it('HB12-S36 foreign identity/scope denied and S40 aggregate overflow rolls back
 });
 it('HB12 migration replay has five entries, nineteen tables',async()=>{
   await migrate(db.db,{migrationsFolder:'./drizzle'});await migrate(db.db,{migrationsFolder:'./drizzle'});
-  expect((await db.db.execute(sql`SELECT * FROM drizzle.__drizzle_migrations`)).rows).toHaveLength(5);
-  expect((await db.db.execute(sql`SELECT table_name FROM information_schema.tables WHERE table_schema='public'`)).rows).toHaveLength(19);
+  expect((await db.db.execute(sql`SELECT * FROM drizzle.__drizzle_migrations`)).rows).toHaveLength(6);
+  expect((await db.db.execute(sql`SELECT table_name FROM information_schema.tables WHERE table_schema='public'`)).rows).toHaveLength(20);
 });
 
 async function closeFixture(f: Scope, supported=true) {

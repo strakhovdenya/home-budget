@@ -122,10 +122,12 @@ review completed; owner accepted HB-010 on 2026-11-02; open findings 0/0/0/0.
 **Review artifacts:** [contract](planning/hb-012-savings.md), [scenario matrix](../tests/scenarios/phase-01/hb-012-savings.md), [executed verification](planning/hb-012-verification.md). Approved plan implemented; independent review completed; owner accepted on 2026-11-02. No commit, push, PR or Neon access.
 
 ### HB-013 · Period allocations, deficits, advances, rollover
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-001, HB-003, HB-009..HB-012 · **Area:** finance
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-001, HB-003, HB-009..HB-012 · **Area:** finance
 **Deliverables:** complete user-confirmed allocation vectors, same-bank redistribution, purchases funded by existing cash across periods, one-button confirmed transfer with full reserve/savings funding history; optional financing-detail proposals separate from cash state.
 **Acceptance:** each A>=0 and sum(month balances)=anchoring actual B>=0, future money isolated; no required delta allocation/suspense; transfer requires consent, target cash/earmarks count once and old active cash clears. No automatic application of operation details or invented income/expense from state deltas; all A>=0 and sum(A)=B>=0;negative F remains valid.
 **Cases:** F-003/F-004/F-005/F-009/F-015.
+
+**Review artifacts:** [contract](planning/hb-013-period-allocations.md), [acceptance mapping](../tests/scenarios/phase-01/hb-013-period-allocations.md), [actual verification](planning/hb-013-verification.md). Private allocation-only redistribution, confirmed CARRY/FRESH_START/DEFER, immutable full funding states, scoped proposal/cancellation and proven semantic replay; one forward0005. Independent static source/fixture review completed; calendar-fixture High fixed, re-reviewed and accepted; open findings Critical/High/Medium/Low: 0/0/0/0. Owner accepted HB-013 on 2026-11-02. Final evidence: 533/533 unit, 278/278 PostgreSQL (76/76 HB-013), timezone subset 281/281 in each environment; lint/typecheck/build/architecture and migration0005/replay PASS. Test execution is implementer evidence, not an independent reviewer rerun. No commit/push/PR/merge performed; publication and CI/merge evidence remain separate.
 
 ### HB-014 · Daily forecast and full budget projection API
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-003, HB-010..HB-013 · **Area:** finance

@@ -36,6 +36,13 @@
       "when": 1793576476948,
       "tag": "0004_savings_lifecycle_guards",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793646584083,
+      "tag": "0005_period_transfers",
+      "breakpoints": true
     }
   ]
 }

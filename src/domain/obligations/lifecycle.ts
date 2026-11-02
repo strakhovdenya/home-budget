@@ -28,7 +28,10 @@ export function transition(before: ObligationState, action: Exclude<Action, 'CRE
     dueDate: before.dueDate, originalCents: before.originalCents, outstandingCents: before.outstandingCents,
     status: before.status, isPossible: before.isPossible, reserveFull: before.reserveFull };
   let after: ObligationState;
-  if (action === 'AMEND') {
+  if (action === 'FUNDING_TRANSFER') {
+    if(Object.keys(data).length!==1||typeof data.fundingPeriodId!=='string'||data.fundingPeriodId===before.fundingPeriodId)return bad;
+    after={...before,fundingPeriodId:data.fundingPeriodId};
+  } else if (action === 'AMEND') {
     const allowed = ['title', 'dueDate', 'originalCents', 'isPossible', 'reserveFull'];
     if (!Object.keys(data).length || Object.keys(data).some(k => !allowed.includes(k))) return bad;
     const original = data.originalCents ?? before.originalCents;

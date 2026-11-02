@@ -19,6 +19,10 @@ export function transition(before: SavingState, action: Exclude<Action, 'CREATE'
   if (!validState(before)) return bad;
   if (before.status !== 'ACTIVE') return { ok: false, code: 'TERMINAL_SAVING' };
   before = businessState(before);
+  if(action==='FUNDING_TRANSFER'){
+    if(Object.keys(data).length!==1||typeof data.fundingPeriodId!=='string'||data.fundingPeriodId===before.fundingPeriodId)return bad;
+    return {ok:true,value:{...before,fundingPeriodId:data.fundingPeriodId}};
+  }
   if (action === 'AMEND') {
     if (Object.keys(data).length !== 1 || typeof data.title !== 'string' || data.title === before.title) return bad;
     const after = { ...before, title: data.title };

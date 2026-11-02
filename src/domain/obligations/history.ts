@@ -7,6 +7,7 @@ import type { Result } from '@/shared/pure/result';
 import type { CheckpointErrorCode } from '@/domain/checkpoints/contracts';
 import type { ObligationEvent, ObligationHistory, ObligationErrorCode } from './contracts';
 import { snapshot, transition, validState } from './lifecycle';
+import { validFundingProof } from '@/domain/transitions/funding';
 type ErrorCode = ObligationErrorCode | CheckpointErrorCode;
 export function validateLifecycleHistory(h: ObligationHistory): Result<readonly ObligationEvent[], ErrorCode> {
   const index = indexHistory(h), tips = correctionTips(h.events, h.knowledgeCut);
@@ -21,6 +22,7 @@ export function validateLifecycleHistory(h: ObligationHistory): Result<readonly 
       if (!old || old.obligationId !== e.obligationId || old.action !== e.action) return bad;
     }
     const p = e.previousRevisionId ? visible.find(x => x.id === e.previousRevisionId) : null;
+    if(e.action==='FUNDING_TRANSFER' ? !p||!validFundingProof(e,p) : !!e.transitionDecisionId||!!e.fundingProof)return bad;
     if (e.action === 'CREATE') { if (p || e.beforeState !== null || e.status !== 'UNPAID' || e.originalCents !== e.outstandingCents) return bad; }
     else if (!p || p.obligationId !== e.obligationId || p.recordedSeq > e.recordedSeq || !(index.value.compare(p.positionId, e.positionId) < 0)
       || encodeCanonical(e.beforeState) !== encodeCanonical(snapshot(p))) return bad;
@@ -38,8 +40,8 @@ export function validateLifecycleHistory(h: ObligationHistory): Result<readonly 
     if (!p) { if (e.action !== 'CREATE') return bad; }
     else {
       if (e.action === 'CREATE' || p.status !== 'UNPAID' || index.value.compare(p.positionId, e.positionId) === 0
-        || p.originatingPeriodId !== e.originatingPeriodId || p.fundingPeriodId !== e.fundingPeriodId) return bad;
-      const data: Record<string, CanonicalValue> = e.action === 'AMEND' ? { title: e.title, dueDate: e.dueDate, originalCents: e.originalCents, isPossible: e.isPossible, reserveFull: e.reserveFull }
+        || p.originatingPeriodId !== e.originatingPeriodId || (e.action!=='FUNDING_TRANSFER'&&p.fundingPeriodId !== e.fundingPeriodId)) return bad;
+      const data: Record<string, CanonicalValue> = e.action==='FUNDING_TRANSFER'?{fundingPeriodId:e.fundingPeriodId}:e.action === 'AMEND' ? { title: e.title, dueDate: e.dueDate, originalCents: e.originalCents, isPossible: e.isPossible, reserveFull: e.reserveFull }
         : e.payment ? { amountCents: e.payment.amountCents } : {};
       const result = transition(p, e.action, data);
       if (!result.ok || encodeCanonical({ ...result.value }) !== encodeCanonical({ originatingPeriodId: e.originatingPeriodId,

@@ -1,5 +1,25 @@
 # Architecture — specification-first, Codex execution, Dark Factory-inspired
 
+## HB-013 implementation extension
+
+Private period-transition composition reuses HB-007/HB-009. Pure transitions
+validate whole vectors, allocation-only retained funding, single-source CARRY,
+FRESH_START future preservation and DEFER. Existing HB-010 confirms initial/actual
+checks; redistribution and combined transitions share checkpoint persistence and
+historical placement. No second transaction manager or public event endpoint.
+
+Immutable FUNDING_TRANSFER states extend obligation/savings H/K readers and their
+mandatory evidence. One new position contains all atomic facts for a date. The
+PERIOD_TRANSITION-only replay hook validates original confirmation, receipt and
+committed mapping before stale/calendar checks. Durable cancellation is an
+append-only control fact under the same account lock discipline. Final-candidate
+report impact preserves pinned original versions and original pending flags.
+
+0005 adds20th table (cancellation), scoped decision refs and relational guards;
+full manifests/consent/H/K remain runtime-owned. Import directions and external
+allowlists are unchanged. No forecast/UI/closing/operations/PDF implementation.
+Contract: [HB-013](planning/hb-013-period-allocations.md).
+
 ## Shape
 Single Next.js App Router TypeScript deployment on Vercel. Layered modular monolith; no separate backend for v1, no service worker/PWA. Product language: RU default, DE/EN. MUI theme with light/dark/system. Client UI invokes authenticated Server Actions / route handlers. Domain logic is pure TypeScript; DB adapters do not leak into finance formulas.
 

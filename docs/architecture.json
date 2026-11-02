@@ -1,6 +1,24 @@
 {
-  "version": 5,
+  "version": 6,
   "project": "home-budget",
+  "hb013_period_transitions": {
+    "composition": "private_HB007_HB009_single_financial_commit",
+    "allocation_only": "complete_vector_explicit_retained_funding_review_no_bank_check",
+    "modes": [
+      "CARRY",
+      "FRESH_START",
+      "DEFER"
+    ],
+    "cash": "nonnegative_complete_observed_cash_only",
+    "funding": "immutable_FUNDING_TRANSFER_full_states_exact_decision_evidence",
+    "fresh_start": "past_union_including_A0_future_preserved_unless_explicit_reviewed_edit",
+    "proposals": "immutable_review_derived_status_append_only_cancellation",
+    "replay": "same_request_first_then_proven_confirmed_proposal_before_new_action_stale_calendar",
+    "reports": "final_candidate_pinned_basis_original_flags_targeted_pending_no_v2",
+    "sql": "forward_0005_20_tables_scoped_funding_and_terminal_outcome_guards",
+    "layer_directions_changed": false,
+    "public_endpoint": false
+  },
   "hb012_savings": {
     "composition": "private_HB007_HB009_single_tx_optional_actual_checkpoint",
     "history": "immutable_full_states_exact_audit_evidence_same_K_whole_resolved_suffix",

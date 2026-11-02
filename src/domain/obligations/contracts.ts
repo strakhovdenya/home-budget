@@ -1,9 +1,10 @@
 import type { BerlinDate } from '@/shared/pure/calendar';
 import type { History, Placement, CheckpointInput } from '@/domain/checkpoints/contracts';
 import type { CanonicalValue } from '@/domain/updates/contracts';
+import type { FundingProof } from '@/domain/transitions/contracts';
 export type ObligationErrorCode = 'INVALID_OBLIGATION' | 'TERMINAL_OBLIGATION' | 'STALE_OBLIGATION'
   | 'HISTORICAL_PAYMENT_CONFLICT' | 'PAYMENT_CONFIRMATION_REQUIRED';
-export type Action = 'CREATE' | 'AMEND' | 'PARTIAL_SETTLEMENT' | 'PAID' | 'CANCELLED';
+export type Action = 'CREATE' | 'AMEND' | 'PARTIAL_SETTLEMENT' | 'PAID' | 'CANCELLED' | 'FUNDING_TRANSFER';
 export type ObligationState = Readonly<{
   originatingPeriodId: string; fundingPeriodId: string; title: string; dueDate: BerlinDate | null;
   originalCents: bigint; outstandingCents: bigint; status: 'UNPAID' | 'PAID' | 'CANCELLED'; isPossible: boolean; reserveFull: boolean;
@@ -16,6 +17,8 @@ export type ObligationEvent = ObligationState & {
   id: string; obligationId: string; logicalFactId: string; supersedesId: string | null; previousRevisionId: string | null;
   positionId: string; effectiveDate: BerlinDate; bankDate: BerlinDate | null; confirmedAt: string; recordedSeq: bigint;
   action: Action; beforeState: CanonicalValue; payment: Payment | null;
+  transitionDecisionId?:string|null; fundingProof?:FundingProof|null;
+  budgetUpdateId?:string;
 };
 export type ObligationHistory = History & Readonly<{ events: readonly ObligationEvent[] }>;
 export type Change = Readonly<{

@@ -75,6 +75,7 @@ export const obligations = pgTable('obligations', {
 }, t => [...factKeys(t), ]);
 
 export const obligationEvents = pgTable('obligation_events', {
+  transitionDecisionId:uuid('transition_decision_id'),
   title: text('title').notNull(), dueDate: date('due_date'),
   ...fact(), obligationId: uuid('obligation_id').notNull(), previousRevisionId: uuid('previous_revision_id'), supersedesId: uuid('supersedes_id'), logicalFactId: uuid('logical_fact_id').notNull(), positionId: uuid('position_id').notNull(), fundingPeriodId: uuid('funding_period_id').notNull(), effectiveDate: date('effective_date').notNull(), bankDate: date('bank_date'), confirmedAt: instant('confirmed_at').notNull().defaultNow(), action: text('action').notNull(), beforeState: jsonb('before_state'), originalCents: money('original_cents').notNull(), outstandingCents: money('outstanding_cents').notNull(), status: text('status').notNull(), isPossible: boolean('is_possible').notNull(), reserveFull: boolean('reserve_full').notNull(),
 }, t => [...factKeys(t), check('obligation_state', sql`${t.originalCents}>0 AND ${t.outstandingCents}>=0 AND ${t.status} IN ('UNPAID','PAID','CANCELLED') AND (${t.status}<>'UNPAID' OR (${t.outstandingCents}>0 AND (${t.isPossible} OR ${t.reserveFull}))) AND (${t.status}='UNPAID' OR NOT ${t.reserveFull}) AND (${t.status}<>'PAID' OR ${t.outstandingCents}=0)`),]);
@@ -84,21 +85,29 @@ export const savingsGoals = pgTable('savings_goals', {
 }, t => [...factKeys(t), ]);
 
 export const savingsEvents = pgTable('savings_events', {
+  transitionDecisionId:uuid('transition_decision_id'),
   title: text('title').notNull(),
   ...fact(), savingsId: uuid('savings_id').notNull(), previousRevisionId: uuid('previous_revision_id'), supersedesId: uuid('supersedes_id'), logicalFactId: uuid('logical_fact_id').notNull(), positionId: uuid('position_id').notNull(), fundingPeriodId: uuid('funding_period_id').notNull(), effectiveDate: date('effective_date').notNull(), confirmedAt: instant('confirmed_at').notNull().defaultNow(), action: text('action').notNull(), beforeState: jsonb('before_state'), amountCents: money('amount_cents').notNull(), status: text('status').notNull(),
 }, t => [...factKeys(t), check('savings_nonnegative', sql`${t.amountCents}>=0`), check('saving_status', sql`${t.status} IN ('ACTIVE','RELEASED') AND (${t.status}<>'RELEASED' OR ${t.amountCents}=0)`),]);
 
 export const transferProposals = pgTable('transfer_proposals', {
-  ...scope(), expectedRevision: money('expected_revision').notNull(), baseCheckpointId: uuid('base_checkpoint_id').notNull(), baseAllocationRevisionId: uuid('base_allocation_revision_id').notNull(), targetPeriodId: uuid('target_period_id').notNull(), sourcePeriodId: uuid('source_period_id').notNull(), payloadIdentity: text('payload_identity').notNull(), proposal: jsonb('proposal').notNull(), createdAt: instant('created_at').notNull().defaultNow(),
+  mode:text('mode'), observationMode:text('observation_mode'),
+  ...scope(), expectedRevision: money('expected_revision').notNull(), baseCheckpointId: uuid('base_checkpoint_id').notNull(), baseAllocationRevisionId: uuid('base_allocation_revision_id').notNull(), targetPeriodId: uuid('target_period_id').notNull(), sourcePeriodId: uuid('source_period_id'), payloadIdentity: text('payload_identity').notNull(), proposal: jsonb('proposal').notNull(), createdAt: instant('created_at').notNull().defaultNow(),
 }, t => [...scoped(t), ]);
 
 export const transitionDecisions = pgTable('transition_decisions', {
+  proposalId:uuid('proposal_id').unique(),
   ...fact(), mode: text('mode').notNull(), observationMode: text('observation_mode').notNull(), beforeAllocationRevisionId: uuid('before_allocation_revision_id'), afterAllocationRevisionId: uuid('after_allocation_revision_id').notNull(), positionId: uuid('position_id').notNull(), confirmedAt: instant('confirmed_at').notNull().defaultNow(), manifest: jsonb('manifest').notNull(), reason: text('reason').notNull(),
 }, t => [...factKeys(t), unique().on(t.budgetUpdateId), check('transition_mode', sql`${t.mode} IN ('CARRY','FRESH_START','DEFER') AND ${t.observationMode} IN ('ACTUAL_CHECK','REUSE_CONFIRMED') AND (${t.mode}<>'FRESH_START' OR ${t.observationMode}='ACTUAL_CHECK')`),]);
 
 export const budgetTransfers = pgTable('budget_transfers', {
   ...fact(), proposalId: uuid('proposal_id').notNull(), decisionId: uuid('decision_id').notNull(), sourcePeriodId: uuid('source_period_id').notNull(), targetPeriodId: uuid('target_period_id').notNull(), beforeAllocationRevisionId: uuid('before_allocation_revision_id').notNull(), afterAllocationRevisionId: uuid('after_allocation_revision_id').notNull(), confirmedAt: instant('confirmed_at').notNull().defaultNow(), fundingManifest: jsonb('funding_manifest').notNull(),
 }, t => [...factKeys(t), unique().on(t.proposalId), unique().on(t.decisionId), check('different_periods', sql`${t.sourcePeriodId}<>${t.targetPeriodId}`),]);
+
+export const transferProposalCancellations=pgTable('transfer_proposal_cancellations',{
+  ...scope(),proposalId:uuid('proposal_id').notNull(),controlRequestId:uuid('control_request_id').notNull(),actorId:uuid('actor_id').notNull(),
+  payloadIdentity:text('payload_identity').notNull(),document:jsonb('document').notNull(),cancelledAt:instant('cancelled_at').notNull(),reason:text('reason').notNull(),
+},t=>[...scoped(t),unique().on(t.ownerUserId,t.accountId,t.controlRequestId),unique().on(t.proposalId),check('cancel_actor',sql`${t.actorId}=${t.ownerUserId}`)]);
 
 export const monthClosings = pgTable('month_closings', {
   ...fact(), periodId: uuid('period_id').notNull(), version: integer('version').notNull(), previousVersionId: uuid('previous_version_id'), historicalThroughDate: date('historical_through_date').notNull(), closedAt: instant('closed_at').notNull().defaultNow(), closedBy: uuid('closed_by').notNull().references(() => users.id), evidenceRecordedCutoffSeq: money('evidence_recorded_cutoff_seq').notNull(), evidenceRecordedCutoffAt: instant('evidence_recorded_cutoff_at').notNull(), reason: text('reason').notNull(), changeEvidenceRefs: jsonb('change_evidence_refs').notNull(), lastCheckpointId: uuid('last_checkpoint_id'), lastBankObservedDate: date('last_bank_observed_date'), lastBankObservedAt: instant('last_bank_observed_at'), lastObservedBalanceCents: money('last_observed_balance_cents'), historicalAllocationRevisionId: uuid('historical_allocation_revision_id'), allocationEffectiveDate: date('allocation_effective_date'), endCheckpointId: uuid('end_checkpoint_id'), endBalanceCents: money('end_balance_cents'), bankDataCompleteness: text('bank_data_completeness').notNull(), operationDetailStatus: text('operation_detail_status').notNull(), historicalAllocatedCents: money('historical_allocated_cents'), historicalReservedCents: money('historical_reserved_cents').notNull(), historicalSavingsCents: money('historical_savings_cents').notNull(), historicalFreeCents: money('historical_free_cents'), snapshotSchemaVersion: integer('snapshot_schema_version').notNull(), selectionContractVersion: integer('selection_contract_version').notNull(), snapshotJson: jsonb('snapshot_json').notNull(), sourceManifest: jsonb('source_manifest').notNull(), orderingRevisionRefs: jsonb('ordering_revision_refs').notNull(),
