@@ -1,5 +1,12 @@
 # Tooling configuration contract
 
+HB-008 raises the TypeScript target from ES2017 to ES2020 for native bigint
+literals. No dependency or package script changes. Pure money/date/period tests
+run under the existing Vitest configuration; compile-time negative assertions in
+`tests/types/hb-008.ts` are included by the existing strict TypeScript glob.
+Exact commands, environment limitations and results:
+[HB-008 verification](planning/hb-008-verification.md).
+
 HB-007 adds pinned `next-auth` 5.0.0-beta.32 (published Next 16 / React 19 peer
 ranges), Google-only sign-in, protected pages and server identity checks. See
 [authentication runbook](AUTH.md) and [verification](planning/hb-007-verification.md).
