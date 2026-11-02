@@ -14,20 +14,22 @@ import type { createDatabase } from './client';
 import * as s from './schema';
 import { loadFundingEvidence } from './funding-evidence';
 import { snapshot } from '@/domain/savings/lifecycle';
+import type { HistoryReadContext } from './history-read-context';
 type Connection = Pick<ReturnType<typeof createDatabase>['db'], 'select'>;
-export async function loadSavingHistory(db: Connection, scope: AuthorizedScope, cut: bigint): Promise<SavingHistory> {
-  const history = await loadCheckpointHistory(db, scope, cut);
+export async function loadSavingHistory(db: Connection, scope: AuthorizedScope, cut: bigint, context?: HistoryReadContext): Promise<SavingHistory> {
+  const history = context?.history ?? await loadCheckpointHistory(db, scope, cut);
   const rows = await db.select({ event: s.savingsEvents, origin: s.savingsGoals.originatingPeriodId,
     confirmation: sql<string>`to_char(${s.savingsEvents.confirmedAt} AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')` })
     .from(s.savingsEvents).innerJoin(s.savingsGoals, eq(s.savingsGoals.id, s.savingsEvents.savingsId))
     .where(and(eq(s.savingsEvents.ownerUserId, scope.ownerUserId), eq(s.savingsEvents.accountId, scope.accountId), lte(s.savingsEvents.recordedSeq, cut)));
-  const audits = rows.length ? await db.select().from(s.auditEvents).where(and(eq(s.auditEvents.ownerUserId, scope.ownerUserId),
-    eq(s.auditEvents.accountId, scope.accountId), lte(s.auditEvents.recordedSeq, cut))) : [];
+  const audits = context?.audits ?? (rows.length ? await db.select().from(s.auditEvents).where(and(eq(s.auditEvents.ownerUserId, scope.ownerUserId),
+    eq(s.auditEvents.accountId, scope.accountId), lte(s.auditEvents.recordedSeq, cut))) : []);
+  const rowById = new Map(rows.map(r => [r.event.id, r]));
   const savings: SavingEvent[] = await Promise.all(rows.map(async ({ event: e, origin, confirmation }) => {
     try {
     const date = parseBerlinDate(e.effectiveDate);
     if (!date.ok || !parseInstant(confirmation).ok) return rejectBatch('HISTORICAL_SAVINGS_CONFLICT');
-    const matches = audits.filter(a => {
+    const matches = context?.auditByEntity.get(`SAVINGS_STATE:${e.id}`) ?? audits.filter(a => {
       const d = a.beforeAfter;
       return d && typeof d === 'object' && 'entity' in d && d.entity !== null && typeof d.entity === 'object'
         && 'type' in d.entity && 'id' in d.entity && d.entity.type === 'SAVINGS_STATE' && d.entity.id === e.id;
@@ -48,10 +50,10 @@ export async function loadSavingHistory(db: Connection, scope: AuthorizedScope, 
     const event: SavingEvent = { ...e, originatingPeriodId: origin, effectiveDate: date.value, confirmedAt: confirmation,
       action: e.action as Action, status: e.status as SavingEvent['status'], beforeState: normalizeValue(e.beforeState),
       confirmedIncreaseAmount: amount('confirmedIncreaseAmount'), confirmedReleasedAmount: amount('confirmedReleasedAmount') };
-    const provedEvent=e.action==='FUNDING_TRANSFER'?{...event,fundingProof:await loadFundingEvidence(db,scope,cut,e,snapshot(event))}:event;
+    const provedEvent=e.action==='FUNDING_TRANSFER'?{...event,fundingProof:await loadFundingEvidence(db,scope,cut,e,snapshot(event),context)}:event;
     if (encodeCanonical(doc.after as CanonicalValue) !== encodeCanonical(savingAuditAfter(provedEvent))) return rejectBatch('HISTORICAL_SAVINGS_CONFLICT');
     // Audit.before describes replaced state for corrections, or the actual predecessor for ordinary changes.
-    const replaced = e.supersedesId ? rows.find(x => x.event.id === e.supersedesId) : null;
+    const replaced = e.supersedesId ? rowById.get(e.supersedesId) : null;
     const expectedBefore = replaced ? { schemaVersion: 1, revisionId: replaced.event.id, savingsId: replaced.event.savingsId,
       originatingPeriodId: replaced.origin, fundingPeriodId: replaced.event.fundingPeriodId, title: replaced.event.title,
       amountCents: replaced.event.amountCents.toString(), status: replaced.event.status } : e.beforeState;

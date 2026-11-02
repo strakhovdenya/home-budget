@@ -1,5 +1,16 @@
 # Data model — checkpoint-first
 
+## HB-014 read-only derived state
+
+No persisted forecast/warning/reminder entities. One captured account K plus H
+selects existing C/V and full obligation/savings/funding states. Independent identity
+enumeration proves completeness; period IDs map within scope. Captured aggregate
+revision is not a historical revision-at-K. Current pointer is checked only for the
+full current selection. Unknown/incomplete/unsupported-negative branches never invent
+zero cash. Money wire fields are canonical decimal cents; estimates/provenance are
+deep readonly. Existing migrations0000–0005 are unchanged.
+[Contract](planning/hb-014-daily-forecast.md).
+
 ## HB-013 delivered extension
 
 obligation_events and savings_events add nullable transition_decision_id,

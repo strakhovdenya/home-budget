@@ -1,5 +1,18 @@
 # Architecture — specification-first, Codex execution, Dark Factory-inspired
 
+## HB-014 projection layer
+
+Pure domain/forecast consumes validated confirmed snapshots and implements Accepted
+D36/D37–39. Private app composition reuses HB-007, with a feature-injected domain
+read port. Infrastructure captures one account K/revision/pointer and Berlin server
+date inside REPEATABLE READ READ ONLY; selectors resolve corrections at K before H.
+Independent identity enumeration, conditional current-pointer guard, scoped period
+mapping and mandatory evidence prevent silent empty forecasts. Bounded bulk context
+reuses existing historical loaders without funding N+1 SQL or a second history
+framework. Preflight source/work limits and final UTF8 wire limit refuse oversize.
+No layer direction/allowlist, SQL schema, financial writer, UI or public endpoint
+changes. [Contract](planning/hb-014-daily-forecast.md), [verification](planning/hb-014-verification.md).
+
 ## HB-013 implementation extension
 
 Private period-transition composition reuses HB-007/HB-009. Pure transitions

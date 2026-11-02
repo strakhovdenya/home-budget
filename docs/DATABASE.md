@@ -1,5 +1,16 @@
 # HB-006 database runbook and physical contract
 
+## HB-014 coherent projection reader
+
+No migration, dependency or financial-write change. projection-reader rechecks
+ownership and captures one K/revision/pointer plus one server instant in a READ ONLY
+REPEATABLE READ transaction. Source row/JSON-byte counts precede materialization;
+existing validators have an additional conservative work admission cap. Audits and
+decisions load once into an optional HistoryReadContext; funding evidence avoids
+per-event SQL on this path. Independent identity enumeration detects missing chains.
+All read errors return safe codes. No counter/audit/receipt/proposal/report writes.
+Exact limits, H/K and pointer semantics: [HB-014 contract](planning/hb-014-daily-forecast.md).
+
 ## HB-013 current forward extension
 
 Current chain is0000–0005;20 tables. 0005_period_transfers.sql adds cancellation
