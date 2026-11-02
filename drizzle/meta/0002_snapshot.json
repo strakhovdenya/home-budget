@@ -1,0 +1,2435 @@
+{
+  "id": "219c6462-33ac-48b4-9831-e91b1cd0e6e2",
+  "prevId": "98ea5952-d311-49ae-b080-5e367395112c",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.accounts": {
+      "name": "accounts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'EUR'"
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aggregate_revision": {
+          "name": "aggregate_revision",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "0"
+        },
+        "recorded_seq": {
+          "name": "recorded_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "0"
+        },
+        "active_allocation_revision_id": {
+          "name": "active_allocation_revision_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "accounts_owner_user_id_users_id_fk": {
+          "name": "accounts_owner_user_id_users_id_fk",
+          "tableFrom": "accounts",
+          "columnsFrom": [
+            "owner_user_id"
+          ],
+          "tableTo": "users",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "accounts_owner_user_id_id_unique": {
+          "name": "accounts_owner_user_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "account_eur": {
+          "name": "account_eur",
+          "value": "\"accounts\".\"currency\" = 'EUR'"
+        },
+        "account_counters": {
+          "name": "account_counters",
+          "value": "\"accounts\".\"aggregate_revision\" >= 0 AND \"accounts\".\"recorded_seq\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.allocation_revisions": {
+      "name": "allocation_revisions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "budget_update_id": {
+          "name": "budget_update_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_seq": {
+          "name": "recorded_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "logical_fact_id": {
+          "name": "logical_fact_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "supersedes_id": {
+          "name": "supersedes_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "checkpoint_id": {
+          "name": "checkpoint_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "previous_revision_id": {
+          "name": "previous_revision_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "position_id": {
+          "name": "position_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "effective_date": {
+          "name": "effective_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "change_kind": {
+          "name": "change_kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "confirmed_at": {
+          "name": "confirmed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "insert_transaction": {
+          "name": "insert_transaction",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "pg_current_xact_id()::text"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "allocation_revisions_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "allocation_revisions_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "allocation_revisions",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "allocation_revisions_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk": {
+          "name": "allocation_revisions_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk",
+          "tableFrom": "allocation_revisions",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id",
+            "budget_update_id",
+            "recorded_seq"
+          ],
+          "tableTo": "budget_updates",
+          "columnsTo": [
+            "owner_user_id",
+            "account_id",
+            "id",
+            "recorded_seq"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "allocation_revisions_owner_user_id_account_id_id_unique": {
+          "name": "allocation_revisions_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.audit_events": {
+      "name": "audit_events",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "budget_update_id": {
+          "name": "budget_update_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_seq": {
+          "name": "recorded_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "event_kind": {
+          "name": "event_kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "effective_date": {
+          "name": "effective_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "before_after": {
+          "name": "before_after",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "audit_events_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "audit_events_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "audit_events",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "audit_events_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk": {
+          "name": "audit_events_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk",
+          "tableFrom": "audit_events",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id",
+            "budget_update_id",
+            "recorded_seq"
+          ],
+          "tableTo": "budget_updates",
+          "columnsTo": [
+            "owner_user_id",
+            "account_id",
+            "id",
+            "recorded_seq"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "audit_events_owner_user_id_account_id_id_unique": {
+          "name": "audit_events_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.balance_checkpoints": {
+      "name": "balance_checkpoints",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "budget_update_id": {
+          "name": "budget_update_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_seq": {
+          "name": "recorded_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "logical_fact_id": {
+          "name": "logical_fact_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "supersedes_id": {
+          "name": "supersedes_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "position_id": {
+          "name": "position_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "observed_date": {
+          "name": "observed_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "observed_at": {
+          "name": "observed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "balance_cents": {
+          "name": "balance_cents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "balance_checkpoints_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "balance_checkpoints_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "balance_checkpoints",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "balance_checkpoints_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk": {
+          "name": "balance_checkpoints_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk",
+          "tableFrom": "balance_checkpoints",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id",
+            "budget_update_id",
+            "recorded_seq"
+          ],
+          "tableTo": "budget_updates",
+          "columnsTo": [
+            "owner_user_id",
+            "account_id",
+            "id",
+            "recorded_seq"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "balance_checkpoints_owner_user_id_account_id_id_unique": {
+          "name": "balance_checkpoints_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "checkpoint_nonnegative": {
+          "name": "checkpoint_nonnegative",
+          "value": "\"balance_checkpoints\".\"balance_cents\" >= 0"
+        },
+        "checkpoint_berlin": {
+          "name": "checkpoint_berlin",
+          "value": "\"balance_checkpoints\".\"observed_at\" IS NULL OR (\"balance_checkpoints\".\"observed_at\" AT TIME ZONE 'Europe/Berlin')::date = \"balance_checkpoints\".\"observed_date\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.budget_periods": {
+      "name": "budget_periods",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "period": {
+          "name": "period",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "budget_periods_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "budget_periods_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "budget_periods",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "budget_periods_owner_user_id_account_id_id_unique": {
+          "name": "budget_periods_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        },
+        "budget_periods_owner_user_id_account_id_period_unique": {
+          "name": "budget_periods_owner_user_id_account_id_period_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "period"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "period_format": {
+          "name": "period_format",
+          "value": "\"budget_periods\".\"period\" ~ '^[0-9]{4}-(0[1-9]|1[0-2])$' AND left(\"budget_periods\".\"period\",4) <> '0000'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.budget_transfers": {
+      "name": "budget_transfers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "budget_update_id": {
+          "name": "budget_update_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_seq": {
+          "name": "recorded_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proposal_id": {
+          "name": "proposal_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "decision_id": {
+          "name": "decision_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_period_id": {
+          "name": "source_period_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_period_id": {
+          "name": "target_period_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "before_allocation_revision_id": {
+          "name": "before_allocation_revision_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "after_allocation_revision_id": {
+          "name": "after_allocation_revision_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "confirmed_at": {
+          "name": "confirmed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "funding_manifest": {
+          "name": "funding_manifest",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "budget_transfers_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "budget_transfers_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "budget_transfers",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "budget_transfers_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk": {
+          "name": "budget_transfers_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk",
+          "tableFrom": "budget_transfers",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id",
+            "budget_update_id",
+            "recorded_seq"
+          ],
+          "tableTo": "budget_updates",
+          "columnsTo": [
+            "owner_user_id",
+            "account_id",
+            "id",
+            "recorded_seq"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "budget_transfers_owner_user_id_account_id_id_unique": {
+          "name": "budget_transfers_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        },
+        "budget_transfers_proposal_id_unique": {
+          "name": "budget_transfers_proposal_id_unique",
+          "columns": [
+            "proposal_id"
+          ],
+          "nullsNotDistinct": false
+        },
+        "budget_transfers_decision_id_unique": {
+          "name": "budget_transfers_decision_id_unique",
+          "columns": [
+            "decision_id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "different_periods": {
+          "name": "different_periods",
+          "value": "\"budget_transfers\".\"source_period_id\"<>\"budget_transfers\".\"target_period_id\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.budget_updates": {
+      "name": "budget_updates",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "request_id": {
+          "name": "request_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payload_identity": {
+          "name": "payload_identity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expected_revision": {
+          "name": "expected_revision",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_seq": {
+          "name": "recorded_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_at": {
+          "name": "recorded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "result": {
+          "name": "result",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "budget_updates_actor_id_users_id_fk": {
+          "name": "budget_updates_actor_id_users_id_fk",
+          "tableFrom": "budget_updates",
+          "columnsFrom": [
+            "actor_id"
+          ],
+          "tableTo": "users",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "budget_updates_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "budget_updates_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "budget_updates",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "budget_updates_owner_user_id_account_id_id_unique": {
+          "name": "budget_updates_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        },
+        "budget_updates_owner_user_id_account_id_request_id_unique": {
+          "name": "budget_updates_owner_user_id_account_id_request_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "request_id"
+          ],
+          "nullsNotDistinct": false
+        },
+        "budget_updates_owner_user_id_account_id_recorded_seq_unique": {
+          "name": "budget_updates_owner_user_id_account_id_recorded_seq_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "recorded_seq"
+          ],
+          "nullsNotDistinct": false
+        },
+        "budget_updates_owner_user_id_account_id_id_recorded_seq_unique": {
+          "name": "budget_updates_owner_user_id_account_id_id_recorded_seq_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id",
+            "recorded_seq"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "update_revision": {
+          "name": "update_revision",
+          "value": "\"budget_updates\".\"expected_revision\" >= 0 AND \"budget_updates\".\"recorded_seq\" > 0 AND length(\"budget_updates\".\"payload_identity\") > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.historical_positions": {
+      "name": "historical_positions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "budget_update_id": {
+          "name": "budget_update_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_seq": {
+          "name": "recorded_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "historical_date": {
+          "name": "historical_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "historical_positions_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "historical_positions_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "historical_positions",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "historical_positions_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk": {
+          "name": "historical_positions_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk",
+          "tableFrom": "historical_positions",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id",
+            "budget_update_id",
+            "recorded_seq"
+          ],
+          "tableTo": "budget_updates",
+          "columnsTo": [
+            "owner_user_id",
+            "account_id",
+            "id",
+            "recorded_seq"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "historical_positions_owner_user_id_account_id_id_unique": {
+          "name": "historical_positions_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.month_closings": {
+      "name": "month_closings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "budget_update_id": {
+          "name": "budget_update_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_seq": {
+          "name": "recorded_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "period_id": {
+          "name": "period_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "previous_version_id": {
+          "name": "previous_version_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "historical_through_date": {
+          "name": "historical_through_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "closed_at": {
+          "name": "closed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "closed_by": {
+          "name": "closed_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evidence_recorded_cutoff_seq": {
+          "name": "evidence_recorded_cutoff_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evidence_recorded_cutoff_at": {
+          "name": "evidence_recorded_cutoff_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "change_evidence_refs": {
+          "name": "change_evidence_refs",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_checkpoint_id": {
+          "name": "last_checkpoint_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_bank_observed_date": {
+          "name": "last_bank_observed_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_bank_observed_at": {
+          "name": "last_bank_observed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_observed_balance_cents": {
+          "name": "last_observed_balance_cents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "historical_allocation_revision_id": {
+          "name": "historical_allocation_revision_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "allocation_effective_date": {
+          "name": "allocation_effective_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "end_checkpoint_id": {
+          "name": "end_checkpoint_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "end_balance_cents": {
+          "name": "end_balance_cents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bank_data_completeness": {
+          "name": "bank_data_completeness",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "operation_detail_status": {
+          "name": "operation_detail_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "historical_allocated_cents": {
+          "name": "historical_allocated_cents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "historical_reserved_cents": {
+          "name": "historical_reserved_cents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "historical_savings_cents": {
+          "name": "historical_savings_cents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "historical_free_cents": {
+          "name": "historical_free_cents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "snapshot_schema_version": {
+          "name": "snapshot_schema_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "selection_contract_version": {
+          "name": "selection_contract_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "snapshot_json": {
+          "name": "snapshot_json",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_manifest": {
+          "name": "source_manifest",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ordering_revision_refs": {
+          "name": "ordering_revision_refs",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "month_closings_closed_by_users_id_fk": {
+          "name": "month_closings_closed_by_users_id_fk",
+          "tableFrom": "month_closings",
+          "columnsFrom": [
+            "closed_by"
+          ],
+          "tableTo": "users",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "month_closings_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "month_closings_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "month_closings",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "month_closings_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk": {
+          "name": "month_closings_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk",
+          "tableFrom": "month_closings",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id",
+            "budget_update_id",
+            "recorded_seq"
+          ],
+          "tableTo": "budget_updates",
+          "columnsTo": [
+            "owner_user_id",
+            "account_id",
+            "id",
+            "recorded_seq"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "month_closings_owner_user_id_account_id_id_unique": {
+          "name": "month_closings_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        },
+        "month_closings_account_id_period_id_version_unique": {
+          "name": "month_closings_account_id_period_id_version_unique",
+          "columns": [
+            "account_id",
+            "period_id",
+            "version"
+          ],
+          "nullsNotDistinct": false
+        },
+        "month_closings_previous_version_id_unique": {
+          "name": "month_closings_previous_version_id_unique",
+          "columns": [
+            "previous_version_id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "closing_version": {
+          "name": "closing_version",
+          "value": "\"month_closings\".\"version\">0 AND ((\"month_closings\".\"version\"=1) = (\"month_closings\".\"previous_version_id\" IS NULL)) AND length(trim(\"month_closings\".\"reason\"))>0 AND \"month_closings\".\"evidence_recorded_cutoff_seq\"<\"month_closings\".\"recorded_seq\" AND \"month_closings\".\"snapshot_schema_version\">0 AND \"month_closings\".\"selection_contract_version\">0"
+        },
+        "closing_free": {
+          "name": "closing_free",
+          "value": "\"month_closings\".\"historical_reserved_cents\">=0 AND \"month_closings\".\"historical_savings_cents\">=0 AND (\"month_closings\".\"historical_allocated_cents\" IS NULL OR (\"month_closings\".\"historical_allocated_cents\">=0 AND \"month_closings\".\"historical_free_cents\"=\"month_closings\".\"historical_allocated_cents\"-\"month_closings\".\"historical_reserved_cents\"-\"month_closings\".\"historical_savings_cents\"))"
+        },
+        "closing_detail": {
+          "name": "closing_detail",
+          "value": "\"month_closings\".\"operation_detail_status\" IN ('NOT_PROVIDED','PARTIAL','USER_CONFIRMED_COMPLETE')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.obligation_events": {
+      "name": "obligation_events",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "budget_update_id": {
+          "name": "budget_update_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_seq": {
+          "name": "recorded_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "obligation_id": {
+          "name": "obligation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "previous_revision_id": {
+          "name": "previous_revision_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "supersedes_id": {
+          "name": "supersedes_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "logical_fact_id": {
+          "name": "logical_fact_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position_id": {
+          "name": "position_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "funding_period_id": {
+          "name": "funding_period_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "effective_date": {
+          "name": "effective_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bank_date": {
+          "name": "bank_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "confirmed_at": {
+          "name": "confirmed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "action": {
+          "name": "action",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "before_state": {
+          "name": "before_state",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "original_cents": {
+          "name": "original_cents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "outstanding_cents": {
+          "name": "outstanding_cents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_possible": {
+          "name": "is_possible",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reserve_full": {
+          "name": "reserve_full",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "obligation_events_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "obligation_events_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "obligation_events",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "obligation_events_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk": {
+          "name": "obligation_events_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk",
+          "tableFrom": "obligation_events",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id",
+            "budget_update_id",
+            "recorded_seq"
+          ],
+          "tableTo": "budget_updates",
+          "columnsTo": [
+            "owner_user_id",
+            "account_id",
+            "id",
+            "recorded_seq"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "obligation_events_owner_user_id_account_id_id_unique": {
+          "name": "obligation_events_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "obligation_state": {
+          "name": "obligation_state",
+          "value": "\"obligation_events\".\"original_cents\">0 AND \"obligation_events\".\"outstanding_cents\">=0 AND \"obligation_events\".\"status\" IN ('UNPAID','PAID','CANCELLED') AND (\"obligation_events\".\"status\"<>'UNPAID' OR (\"obligation_events\".\"outstanding_cents\">0 AND (\"obligation_events\".\"is_possible\" OR \"obligation_events\".\"reserve_full\"))) AND (\"obligation_events\".\"status\"='UNPAID' OR NOT \"obligation_events\".\"reserve_full\") AND (\"obligation_events\".\"status\"<>'PAID' OR \"obligation_events\".\"outstanding_cents\"=0)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.obligations": {
+      "name": "obligations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "budget_update_id": {
+          "name": "budget_update_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_seq": {
+          "name": "recorded_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "originating_period_id": {
+          "name": "originating_period_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "obligations_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "obligations_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "obligations",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "obligations_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk": {
+          "name": "obligations_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk",
+          "tableFrom": "obligations",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id",
+            "budget_update_id",
+            "recorded_seq"
+          ],
+          "tableTo": "budget_updates",
+          "columnsTo": [
+            "owner_user_id",
+            "account_id",
+            "id",
+            "recorded_seq"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "obligations_owner_user_id_account_id_id_unique": {
+          "name": "obligations_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ordering_revisions": {
+      "name": "ordering_revisions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "budget_update_id": {
+          "name": "budget_update_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_seq": {
+          "name": "recorded_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "historical_date": {
+          "name": "historical_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "previous_revision_id": {
+          "name": "previous_revision_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "manifest": {
+          "name": "manifest",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dependencies": {
+          "name": "dependencies",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ordering_revisions_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "ordering_revisions_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "ordering_revisions",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ordering_revisions_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk": {
+          "name": "ordering_revisions_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk",
+          "tableFrom": "ordering_revisions",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id",
+            "budget_update_id",
+            "recorded_seq"
+          ],
+          "tableTo": "budget_updates",
+          "columnsTo": [
+            "owner_user_id",
+            "account_id",
+            "id",
+            "recorded_seq"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "ordering_revisions_owner_user_id_account_id_id_unique": {
+          "name": "ordering_revisions_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.period_allocations": {
+      "name": "period_allocations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "allocation_revision_id": {
+          "name": "allocation_revision_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "period_id": {
+          "name": "period_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount_cents": {
+          "name": "amount_cents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "period_allocations_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "period_allocations_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "period_allocations",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "period_allocations_owner_user_id_account_id_id_unique": {
+          "name": "period_allocations_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        },
+        "period_allocations_allocation_revision_id_period_id_unique": {
+          "name": "period_allocations_allocation_revision_id_period_id_unique",
+          "columns": [
+            "allocation_revision_id",
+            "period_id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "allocation_nonnegative": {
+          "name": "allocation_nonnegative",
+          "value": "\"period_allocations\".\"amount_cents\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.report_heads": {
+      "name": "report_heads",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "period_id": {
+          "name": "period_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "closing_id": {
+          "name": "closing_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "correction_pending": {
+          "name": "correction_pending",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "report_heads_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "report_heads_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "report_heads",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "report_heads_owner_user_id_account_id_id_unique": {
+          "name": "report_heads_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        },
+        "report_heads_account_id_period_id_unique": {
+          "name": "report_heads_account_id_period_id_unique",
+          "columns": [
+            "account_id",
+            "period_id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.savings_events": {
+      "name": "savings_events",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "budget_update_id": {
+          "name": "budget_update_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_seq": {
+          "name": "recorded_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "savings_id": {
+          "name": "savings_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "previous_revision_id": {
+          "name": "previous_revision_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "supersedes_id": {
+          "name": "supersedes_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "logical_fact_id": {
+          "name": "logical_fact_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position_id": {
+          "name": "position_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "funding_period_id": {
+          "name": "funding_period_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "effective_date": {
+          "name": "effective_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "confirmed_at": {
+          "name": "confirmed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "action": {
+          "name": "action",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "before_state": {
+          "name": "before_state",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "amount_cents": {
+          "name": "amount_cents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "savings_events_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "savings_events_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "savings_events",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "savings_events_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk": {
+          "name": "savings_events_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk",
+          "tableFrom": "savings_events",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id",
+            "budget_update_id",
+            "recorded_seq"
+          ],
+          "tableTo": "budget_updates",
+          "columnsTo": [
+            "owner_user_id",
+            "account_id",
+            "id",
+            "recorded_seq"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "savings_events_owner_user_id_account_id_id_unique": {
+          "name": "savings_events_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "savings_nonnegative": {
+          "name": "savings_nonnegative",
+          "value": "\"savings_events\".\"amount_cents\">=0"
+        },
+        "saving_status": {
+          "name": "saving_status",
+          "value": "\"savings_events\".\"status\" IN ('ACTIVE','RELEASED') AND (\"savings_events\".\"status\"<>'RELEASED' OR \"savings_events\".\"amount_cents\"=0)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.savings_goals": {
+      "name": "savings_goals",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "budget_update_id": {
+          "name": "budget_update_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_seq": {
+          "name": "recorded_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "originating_period_id": {
+          "name": "originating_period_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "savings_goals_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "savings_goals_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "savings_goals",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "savings_goals_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk": {
+          "name": "savings_goals_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk",
+          "tableFrom": "savings_goals",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id",
+            "budget_update_id",
+            "recorded_seq"
+          ],
+          "tableTo": "budget_updates",
+          "columnsTo": [
+            "owner_user_id",
+            "account_id",
+            "id",
+            "recorded_seq"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "savings_goals_owner_user_id_account_id_id_unique": {
+          "name": "savings_goals_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.transfer_proposals": {
+      "name": "transfer_proposals",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expected_revision": {
+          "name": "expected_revision",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "base_checkpoint_id": {
+          "name": "base_checkpoint_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "base_allocation_revision_id": {
+          "name": "base_allocation_revision_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_period_id": {
+          "name": "target_period_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_period_id": {
+          "name": "source_period_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payload_identity": {
+          "name": "payload_identity",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proposal": {
+          "name": "proposal",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "transfer_proposals_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "transfer_proposals_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "transfer_proposals",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "transfer_proposals_owner_user_id_account_id_id_unique": {
+          "name": "transfer_proposals_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.transition_decisions": {
+      "name": "transition_decisions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_user_id": {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "budget_update_id": {
+          "name": "budget_update_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_seq": {
+          "name": "recorded_seq",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mode": {
+          "name": "mode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "observation_mode": {
+          "name": "observation_mode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "before_allocation_revision_id": {
+          "name": "before_allocation_revision_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "after_allocation_revision_id": {
+          "name": "after_allocation_revision_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position_id": {
+          "name": "position_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "confirmed_at": {
+          "name": "confirmed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "manifest": {
+          "name": "manifest",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "transition_decisions_owner_user_id_account_id_accounts_owner_user_id_id_fk": {
+          "name": "transition_decisions_owner_user_id_account_id_accounts_owner_user_id_id_fk",
+          "tableFrom": "transition_decisions",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id"
+          ],
+          "tableTo": "accounts",
+          "columnsTo": [
+            "owner_user_id",
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "transition_decisions_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk": {
+          "name": "transition_decisions_owner_user_id_account_id_budget_update_id_recorded_seq_budget_updates_owner_user_id_account_id_id_recorded_seq_fk",
+          "tableFrom": "transition_decisions",
+          "columnsFrom": [
+            "owner_user_id",
+            "account_id",
+            "budget_update_id",
+            "recorded_seq"
+          ],
+          "tableTo": "budget_updates",
+          "columnsTo": [
+            "owner_user_id",
+            "account_id",
+            "id",
+            "recorded_seq"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "transition_decisions_owner_user_id_account_id_id_unique": {
+          "name": "transition_decisions_owner_user_id_account_id_id_unique",
+          "columns": [
+            "owner_user_id",
+            "account_id",
+            "id"
+          ],
+          "nullsNotDistinct": false
+        },
+        "transition_decisions_budget_update_id_unique": {
+          "name": "transition_decisions_budget_update_id_unique",
+          "columns": [
+            "budget_update_id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "transition_mode": {
+          "name": "transition_mode",
+          "value": "\"transition_decisions\".\"mode\" IN ('CARRY','FRESH_START','DEFER') AND \"transition_decisions\".\"observation_mode\" IN ('ACTUAL_CHECK','REUSE_CONFIRMED') AND (\"transition_decisions\".\"mode\"<>'FRESH_START' OR \"transition_decisions\".\"observation_mode\"='ACTUAL_CHECK')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "google_subject": {
+          "name": "google_subject",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email_verified": {
+          "name": "email_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "locale": {
+          "name": "locale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ru'"
+        },
+        "theme": {
+          "name": "theme",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'system'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_google_subject_unique": {
+          "name": "users_google_subject_unique",
+          "columns": [
+            "google_subject"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "views": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

@@ -41,6 +41,26 @@ Owner clarification D26..D28 makes a fresh actual bank check + complete distribu
 Owner D29..D31 adds an explicit,nondefault A CARRY / B FRESH_START choice. FRESH_START confirms a real current observation,one complete new vector and a separate immutable non-carry decision,resetting past active planning balances while preserving their history and all full obligation/savings states. Review funding of those old earmarks into the current period;never infer payment/cancellation/release from reset. One account transaction handles several missed months without per-month transfers/checks/closes. Only unresolved A proposal details retain policy gates;B remains available regardless of old signs/count. Selection,validation and atomic repository boundaries are unchanged;no new runtime layer.
 
 ## Core read models
+
+HB-010 implements private server bank-confirmation/read composition on the existing
+HB-007/HB-009 boundary. Pure `domain/checkpoints` validates complete cash vectors,
+immutable day ordering, correction tips and state(H,K); infrastructure persists
+checkpoint/companion at one position and protects the chronological active head.
+An older insertion advances knowledge without replacing a later valid C/V.
+Microsecond UTC strings preserve instant order; shared/pure uses Date only for
+explicit-instant Berlin conversion. Reads capture account K once before loading
+immutable facts. Expected domain refusal throws inside the existing transaction.
+
+One forward migration supplements HB-006 date/predecessor/root/child guarantees;
+complete JSON manifests and historical dependencies remain runtime checks.
+Only actually affected existing report heads are flagged/audited; closing versions
+are never created or rewritten here. Unprovable report impact rejects explicitly.
+Production intervals expose D with K/U unavailable; a pure future confirmed-evidence
+contract performs checked unique-revision K/U without operation persistence.
+No layer/import allowance changes, UI, public endpoint or HB-011+ workflow.
+See [HB-010 contract](planning/hb-010-bank-checkpoints.md) and
+[verification](planning/hb-010-verification.md).
+
 - Latest confirmed bank balance by account (observed, not calculated from inferred net changes).
 - One active complete allocation revision anchored to the bank observation, full reserves and savings, period free balances; historical revisions are selected separately, not summed.
 - Daily projection with separate budget free/guideline and main safe estimate under D36,all-period protection diagnostics,observed date,as-of date and stale indicator;formula Accepted in ADR0003 after owner-reported final independent review;D37..D39 keeps old valid-state estimates visible,warning reads nonblocking,and reminder based on injected Berlin civil date (age>=7). No background/push/write side effects.

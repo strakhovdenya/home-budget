@@ -24,6 +24,8 @@ export type BatchWriter = (tx: Transaction, context: BatchContext) => Promise<re
 export class BatchFailure extends Error {
   constructor(readonly code: UpdateErrorCode) { super(code); }
 }
+/** Trusted writers throw expected domain refusals: returning an error would COMMIT. */
+export function rejectBatch(code: UpdateErrorCode): never { throw new BatchFailure(code); }
 /** Walks Drizzle error causes; never returns raw driver messages/SQL. */
 export function classifyTransactionError(error: unknown, callbackCompleted: boolean): UpdateErrorCode {
   const seen = new Set<unknown>();
@@ -69,7 +71,7 @@ export async function commitBatch(db: Database, request: CommitRequest, write: B
       }
       if (account.aggregateRevision !== command.expectedRevision) throw new BatchFailure('STALE_REVISION');
       if (account.aggregateRevision < 0n || account.recordedSeq < 0n || account.aggregateRevision >= MAX_CENTS || account.recordedSeq >= MAX_CENTS) throw new BatchFailure('REVISION_RANGE');
-      const timestamp = await tx.execute<{ recorded_at: string }>(sql`SELECT clock_timestamp()::text AS recorded_at`);
+      const timestamp = await tx.execute<{ recorded_at: string }>(sql`SELECT to_char(clock_timestamp() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS recorded_at`);
       const recordedAt = timestamp.rows[0].recorded_at;
       const today = berlinDateFromEpochMilliseconds(Date.parse(recordedAt));
       if (!today.ok || command.effectiveDate > today.value) throw new BatchFailure('INVALID_INPUT');

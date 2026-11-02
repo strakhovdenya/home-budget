@@ -1,5 +1,14 @@
 # Tooling configuration contract
 
+HB-010 uses the existing dependencies and commands unchanged. The integration
+suite includes `tests/integration/bank-checkpoints.test.ts`, creates a fresh child
+database in the approved password-authenticated PostgreSQL18 container and applies
+the full three-migration chain. HB10-DB01 reapplies it twice. Calendar/instant
+checks are also run with explicit TZ=UTC and TZ=America/Los_Angeles. Pure/static
+type assertions live in `tests/checkpoint-types.ts` and are compiled by typecheck,
+not executed as runtime tests. Exact local evidence and container lifecycle:
+[HB-010 verification](planning/hb-010-verification.md).
+
 HB-009 extends the existing transactional write primitive and adds pure unit and
 real PostgreSQL concurrency/audit tests. Integration config now resolves the
 existing @/ alias; the app allowlist permits the installed server-only marker.

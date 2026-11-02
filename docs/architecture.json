@@ -1,6 +1,20 @@
 {
   "version": 3,
   "project": "home-budget",
+  "hb010_bank_checkpoints": {
+    "composition": "private_server_HB007_auth_and_HB009_account_locked_commit",
+    "domain": "complete_cash_validation_ordering_corrections_state_H_K",
+    "historical_insert": "preserve_later_C_V_or_reject_HISTORICAL_STATE_CONFLICT_no_rebase",
+    "companion_position": "shared_position_effectiveDate_equals_observedDate",
+    "instant_order": "explicit_offset_canonical_UTC_six_fractional_digits",
+    "read_cut": "one_account_K_then_immutable_facts_only",
+    "domain_refusal": "throw_inside_existing_transaction_for_real_rollback",
+    "sql": "one_forward_0002_coordinate_predecessor_root_child_guards_JSON_runtime_owned",
+    "closed_reports": "affected_existing_heads_pending_atomic_audited_no_version_changes_unprovable_rejects",
+    "reconciliation": "D_production_K_U_unavailable_pure_future_confirmed_revision_evidence",
+    "public_endpoint": false,
+    "layer_directions_changed": false
+  },
   "hb009_write_boundary": {
     "authorization": "app_HB007_before_repository_and_scoped_account_lock_before_replay",
     "transaction": "existing_Drizzle_read_committed_account_row_lock",

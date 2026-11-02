@@ -1,5 +1,16 @@
 # Data model — checkpoint-first
 
+**HB-010 implementation:** private bank-checkpoint confirmation now persists one
+actual observation and complete companion vector at a shared historical position,
+with immutable ordering revisions/corrections and protected chronological current
+head. One forward SQL migration adds coordinate/ordering-chain guards without
+tables/columns. Reads select one H/K; affected existing report heads are audited
+pending flags only. Operation entities below remain logical future contracts:
+production reconciliation returns D and explicitly unavailable K/U. See the
+[HB-010 contract](planning/hb-010-bank-checkpoints.md) and
+[verification](planning/hb-010-verification.md); later sections preserve earlier
+specification/delivery context.
+
 **HB-006 implementation status:** the logical contract below remains the accepted target.
 The physical storage foundation now has 19 Drizzle tables and two versioned PostgreSQL
 migrations. The detailed [physical schema and enforcement map](DATABASE.md) distinguishes
