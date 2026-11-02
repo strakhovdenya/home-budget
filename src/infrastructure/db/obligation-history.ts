@@ -14,21 +14,22 @@ import { rejectBatch } from './commit';
 import type { createDatabase } from './client';
 import * as s from './schema';
 import { loadFundingEvidence } from './funding-evidence';
+import type { HistoryReadContext } from './history-read-context';
 type Connection = Pick<ReturnType<typeof createDatabase>['db'], 'select'>;
-export async function loadObligationHistory(db: Connection, scope: AuthorizedScope, cut: bigint): Promise<ObligationHistory> {
-  const history = await loadCheckpointHistory(db, scope, cut);
+export async function loadObligationHistory(db: Connection, scope: AuthorizedScope, cut: bigint, context?: HistoryReadContext): Promise<ObligationHistory> {
+  const history = context?.history ?? await loadCheckpointHistory(db, scope, cut);
   const rows = await db.select({ event: s.obligationEvents, origin: s.obligations.originatingPeriodId,
     confirmation: sql<string>`to_char(${s.obligationEvents.confirmedAt} AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')` })
     .from(s.obligationEvents).innerJoin(s.obligations, eq(s.obligations.id, s.obligationEvents.obligationId))
     .where(and(eq(s.obligationEvents.ownerUserId, scope.ownerUserId), eq(s.obligationEvents.accountId, scope.accountId), lte(s.obligationEvents.recordedSeq, cut)));
-  const audits = await db.select().from(s.auditEvents).where(and(eq(s.auditEvents.ownerUserId, scope.ownerUserId), eq(s.auditEvents.accountId, scope.accountId), lte(s.auditEvents.recordedSeq, cut)));
+  const audits = context?.audits ?? await db.select().from(s.auditEvents).where(and(eq(s.auditEvents.ownerUserId, scope.ownerUserId), eq(s.auditEvents.accountId, scope.accountId), lte(s.auditEvents.recordedSeq, cut)));
   const events: ObligationEvent[] = await Promise.all(rows.map(async ({ event: e, origin, confirmation }) => {
     const day = parseBerlinDate(e.effectiveDate), due = e.dueDate === null ? null : parseBerlinDate(e.dueDate), bank = e.bankDate === null ? null : parseBerlinDate(e.bankDate);
     if (!day.ok || (due && !due.ok) || (bank && !bank.ok) || !parseInstant(confirmation).ok) return rejectBatch('HISTORICAL_PAYMENT_CONFLICT');
     const event: ObligationEvent = { ...e, originatingPeriodId: origin, effectiveDate: day.value, dueDate: due?.ok ? due.value : null,
       bankDate: bank?.ok ? bank.value : null, confirmedAt: confirmation, action: e.action as Action, status: e.status as ObligationEvent['status'], beforeState: e.beforeState as ObligationEvent['beforeState'], payment: null };
     if (e.action === 'PAID' || e.action === 'PARTIAL_SETTLEMENT') {
-      const matches = audits.filter(a => {
+      const matches = context?.auditByEntity.get(`OBLIGATION_STATE:${e.id}`) ?? audits.filter(a => {
         const d = a.beforeAfter;
         return d && typeof d === 'object' && 'entity' in d && exactKeys(d.entity, ['type', 'id']) && d.entity.type === 'OBLIGATION_STATE' && d.entity.id === e.id;
       });
@@ -43,7 +44,7 @@ export async function loadObligationHistory(db: Connection, scope: AuthorizedSco
         || typeof p.unchangedBalanceAcknowledged !== 'boolean' || !validUuid(p.checkpointId) || p.beforeRevisionId !== e.previousRevisionId || p.afterRevisionId !== e.id) return rejectBatch('HISTORICAL_PAYMENT_CONFLICT');
       event.payment = { ...p, amountCents: amount.value } as Payment;
     }
-    if(e.action==='FUNDING_TRANSFER') event.fundingProof=await loadFundingEvidence(db,scope,cut,e,snapshot(event));
+    if(e.action==='FUNDING_TRANSFER') event.fundingProof=await loadFundingEvidence(db,scope,cut,e,snapshot(event),context);
     return event;
   }));
   return { ...history, events };

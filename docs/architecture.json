@@ -1,6 +1,16 @@
 {
-  "version": 6,
+  "version": 7,
   "project": "home-budget",
+  "hb014_projection": {
+    "read": "private_HB007_repeatable_read_read_only_single_K_and_server_Berlin_date",
+    "identity_completeness": "independent_creation_sequence_enumeration_full_chains_at_K",
+    "pointer": "compare_only_full_captured_K_and_H_covering_financial_positions",
+    "domain": "pure_ALL_PERIOD_MAX_V1_and_D37_D39_checked_int64",
+    "bounds": "source_rows_bytes_validation_work_and_exact_UTF8_wire_refusal",
+    "storage_changes": false,
+    "layer_directions_changed": false,
+    "public_endpoint": false
+  },
   "hb013_period_transitions": {
     "composition": "private_HB007_HB009_single_financial_commit",
     "allocation_only": "complete_vector_explicit_retained_funding_review_no_bank_check",

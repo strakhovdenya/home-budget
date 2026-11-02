@@ -130,10 +130,13 @@ review completed; owner accepted HB-010 on 2026-11-02; open findings 0/0/0/0.
 **Review artifacts:** [contract](planning/hb-013-period-allocations.md), [acceptance mapping](../tests/scenarios/phase-01/hb-013-period-allocations.md), [actual verification](planning/hb-013-verification.md). Private allocation-only redistribution, confirmed CARRY/FRESH_START/DEFER, immutable full funding states, scoped proposal/cancellation and proven semantic replay; one forward0005. Independent static source/fixture review completed; calendar-fixture High fixed, re-reviewed and accepted; open findings Critical/High/Medium/Low: 0/0/0/0. Owner accepted HB-013 on 2026-11-02. Final evidence: 533/533 unit, 278/278 PostgreSQL (76/76 HB-013), timezone subset 281/281 in each environment; lint/typecheck/build/architecture and migration0005/replay PASS. Test execution is implementer evidence, not an independent reviewer rerun. No commit/push/PR/merge performed; publication and CI/merge evidence remain separate.
 
 ### HB-014 · Daily forecast and full budget projection API
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-003, HB-010..HB-013 · **Area:** finance
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-003, HB-010..HB-013 · **Area:** finance
 **Deliverables:** pure read models for account,period budget free/reserved/savings,secondary budget guideline,main safe daily estimate under reviewed HB-003 formula,and actual observation freshness.
 **Acceptance:** dates inclusive, cents floor, negative free gives daily zero, no invented observed daily bank amounts; period switch safe.
 **Cases:** F-003/F-006/F-008/F-009.
+
+**Review artifacts:** [contract](planning/hb-014-daily-forecast.md), [scenario mapping](../tests/scenarios/phase-01/hb-014-daily-forecast.md), [verification](planning/hb-014-verification.md).
+Owner accepted HB-014 on 2026-11-02. Independent static source/test review completed: APPROVED; open findings Critical/High/Medium/Low: 0/0/0/0. Codex execution evidence: 639/639 unit, 302/302 PostgreSQL (106 unit + 24 PostgreSQL targeted HB-014), timezone subset 503/503 in each environment; lint/typecheck/build/architecture and existing migration apply/reapply passed. The independent reviewer inspected source and tests but did not run PostgreSQL/Vitest; this static review is separate from Codex's executed verification. No commit, push, PR, CI run or merge performed for HB-014; Git publication is a separate step.
 
 ### HB-015 · Finance domain tests and CI gate
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-004, HB-006..HB-014 · **Area:** quality
