@@ -4,7 +4,7 @@ import { and, eq, sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { MAX_CENTS } from '@/domain/money/money';
 import { encodeCanonical } from '@/domain/updates/canonical-value';
-import type { AuditDescriptor, AuthorizedScope, PreparedCommand, UpdateErrorCode } from '@/domain/updates/contracts';
+import type { AuditDescriptor, AuthorizedScope, PreparedCommand, UpdateErrorCode, CommitReceipt } from '@/domain/updates/contracts';
 import { isPreparedCommand, parseReceipt, validUuid } from '@/domain/updates/validation';
 import { berlinDateFromEpochMilliseconds } from '@/shared/pure/berlin-date';
 import { auditDocuments } from './audit-writer';
@@ -15,6 +15,7 @@ type Database = NodePgDatabase<typeof schema>;
 export type Transaction = Parameters<Parameters<Database['transaction']>[0]>[0];
 export interface CommitRequest {
   readonly scope: AuthorizedScope; readonly kind: string; readonly command: PreparedCommand;
+  readonly replay?: (tx:Transaction,account:Readonly<typeof schema.accounts.$inferSelect>,identity:string)=>Promise<CommitReceipt|null>;
 }
 export type BatchContext = Readonly<{
   id: string; recordedSeq: bigint; recordedAt: string;
@@ -48,6 +49,7 @@ export async function commitBatch(db: Database, request: CommitRequest, write: B
   if (!validUuid(ownerUserId) || !validUuid(accountId)) throw new BatchFailure('FORBIDDEN');
   ownerUserId = ownerUserId.toLowerCase(); accountId = accountId.toLowerCase();
   if (typeof kind !== 'string' || kind !== kind.trim() || !/^[A-Z][A-Z0-9_]{0,63}$/.test(kind) || !isPreparedCommand(command)) throw new BatchFailure('INVALID_INPUT');
+  if(request.replay&&kind!=='PERIOD_TRANSITION')throw new BatchFailure('INVALID_INPUT');
   const identity = createHash('sha256').update(encodeCanonical({ owner: ownerUserId, account: accountId, kind,
     expectedRevision: command.expectedRevision.toString(), payload: command.payload,
     effectiveDate: command.effectiveDate, reason: command.reason })).digest('hex');
@@ -69,6 +71,7 @@ export async function commitBatch(db: Database, request: CommitRequest, write: B
         callbackCompleted = true;
         return receipt.value;
       }
+      if(request.replay){const replay=await request.replay(tx,account,identity);if(replay){const valid=parseReceipt(replay);if(!valid.ok)throw new BatchFailure('STORAGE_ERROR');callbackCompleted=true;return valid.value;}}
       if (account.aggregateRevision !== command.expectedRevision) throw new BatchFailure('STALE_REVISION');
       if (account.aggregateRevision < 0n || account.recordedSeq < 0n || account.aggregateRevision >= MAX_CENTS || account.recordedSeq >= MAX_CENTS) throw new BatchFailure('REVISION_RANGE');
       const timestamp = await tx.execute<{ recorded_at: string }>(sql`SELECT to_char(clock_timestamp() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS recorded_at`);

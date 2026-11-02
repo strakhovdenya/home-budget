@@ -6,6 +6,7 @@ import type { BerlinDate } from '@/shared/pure/calendar';
 import type { Result } from '@/shared/pure/result';
 import type { SavingEvent, SavingHistory, SavingState } from './contracts';
 import { businessState, snapshot, transition, validState } from './lifecycle';
+import { validFundingProof } from '@/domain/transitions/funding';
 
 /** Full states are selected; immutable confirmed amounts are only consistency evidence. */
 export function validateSavingHistory(h: SavingHistory): Result<readonly SavingEvent[], UpdateErrorCode> {
@@ -15,7 +16,7 @@ export function validateSavingHistory(h: SavingHistory): Result<readonly SavingE
   const bad = { ok: false, code: 'HISTORICAL_SAVINGS_CONFLICT' } as const;
   const visible = h.savings.filter(e => e.recordedSeq <= h.knowledgeCut);
   for (const e of visible) {
-    if (!validState(e) || !['CREATE','AMEND','INCREASE','PARTIAL_RELEASE','FULL_RELEASE'].includes(e.action)
+    if (!validState(e) || !['CREATE','AMEND','INCREASE','PARTIAL_RELEASE','FULL_RELEASE','FUNDING_TRANSFER'].includes(e.action)
       || !h.positions.some(p => p.id === e.positionId && p.historicalDate === e.effectiveDate && p.recordedSeq <= e.recordedSeq)) return bad;
     if (e.supersedesId) {
       const old = visible.find(x => x.id === e.supersedesId);
@@ -24,6 +25,7 @@ export function validateSavingHistory(h: SavingHistory): Result<readonly SavingE
         || old.confirmedReleasedAmount !== e.confirmedReleasedAmount || old.confirmedIncreaseAmount !== e.confirmedIncreaseAmount) return bad;
     }
     const p = visible.find(x => x.id === e.previousRevisionId);
+    if(e.action==='FUNDING_TRANSFER' ? !p||!validFundingProof(e,p)||e.confirmedIncreaseAmount!==null||e.confirmedReleasedAmount!==null : !!e.transitionDecisionId||!!e.fundingProof)return bad;
     if (e.action === 'CREATE') {
       if (e.previousRevisionId !== null || e.beforeState !== null || e.status !== 'ACTIVE' || e.confirmedIncreaseAmount !== null || e.confirmedReleasedAmount !== null) return bad;
     } else {
@@ -32,8 +34,8 @@ export function validateSavingHistory(h: SavingHistory): Result<readonly SavingE
         || !(index.value.compare(p.positionId, e.positionId) < 0) || encodeCanonical(e.beforeState) !== encodeCanonical(snapshot(p))) return bad;
       const financial = e.action === 'INCREASE' ? e.confirmedIncreaseAmount : e.action === 'AMEND' ? null : e.confirmedReleasedAmount;
       if ((e.action === 'INCREASE' && e.confirmedReleasedAmount !== null) || (e.action !== 'INCREASE' && e.confirmedIncreaseAmount !== null)
-        || (e.action === 'AMEND' && e.confirmedReleasedAmount !== null) || (e.action !== 'AMEND' && financial === null)) return bad;
-      const result = transition(p, e.action, e.action === 'AMEND' ? { title: e.title } : { amountCents: financial! });
+        || (e.action === 'AMEND' && e.confirmedReleasedAmount !== null) || (e.action !== 'AMEND' && e.action!=='FUNDING_TRANSFER' && financial === null)) return bad;
+      const result = transition(p, e.action, e.action==='FUNDING_TRANSFER'?{fundingPeriodId:e.fundingPeriodId}:e.action === 'AMEND' ? { title: e.title } : { amountCents: financial! });
       if (!result.ok || encodeCanonical({ ...result.value }) !== encodeCanonical({ ...businessState(e) })) return bad;
     }
   }

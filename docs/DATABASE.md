@@ -1,5 +1,29 @@
 # HB-006 database runbook and physical contract
 
+## HB-013 current forward extension
+
+Current chain is0000–0005;20 tables. 0005_period_transfers.sql adds cancellation
+control storage, proposal mode/observation, unique decision/proposal linkage and
+nullable scoped funding decision refs. Existing0000–0004 remain unchanged.
+Its custom SQL extends the original lifecycle functions: FUNDING_TRANSFER alone
+may change funding while preserving amount/status/title/origin/selection and exact
+canonical predecessor. Same-batch position/decision/source/target linkage and one
+funding event per identity/decision are enforced; terminal reopening remains invalid.
+
+Deferred guards retain complete-vector sums and immutable sealing, compare the
+confirmed vector to the proposal, enforce CARRY-only transfer lineage and exclude
+simultaneous confirmed/cancelled outcomes. Cancellation is append-only and has a
+separate scoped control request identity; it consumes no financial counter/receipt.
+SQL owner/account FKs protect references, not authentication or genuine consent.
+Complete review manifests, evidence completeness, H/K, full suffix validation and
+target-current-month checks remain trusted-runtime responsibilities.
+
+All financial writes still use commitBatch. Its narrow trusted replay resolver
+executes after standard authorized request replay but before new-action stale/time
+checks, validating the original immutable update/receipt/funding mapping. No new
+transaction manager, startup migration, hosted connection or arbitrary-event API.
+Evidence: [HB-013 verification](planning/hb-013-verification.md).
+
 ## HB-010 forward extension
 
 HB-010 adds exactly `0002_checkpoint_positions.sql`, leaving 0000/0001 unchanged.

@@ -7,5 +7,6 @@ export function savingAuditAfter(e: SavingEvent): CanonicalValue {
     action: e.action, confirmedIncreaseAmount: e.confirmedIncreaseAmount?.toString() ?? null,
     confirmedReleasedAmount: e.confirmedReleasedAmount?.toString() ?? null,
     beforeRevisionId: e.previousRevisionId, afterRevisionId: e.id, stateBefore: e.beforeState, stateAfter: snapshot(e),
-    effectiveDate: e.effectiveDate, positionId: e.positionId, supersedesId: e.supersedesId, confirmedAt: e.confirmedAt };
+    effectiveDate: e.effectiveDate, positionId: e.positionId, supersedesId: e.supersedesId, confirmedAt: e.confirmedAt,
+    ...(e.action==='FUNDING_TRANSFER'?{transitionDecisionId:e.transitionDecisionId??null,fundingProof:e.fundingProof?{...e.fundingProof}:null}:{}) };
 }

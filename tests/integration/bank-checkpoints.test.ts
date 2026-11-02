@@ -60,12 +60,12 @@ async function append(f: Scope, day: string) {
   return { expectedOrderingRevisionId: tip?.id ?? null, afterPositionId: order?.positionIds.at(-1) ?? null, beforePositionId: null };
 }
 
-it('HB10-DB01 fresh migration chain has 19 tables and reapplication twice is a no-op', async () => {
+it('HB10-DB01 fresh migration chain has 20 tables and reapplication twice is a no-op', async () => {
   const before = await database.db.execute(sql`SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name`);
-  expect(before.rows).toHaveLength(19);
+  expect(before.rows).toHaveLength(20);
   await migrate(database.db, { migrationsFolder: './drizzle' }); await migrate(database.db, { migrationsFolder: './drizzle' });
   expect((await database.db.execute(sql`SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name`)).rows).toEqual(before.rows);
-  expect((await database.db.execute(sql`SELECT * FROM drizzle.__drizzle_migrations`)).rows).toHaveLength(5);
+  expect((await database.db.execute(sql`SELECT * FROM drizzle.__drizzle_migrations`)).rows).toHaveLength(6);
 });
 it('HB10-DB02 first confirmation atomically stores actual B, full A, shared position, audit and provenance', async () => {
   const f = await fixture();

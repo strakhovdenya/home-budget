@@ -13,6 +13,7 @@ import { loadCheckpointHistory } from './checkpoint-history';
 import { rejectBatch } from './commit';
 import type { createDatabase } from './client';
 import * as s from './schema';
+import { loadFundingEvidence } from './funding-evidence';
 type Connection = Pick<ReturnType<typeof createDatabase>['db'], 'select'>;
 export async function loadObligationHistory(db: Connection, scope: AuthorizedScope, cut: bigint): Promise<ObligationHistory> {
   const history = await loadCheckpointHistory(db, scope, cut);
@@ -21,7 +22,7 @@ export async function loadObligationHistory(db: Connection, scope: AuthorizedSco
     .from(s.obligationEvents).innerJoin(s.obligations, eq(s.obligations.id, s.obligationEvents.obligationId))
     .where(and(eq(s.obligationEvents.ownerUserId, scope.ownerUserId), eq(s.obligationEvents.accountId, scope.accountId), lte(s.obligationEvents.recordedSeq, cut)));
   const audits = await db.select().from(s.auditEvents).where(and(eq(s.auditEvents.ownerUserId, scope.ownerUserId), eq(s.auditEvents.accountId, scope.accountId), lte(s.auditEvents.recordedSeq, cut)));
-  const events: ObligationEvent[] = rows.map(({ event: e, origin, confirmation }) => {
+  const events: ObligationEvent[] = await Promise.all(rows.map(async ({ event: e, origin, confirmation }) => {
     const day = parseBerlinDate(e.effectiveDate), due = e.dueDate === null ? null : parseBerlinDate(e.dueDate), bank = e.bankDate === null ? null : parseBerlinDate(e.bankDate);
     if (!day.ok || (due && !due.ok) || (bank && !bank.ok) || !parseInstant(confirmation).ok) return rejectBatch('HISTORICAL_PAYMENT_CONFLICT');
     const event: ObligationEvent = { ...e, originatingPeriodId: origin, effectiveDate: day.value, dueDate: due?.ok ? due.value : null,
@@ -42,7 +43,8 @@ export async function loadObligationHistory(db: Connection, scope: AuthorizedSco
         || typeof p.unchangedBalanceAcknowledged !== 'boolean' || !validUuid(p.checkpointId) || p.beforeRevisionId !== e.previousRevisionId || p.afterRevisionId !== e.id) return rejectBatch('HISTORICAL_PAYMENT_CONFLICT');
       event.payment = { ...p, amountCents: amount.value } as Payment;
     }
+    if(e.action==='FUNDING_TRANSFER') event.fundingProof=await loadFundingEvidence(db,scope,cut,e,snapshot(event));
     return event;
-  });
+  }));
   return { ...history, events };
 }

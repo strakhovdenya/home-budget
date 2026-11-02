@@ -29,7 +29,7 @@ afterAll(async () => { await database?.close(); await admin?.end(); });
 
 it('DB01/02 setup migrates fresh PostgreSQL and replay preserves tables', async () => {
   const before = await database.db.execute(sql`SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name`);
-  expect(before.rows).toHaveLength(19);
+  expect(before.rows).toHaveLength(20);
   await migrate(database.db, { migrationsFolder: './drizzle' });
   const after = await database.db.execute(sql`SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name`);
   expect(after.rows).toEqual(before.rows);
@@ -56,8 +56,8 @@ async function vector(f: Fixture, amounts = [n(6000),n(4000)], balance = n(10000
     if(anchor) {
       const [account]=await tx.select().from(s.accounts).where(eq(s.accounts.id,f.accountId));
       const proposalId=randomUUID(), decisionId=randomUUID();
-      await tx.insert(s.transferProposals).values({id:proposalId,ownerUserId:f.ownerUserId,accountId:f.accountId,expectedRevision:request.expectedRevision,baseCheckpointId:anchor,baseAllocationRevisionId:account.activeAllocationRevisionId!,sourcePeriodId:f.periodIds[0],targetPeriodId:f.periodIds[1],payloadIdentity:'synthetic-transfer',proposal:{baseRevision:account.activeAllocationRevisionId,allocations:amounts.map(String),funding:[]}});
-      await tx.insert(s.transitionDecisions).values({...base,id:decisionId,mode:'CARRY',observationMode:'REUSE_CONFIRMED',beforeAllocationRevisionId:account.activeAllocationRevisionId,afterAllocationRevisionId:revisionId,positionId,manifest:{funding:[]},reason:'Synthetic single-source transfer'});
+      await tx.insert(s.transferProposals).values({id:proposalId,ownerUserId:f.ownerUserId,accountId:f.accountId,expectedRevision:request.expectedRevision,baseCheckpointId:anchor,baseAllocationRevisionId:account.activeAllocationRevisionId!,sourcePeriodId:f.periodIds[0],targetPeriodId:f.periodIds[1],mode:'CARRY',observationMode:'REUSE_CONFIRMED',payloadIdentity:'synthetic-transfer',proposal:{schemaVersion:1,input:{allocations:amounts.map((a,i)=>({period:['2020-11','2020-12'][i],amountCents:a.toString()}))}}});
+      await tx.insert(s.transitionDecisions).values({...base,id:decisionId,proposalId,mode:'CARRY',observationMode:'REUSE_CONFIRMED',beforeAllocationRevisionId:account.activeAllocationRevisionId,afterAllocationRevisionId:revisionId,positionId,manifest:{funding:[],targetPeriodId:f.periodIds[1]},reason:'Synthetic single-source transfer'});
       await tx.insert(s.budgetTransfers).values({...base,id:randomUUID(),proposalId,decisionId,sourcePeriodId:f.periodIds[0],targetPeriodId:f.periodIds[1],beforeAllocationRevisionId:account.activeAllocationRevisionId!,afterAllocationRevisionId:revisionId,fundingManifest:[]});
     }
     if (amounts.length) await tx.insert(s.periodAllocations).values(amounts.map((amountCents,i)=>({id:randomUUID(),ownerUserId:f.ownerUserId,accountId:f.accountId,allocationRevisionId:revisionId,periodId:f.periodIds[i],amountCents})));

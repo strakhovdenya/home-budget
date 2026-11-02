@@ -3,12 +3,13 @@ import type { Result } from '@/shared/pure/result';
 import type { CheckpointErrorCode } from '@/domain/checkpoints/contracts';
 import type { ObligationErrorCode } from '@/domain/obligations/contracts';
 import type { SavingErrorCode } from '@/domain/savings/contracts';
+import type { TransitionError } from '@/domain/transitions/contracts';
 export type CanonicalValue = null | string | boolean | number | bigint
   | readonly CanonicalValue[] | { readonly [key: string]: CanonicalValue };
 export type UpdateErrorCode = 'UNAUTHORIZED' | 'FORBIDDEN' | 'INVALID_INPUT'
   | 'REQUEST_PAYLOAD_CONFLICT' | 'STALE_REVISION' | 'REVISION_RANGE'
   | 'INVALID_AUDIT' | 'TRANSACTION_FAILED' | 'RETRYABLE_STORAGE_ERROR'
-  | 'COMMIT_OUTCOME_UNKNOWN' | 'STORAGE_ERROR' | CheckpointErrorCode | ObligationErrorCode | SavingErrorCode;
+  | 'COMMIT_OUTCOME_UNKNOWN' | 'STORAGE_ERROR' | CheckpointErrorCode | ObligationErrorCode | SavingErrorCode | TransitionError;
 export type AuthorizedScope = Readonly<{ ownerUserId: string; accountId: string }>;
 export type PreparedCommand = Readonly<{
   requestId: string; expectedRevision: bigint; effectiveDate: BerlinDate;

@@ -1,5 +1,17 @@
 # Engineering conventions
 
+HB-013: transition wire money is canonical decimal strings. REDISTRIBUTE requires
+explicit allocation-only/unchanged-funding review; amount patterns never imply
+CARRY. FRESH_START pins untouched future amounts and requires exact explicit edits
+for every changed future period. Funding uses FUNDING_TRANSFER with full immutable
+before/after/decision evidence, never AMEND or invented payment/release amounts.
+Combined facts share one position/date/batch, with strictly earlier per-identity
+predecessors. Unsupported compound/joint corrections and oversized sets refuse.
+Cross-request proposal replay excludes requestId only from the business identity;
+generated commit coordinates are checked separately, and today's month is not
+consulted for a proven original confirmation. Cancellation uses its own scoped
+immutable control identity. Normal HB-009 same-request canonical rules are unchanged.
+
 - Strict TypeScript, named functions for finance domain, no any in domain, no money Number fractions. Use branded MoneyCents / PeriodKey / AccountId where practical.
 - All finance domain calculations are pure and deterministic with injected clock. Database updates within transaction, idempotency key, optimistic version.
 - Layer imports follow docs/architecture.json; domain never imports Next/MUI/Drizzle.
