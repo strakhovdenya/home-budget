@@ -1,4 +1,5 @@
 {
+  "auth": {"title": "Welcome home", "description": "Sign in with the owner's Google account to open your budget.", "login": "Continue with Google", "pending": "Signing in…", "logout": "Sign out", "signedIn": "Signed in", "signedOut": "Signed out", "unavailable": "Sign-in is currently unavailable. Please try again later.", "error": "Sign-in was denied or could not be completed. Please try again with the authorized account."},
   "shell": {"tagline": "A clear view of your budget", "navigation": "Main navigation", "openMenu": "Open navigation", "closeMenu": "Close navigation", "skip": "Skip to content", "preview": "Application preview", "footer": "Your budget, at your pace.", "metadata": "Home Budget — your personal budget"},
   "navigation": {"overview": "Overview", "obligations": "Obligations", "savings": "Savings", "months": "Months", "settings": "Settings"},
   "preferences": {"language": "Language", "theme": "Appearance", "light": "Light", "dark": "Dark", "system": "System", "ru": "Русский", "de": "Deutsch", "en": "English", "saved": "Your preferences are saved in this browser.", "error": "Could not save the language. Please try again."},

@@ -1,5 +1,10 @@
 # HB-006 database runbook and physical contract
 
+HB-007 adds a lazy runtime identity repository using the existing users and
+accounts tables, with no migration. Only a verified allowlisted Google callback
+may provision an identity; existing subjects are never replaced. See [AUTH.md](AUTH.md).
+The historical HB-006 statements below describe its original unauthenticated shell.
+
 Status: HB-006 Done after independent review and owner acceptance. No financial API is exposed. The shell
 does not import a database client, run migrations or require a connection.
 

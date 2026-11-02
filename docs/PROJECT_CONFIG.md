@@ -1,9 +1,18 @@
 # Tooling configuration contract
 
+HB-007 adds pinned `next-auth` 5.0.0-beta.32 (published Next 16 / React 19 peer
+ranges), Google-only sign-in, protected pages and server identity checks. See
+[authentication runbook](AUTH.md) and [verification](planning/hb-007-verification.md).
+`pnpm test` includes policy/callback/boundary/Auth.js cookie-route tests;
+`pnpm test:integration` includes real PostgreSQL identity/ownership tests. Existing
+CI globs execute them without OAuth credentials. Vitest inlines `next-auth` to
+resolve its extensionless Next imports; `server-only` resolves to its empty test
+entry only in test runners. No production auth bypass is added.
+
 HB-004 introduced the Next.js App Router runtime and is accepted by the owner.
 HB-005 adds MUI and next-intl and is accepted by the owner. HB-006 adds the
-PostgreSQL/Drizzle storage foundation, accepted after independent review. Authentication and financial
-application use cases are not implemented. The UI shell needs no database;
+PostgreSQL/Drizzle storage foundation, accepted after independent review. HB-007
+adds authentication; financial application use cases remain unimplemented. Anonymous pages need no database;
 explicit persistence commands use the environment described in [DATABASE.md](DATABASE.md).
 
 ## Pinned versions

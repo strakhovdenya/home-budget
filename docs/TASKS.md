@@ -72,9 +72,10 @@ MVP common baseline is P0 tasks through HB-021. Inclusion of P1 HB-020 is pendin
 **Accepted scope:** 19 storage tables, versioned generated/custom SQL, private account-locked batch primitive and real PostgreSQL tests. [Implementation, evidence and remaining use-case gates](planning/hb-006-verification.md). Independent review completed, both findings fixed, owner acceptance confirmed on 2026-11-02. HB-007 authorization and later financial preview/selection/confirmation use cases remain unimplemented.
 
 ### HB-007 · Google OAuth with single-user allowlist
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-004, HB-006 · **Area:** security
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-004, HB-006 · **Area:** security
 **Deliverables:** protected routes, server-side identity/ownership checks, env example.
 **Acceptance:** Google account not allowlisted denied; cannot read/write via direct endpoint bypass; session secure; secrets never committed.
+**Evidence:** [HB-007 verification and Skill usage evidence](planning/hb-007-verification.md); independent review and live OAuth acceptance pending.
 
 ### HB-008 · Money, dates and financial-period types
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-003, HB-004 · **Area:** domain
