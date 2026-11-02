@@ -78,9 +78,11 @@ MVP common baseline is P0 tasks through HB-021. Inclusion of P1 HB-020 is pendin
 **Evidence:** [HB-007 verification and Skill usage evidence](planning/hb-007-verification.md); independent review and live OAuth acceptance pending.
 
 ### HB-008 · Money, dates and financial-period types
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-003, HB-004 · **Area:** domain
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-003, HB-004 · **Area:** domain
 **Deliverables:** pure cents arithmetic, Berlin date/period utilities.
 **Acceptance:** no floating point money; cents totals exact; period boundary in Europe/Berlin; leap year/end-of-month verified with unit tests.
+
+**Review artifacts:** [approved scope and implemented API](planning/hb-008-money-dates.md), [executed verification and acceptance](planning/hb-008-verification.md). Pure signed-int64 bigint primitives, exact string/JSON codecs, Gregorian dates for years 0001..9999, Berlin instant conversion and financial periods implemented. Independent review completed with Critical/High/Medium/Low: 0/0/0/0; approved without corrections. Owner explicitly accepted HB-008 on 2026-11-02. Reviewer additionally reports 27212 primitive checks in each of TZ=UTC and TZ=America/Los_Angeles; earlier lint/typecheck/Vitest/build evidence belongs to Codex, not a reviewer rerun. No database/auth/dependency changes, commit, push or PR.
 
 ### HB-009 · Event/audit storage and idempotent updates
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-006, HB-008 · **Area:** domain/persistence
