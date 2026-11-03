@@ -12,7 +12,7 @@ it('HB9-U02 sorts keys but preserves array order and types', () => {
   expect(new Set([1, '1', 1n].map(canonicalPayload)).size).toBe(3);
   expect(canonicalPayload([1, 2])).not.toBe(canonicalPayload([2, 1]));
 });
-it.each([undefined, NaN, Infinity, 1.5, new Date(0), new Map(), Object.create(null), Array(1), [undefined], () => 1])('HB9-U03 rejects unsafe value %s', value => {
+it.each([undefined, NaN, Infinity, 1.5, new Date(0), new Map(), Object.create(null), Array(1), [undefined], () => 1])('HB9-U03 rejects unsafe value %s [case %#]', value => {
   expect(() => canonicalPayload(value)).toThrow('INVALID_CANONICAL_PAYLOAD');
 });
 it('HB9-U04 rejects accessors/symbols/non-enumerables/array extras without calling getters', () => {

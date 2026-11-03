@@ -239,7 +239,7 @@ it('HB10-DB17 mutable input is copied before async auth; original mutation canno
   const replay = await commitBatch(database.db, { scope: f, kind: 'BANK_CHECKPOINT', command: value(prepareCommand({ ...raw, payload: input() })) }, writeBankCheckpoint);
   expect(replay.aggregateRevision).toBe('1');
 });
-it.each([[MAX_CENTS, 0n], [0n, MAX_CENTS]])('HB10-DB18 signed int64 counter endpoint refuses without rows', async (rev, seq) => {
+it.each([[MAX_CENTS, 0n], [0n, MAX_CENTS]])('HB10-DB18 signed int64 counter endpoint refuses without rows [case %#]', async (rev, seq) => {
   const f = await fixture(rev, seq), before = await snapshot(f);
   await expect(confirm(f, '2026-10-05', '1', rev)).rejects.toThrow('REVISION_RANGE'); expect(await snapshot(f)).toEqual(before);
 });

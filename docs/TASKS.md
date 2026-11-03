@@ -139,10 +139,13 @@ review completed; owner accepted HB-010 on 2026-11-02; open findings 0/0/0/0.
 Owner accepted HB-014 on 2026-11-02. Independent static source/test review completed: APPROVED; open findings Critical/High/Medium/Low: 0/0/0/0. Codex execution evidence: 639/639 unit, 302/302 PostgreSQL (106 unit + 24 PostgreSQL targeted HB-014), timezone subset 503/503 in each environment; lint/typecheck/build/architecture and existing migration apply/reapply passed. The independent reviewer inspected source and tests but did not run PostgreSQL/Vitest; this static review is separate from Codex's executed verification. No commit, push, PR, CI run or merge performed for HB-014; Git publication is a separate step.
 
 ### HB-015 · Finance domain tests and CI gate
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-004, HB-006..HB-014 · **Area:** quality
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-004, HB-006..HB-014 · **Area:** quality
 **Deliverables:** Vitest unit, DB integration, CI guard for business invariants.
 **Execution:** this task consolidates coverage and CI evidence, not the first writing of tests. HB-004 establishes the runner; HB-006..HB-014 add/run their relevant tests alongside each implementation. No UI use of finance projections before the HB-015 gate.
 **Acceptance:** scenario IDs mapped to executed tests; authentication and concurrency covered; exact command output recorded; no claims of success without running.
+
+**Review artifacts:** [contract](planning/hb-015-finance-tests-ci.md), [scenario specification](../tests/scenarios/phase-01/hb-015-finance-tests-ci.md), [verification and Owner Acceptance](planning/hb-015-verification.md).
+Owner accepted HB-015 on 2026-11-03. Owner-reported independent ChatGPT repeat review R1: APPROVED; open findings Critical/High/Medium/Low: 0/0/0/0. Codex's executed R1 evidence: 729/729 unit (including 84 checker tests), 302/302 PostgreSQL integration, 509/509 LA subset with exact UTC identity parity; finance coverage gate, lint/typecheck/build/architecture, migration apply/reapply and isolated DB17 passed. These are recorded R1 runs, not new documentation-finalization runs. Independent review approval is separate from Codex execution; no additional ChatGPT test execution is claimed. No GitHub Actions run or branch-protection verification is claimed. Commit, push, PR, merge and deploy require a separate owner publication instruction.
 
 ## M2 — End-to-end first usable version
 

@@ -17,7 +17,7 @@ describe('HB-008 / BR-10 proleptic Gregorian civil dates', () => {
     '2028-02-30', '2026-04-31', '2026-00-01', '2026-13-01', '2026-01-00', '2026-01-32',
     '2026-1-01', '2026-01-1', '26-01-01', '2026-01-01T00:00:00Z', '2026-01-01\n',
     ' 2026-01-01', '２０２６-01-01', '', null, undefined, 20260101, new Date(0),
-  ])('rejects invalid date %s', (value) => {
+  ])('rejects invalid date case %#', (value) => {
     expect(parseBerlinDate(value)).toEqual({ ok: false, code: 'INVALID_DATE' });
   });
 

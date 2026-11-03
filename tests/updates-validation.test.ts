@@ -6,7 +6,7 @@ it.each([
   { actorId: ownerId }, { ownerUserId: ownerId }, { accountId: ownerId }, { requestId: 'bad' }, { requestId: ownerId + '\n' },
   { expectedRevision: -1n }, { expectedRevision: 1 }, { expectedRevision: MAX_CENTS + 1n },
   { effectiveDate: '2026-02-29' }, { reason: ' ' }, { reason: 'x'.repeat(1001) }, { payload: Array(1) },
-])('HB9-U07 rejects malformed/forged fields %s', overrides => {
+])('HB9-U07 rejects malformed/forged fields %s [case %#]', overrides => {
   expect(prepareCommand(rawCommand(overrides))).toEqual({ ok: false, code: 'INVALID_INPUT' });
 });
 it('HB9-U08 accepts revision boundaries, Berlin early years and normalizes UUID/revision', () => {

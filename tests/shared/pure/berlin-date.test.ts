@@ -19,7 +19,7 @@ describe('HB-008 / ADR 0002/0003 explicit instant to Europe/Berlin', () => {
     expect(berlinDate(instant)).toBe(expected);
   });
 
-  it.each([NaN, Infinity, -Infinity, 0.5, Number.MAX_SAFE_INTEGER + 1, 8640000000000001, -8640000000000001, '2026-01-01T00:00:00Z', new Date(0), null])('rejects invalid instant %s', (value) => {
+  it.each([NaN, Infinity, -Infinity, 0.5, Number.MAX_SAFE_INTEGER + 1, 8640000000000001, -8640000000000001, '2026-01-01T00:00:00Z', new Date(0), null])('rejects invalid instant case %#', (value) => {
     expect(berlinDateFromEpochMilliseconds(value)).toEqual({ ok: false, code: 'INVALID_INSTANT' });
   });
 

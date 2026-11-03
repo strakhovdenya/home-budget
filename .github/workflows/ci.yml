@@ -77,8 +77,15 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Initialize current-run finance evidence
+        run: node scripts/check-finance-coverage.mjs init "$RUNNER_TEMP/hb015"
+
       - name: Unit tests
-        run: pnpm test
+        env:
+          TZ: UTC
+        run: |
+          pnpm test --reporter=default --reporter=json --outputFile.json="$RUNNER_TEMP/hb015/unit.json"
+          node scripts/check-finance-coverage.mjs record "$RUNNER_TEMP/hb015" unit
 
       - name: Build
         run: pnpm build
@@ -90,7 +97,19 @@ jobs:
         run: pnpm db:migrate
 
       - name: PostgreSQL integration tests
-        run: pnpm test:integration
+        run: |
+          pnpm test:integration --reporter=default --reporter=json --outputFile.json="$RUNNER_TEMP/hb015/integration.json"
+          node scripts/check-finance-coverage.mjs record "$RUNNER_TEMP/hb015" integration
+
+      - name: Calendar and finance subset in America/Los_Angeles
+        env:
+          TZ: America/Los_Angeles
+        run: |
+          node scripts/check-finance-coverage.mjs timezone "$RUNNER_TEMP/hb015"
+          node scripts/check-finance-coverage.mjs record "$RUNNER_TEMP/hb015" timezone
 
       - name: Isolated DB17 test
         run: pnpm test:integration -t DB17
+
+      - name: Finance scenario execution gate
+        run: node scripts/check-finance-coverage.mjs check "$RUNNER_TEMP/hb015"
