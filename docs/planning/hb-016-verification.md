@@ -1,3 +1,50 @@
+# HB-016 — Owner Acceptance and documentation finalization
+
+**Owner Acceptance: 2026-11-03. HB-016: Done.** The owner reports independent
+ChatGPT implementation review **APPROVED**, with findings
+**Critical 0 / High 0 / Medium 0 / Low 1**. The Low finding is nonblocking;
+its description was not supplied in the acceptance instruction, so no cause,
+remediation or resolution is invented here. It remains recorded as one
+nonblocking Low, not zero findings.
+
+## Acceptance and manual verification provenance
+
+- The owner's acceptance instruction authorizes marking only HB-016 Done.
+  Independent review is owner-reported; it is separate from the implementer's
+  self-review and recorded test execution below.
+- The owner reports manual Google OAuth verification with **local PostgreSQL**
+  and the authenticated dashboard's **NO_ACCOUNT** state. This is the expected
+  empty state when the owner has no existing account; login does not automatically
+  provision a financial account. The agent did not rerun this manual check.
+  No provider identifiers, credentials, tokens, bank figures or connection strings
+  are recorded. No production OAuth verification or additional login/logout cases
+  are inferred from this report.
+- The original implementation results below remain historical execution evidence:
+  781 unit/component, 304 PostgreSQL, 509 LA subset, finance gate and 30 browser
+  checks. Owner-reported manual OAuth verification supplements the earlier
+  synthetic-session browser checks; it does not retroactively turn them into
+  Google's provider exchange or remove their other limitations.
+
+## Documentation-only scope and checks
+
+Only `docs/TASKS.md` and this report change. Code, tests, CI, other tasks, the
+approved plan and local settings are unchanged. `git diff --check` passed.
+No runtime tests, database, migrations, OAuth or build commands were run during
+this acceptance update, and no fresh current-source finance gate PASS is claimed.
+TASKS is a pinned normative context in the existing finance coverage manifest;
+its context hash is not refreshed because the owner explicitly excluded test
+changes. A later authorized gate run must account for the changed documentation.
+
+The entire original report follows unchanged, including its delivery-stage
+pending-review statements, results, limitations and Git snapshot. Those pending
+review/acceptance statuses are historical and superseded by this acceptance entry.
+The previous review ZIP/checksums describe that earlier snapshot, not these two
+documentation changes. No new archive or publication action was performed.
+
+**Stop after showing the documentation diff. No commit, push, PR or merge.**
+
+---
+
 # HB-016 — implementation verification
 
 **2026-11-03. Implementation ready for independent ChatGPT review; owner acceptance pending. HB-016 is not Done.**

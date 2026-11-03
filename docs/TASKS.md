@@ -150,9 +150,11 @@ Owner accepted HB-015 on 2026-11-03. Owner-reported independent ChatGPT repeat r
 ## M2 — End-to-end first usable version
 
 ### HB-016 · Dashboard and period switch
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-005, HB-007, HB-014, HB-015 · **Area:** UI
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-005, HB-007, HB-014, HB-015 · **Area:** UI
 **Deliverables:** prominent actual balance, free, reserved, savings, daily forecast, date of last observation, deficit/period indicators.
 **Acceptance:** usable responsive phone/desktop; no future receipts in current monthly forecast; stale balance warning after ~7 days; text labels accompany colors.
+
+**Review artifacts:** [approved plan](planning/hb-016-dashboard-period-switch.md), [implementation evidence and Owner Acceptance](planning/hb-016-verification.md). Owner accepted HB-016 on 2026-11-03 after owner-reported independent ChatGPT review: APPROVED; Critical/High/Medium/Low: 0/0/0/1. The Low finding is nonblocking and remains recorded without an invented description or claim of resolution. Owner-reported manual Google OAuth verification used local PostgreSQL and confirmed the NO_ACCOUNT state. Original executed evidence is preserved; no runtime checks were rerun for this documentation-only acceptance update.
 
 ### HB-017 · Single atomic 'Update budget' flow
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-010..HB-014, HB-016 · **Area:** UI/application
