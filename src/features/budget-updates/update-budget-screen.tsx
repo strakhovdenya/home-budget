@@ -1,13 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { BudgetEditors } from './budget-editors';
+import { BudgetSession, useBudgetWorkspace, useBudgetState, useBudgetRef, openBudgetSession } from './budget-draft-provider';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { Alert, Box, Button, Checkbox, FormControlLabel, MenuItem, Paper, Stack, TextField, Typography } from '@mui/material';
 import type { CanonicalValue, CommitReceipt } from '@/domain/updates/contracts';
 import { formatMoney } from '@/features/dashboard/format-money';
 import { formatCalendarDate } from '@/features/dashboard/presentation';
-import { euro, initialForm, makeBudgetCommand, FormInputError, type BudgetActions, type DraftEdit, type UpdateForm, type UpdateSeed } from './presentation';
+import { initialForm, makeBudgetCommand, FormInputError, type BudgetActions, type DraftEdit, type UpdateForm, type UpdateSeed } from './presentation';
 import { parseBudgetDraft,cashVectorGap } from '@/domain/budget-update/validation';
 
 type ReviewState={title:string;fundingPeriodId:string;originalCents?:string;outstandingCents?:string;amountCents?:string;status:string;reserveFull?:boolean};
@@ -53,14 +55,23 @@ function Review({review}:{review:{financial:FinancialReview}}){
   </Stack>;
 }
 const box={p:{xs:2,sm:3},minWidth:0} as const;
-export function UpdateBudgetScreen({initialSeed,actions}:{initialSeed:UpdateSeed;actions:BudgetActions}){
+export function UpdateBudgetScreen({initialSeed,actions,scopeKey='standalone'}:{initialSeed:UpdateSeed;actions:BudgetActions;scopeKey?:string}){
+  const store=useBudgetWorkspace(scopeKey);
+  const opened=useRef<{store:typeof store;seed:UpdateSeed}|null>(null);
+  if(opened.current?.store!==store||opened.current.seed!==initialSeed){
+    openBudgetSession(store,initialSeed);opened.current={store,seed:initialSeed};}
+  return <BudgetSession store={store}><UpdateBudgetForm initialSeed={initialSeed} actions={actions}/></BudgetSession>;
+}
+function UpdateBudgetForm({initialSeed,actions}:{initialSeed:UpdateSeed;actions:BudgetActions}){
   const t=useTranslations('budgetUpdate'),locale=useLocale();
-  const [seed,setSeed]=useState(initialSeed),[form,setForm]=useState(()=>initialForm(initialSeed));
-  const [reviewed,setReviewed]=useState<CanonicalValue|null>(null),[pending,setPending]=useState(false),[dirty,setDirty]=useState(false);
-  const [error,setError]=useState(''),[unknown,setUnknown]=useState(false),[receipt,setReceipt]=useState<CommitReceipt|null>(null),[readFailed,setReadFailed]=useState(false);
-  const [fieldError,setFieldError]=useState('');const formRef=useRef<HTMLFormElement>(null),resultRef=useRef<HTMLDivElement>(null);
-  const [history,setHistory]=useState<{receipt:CommitReceipt;recordedAt:string;review:{financial:FinancialReview}}[]>([]);
-  const generation=useRef(0),original=useRef<CanonicalValue|null>(null),busy=useRef(false),errorRef=useRef<HTMLDivElement>(null);
+  const [seed,setSeed]=useBudgetState('seed',initialSeed),[form,setForm]=useBudgetState<UpdateForm>('form',()=>initialForm(initialSeed));
+  const [reviewed,setReviewed]=useBudgetState<CanonicalValue|null>('reviewed',null),[pending,setPending]=useBudgetState('pending',false),[dirty,setDirty]=useBudgetState('dirty',false);
+  const [error,setError]=useBudgetState('error',''),[unknown,setUnknown]=useBudgetState('unknown',false),[receipt,setReceipt]=useBudgetState<CommitReceipt|null>('receipt',null),[readFailed,setReadFailed]=useBudgetState('readFailed',false);
+  const [accessLost,setAccessLost]=useBudgetState('accessLost',false);
+  const [entryError]=useBudgetState('entryError',false);
+  const [fieldError,setFieldError]=useBudgetState('fieldError','');const formRef=useRef<HTMLFormElement>(null),resultRef=useRef<HTMLDivElement>(null);
+  const [history,setHistory]=useBudgetState<{receipt:CommitReceipt;recordedAt:string;review:{financial:FinancialReview}}[]>('history',[]);
+  const generation=useBudgetRef('generation',0),original=useBudgetRef<CanonicalValue|null>('original',null),busy=useBudgetRef('busy',false),errorRef=useRef<HTMLDivElement>(null);
   useEffect(()=>{if(error){const input=fieldError?formRef.current?.elements.namedItem(fieldError):null;
     if(input instanceof HTMLElement)input.focus();else errorRef.current?.focus();}},[error,fieldError]);
   useEffect(()=>{if(receipt)resultRef.current?.focus();},[receipt]);
@@ -81,7 +92,7 @@ export function UpdateBudgetScreen({initialSeed,actions}:{initialSeed:UpdateSeed
     if(code==='SAME_IDENTITY_COMPOUND_NOT_SUPPORTED')return t('errors.compound');
     if(code==='PAYMENT_CONFIRMATION_REQUIRED')return t('errors.payment');
     if(code==='OWNER_POLICY_REQUIRED')return t('errors.policy');
-    if(code==='UNAUTHORIZED'||code==='FORBIDDEN')return t('errors.access');
+    if(code==='UNAUTHORIZED'||code==='FORBIDDEN'){setAccessLost(true);original.current=null;setReviewed(null);return t('errors.access');}
     if(/STALE|CONFLICT|ORDERING|REPORT_IMPACT|TARGET_PERIOD/.test(code))return t('errors.conflict');
     if(/STORAGE|TRANSACTION/.test(code))return t('errors.storage');return t('errors.input');
   };
@@ -92,7 +103,7 @@ export function UpdateBudgetScreen({initialSeed,actions}:{initialSeed:UpdateSeed
       const r=await actions.preview(command);
       if(version!==generation.current)return;if(r.ok)setReviewed(r.value);else setError(message(r.code));
     }catch(e){if(e instanceof FormInputError)setFieldError(e.field);setError(message(e instanceof Error?e.message:'INVALID_INPUT'));}finally{setPending(false);}}
-  async function readHistory(id?:string){try{const h=await actions.history(id??null);if(h.ok){setHistory(h.value as unknown as typeof history);setReadFailed(false);}else setReadFailed(true);}catch{setReadFailed(true);}}
+  async function readHistory(id?:string){try{const h=await actions.history(id??null);if(h.ok){setHistory(h.value as unknown as typeof history);setReadFailed(false);}else{if(h.code==='FORBIDDEN'||h.code==='UNAUTHORIZED'){setAccessLost(true);original.current=null;}setReadFailed(true);}}catch{setReadFailed(true);}}
   async function confirm(retry=false){const command=retry?original.current:reviewed;if(!command||busy.current)return;
     busy.current=true;setPending(true);original.current=command;setError('');
     try{const r=await actions.confirm(command);if(r.ok){setReceipt(r.value);setUnknown(false);setDirty(false);setReviewed(null);await readHistory(r.value.updateId);}
@@ -104,9 +115,11 @@ export function UpdateBudgetScreen({initialSeed,actions}:{initialSeed:UpdateSeed
       else setError(r.ok?t('unknown'):message(r.code));}catch{setError(t('unknown'));}finally{setPending(false);}}
   async function reload(){setPending(true);setError('');try{const r=await actions.load();if(r.ok){setSeed(r.value as unknown as UpdateSeed);setReviewed(null);setForm(old=>({...old,vectorConfirmed:false,bankAffirmed:false,unchangedAcknowledged:false,fundingConfirmed:false,nonCarryConfirmed:false,futureConfirmed:false,orderAcknowledged:false,unchangedFunding:false}));generation.current++;}else setError(message(r.code));}catch{setError(message('STORAGE_ERROR'));}finally{setPending(false);}}
   function consent(key:keyof UpdateForm,label:string){return <FormControlLabel control={<Checkbox name={key} checked={Boolean(form[key])} disabled={disabled} onChange={e=>change({[key]:e.target.checked})} slotProps={{input:{'aria-invalid':fieldError===key,'aria-describedby':fieldError===key?'budget-update-error':undefined}}}/>} label={t(label)}/>;}
+  if(accessLost)return <Alert severity="error">{t('errors.access')}</Alert>;
   return <Stack spacing={3} sx={{minWidth:0,'& .MuiFormControlLabel-root':{minHeight:44},'& .MuiCheckbox-root':{minHeight:44,minWidth:44},'& .MuiButton-root':{whiteSpace:'normal',textAlign:'center'}}}>
     <Typography component="h1" variant="h1">{t('title')}</Typography><Typography>{t('description')}</Typography>
     <Button component={Link} href="/" prefetch={false} sx={{alignSelf:'flex-start'}}>{t('back')}</Button>
+    {entryError?<Alert severity="warning">{t('errors.conflict')}</Alert>:null}
     {error?<Alert id="budget-update-error" severity="error" ref={errorRef} tabIndex={-1} role="alert">{error}</Alert>:null}
     {receipt?<Alert severity="success" ref={resultRef} tabIndex={-1} role="status">{t('saved')} <Typography component="span" sx={{overflowWrap:'anywhere'}}>{receipt.updateId}</Typography></Alert>:null}
     {readFailed?<Alert severity="warning">{t('savedReadFailed')}<Button onClick={()=>readHistory(receipt?.updateId)}>{t('retryRead')}</Button></Alert>:null}
@@ -134,32 +147,7 @@ export function UpdateBudgetScreen({initialSeed,actions}:{initialSeed:UpdateSeed
         </Stack></Paper>
         <Paper variant="outlined" sx={box}><Stack spacing={2}>
           <Typography component="h2" variant="h3">{t('edits')}</Typography>
-          {form.edits.map(e=>{
-            const allowed=e.kind==='OBLIGATION'?['CREATE','AMEND','PARTIAL_SETTLEMENT','PAID','CANCELLED']:['CREATE','AMEND','INCREASE','PARTIAL_RELEASE','FULL_RELEASE'];
-            return <Stack component="fieldset" key={e.key} spacing={2} sx={{m:0,p:2,border:1,borderColor:'divider',minWidth:0}}>
-              <Typography component="legend">{t(e.kind==='OBLIGATION'?'obligation':'saving')}</Typography>
-              <TextField select label={t('identity')} value={e.identityId} disabled={disabled} onChange={event=>{
-                const identityId=event.target.value,o=seed.obligations.find(x=>x.obligationId===identityId),s=seed.savings.find(x=>x.savingsId===identityId);
-                edit(e.key,{identityId,action:identityId?'AMEND':'CREATE',title:o?.title??s?.title??'',amount:o?euro(o.originalCents):s?euro(s.amountCents):'',period:o?.fundingPeriod??s?.fundingPeriod??seed.today.slice(0,7),dueDate:o?.dueDate??'',isPossible:o?.isPossible??false,reserveFull:o?.reserveFull??true});
-              }}><MenuItem value="">{t('newIdentity')}</MenuItem>{e.kind==='OBLIGATION'?seed.obligations.filter(o=>o.status==='UNPAID').map(o=><MenuItem key={o.obligationId} value={o.obligationId}>{o.title} · {o.fundingPeriod}</MenuItem>):seed.savings.filter(s=>s.status==='ACTIVE').map(s=><MenuItem key={s.savingsId} value={s.savingsId}>{s.title} · {s.fundingPeriod}</MenuItem>)}</TextField>
-              <TextField select label={t('actionLabel')} value={e.action} disabled={disabled} onChange={event=>{
-                const action=event.target.value,o=seed.obligations.find(x=>x.obligationId===e.identityId);edit(e.key,{action,...(action==='PAID'&&o?{amount:euro(o.outstandingCents)}:{})});
-              }}>{allowed.filter(a=>e.identityId?a!=='CREATE':a==='CREATE').map(a=><MenuItem key={a} value={a}>{t(`action.${a}`)}</MenuItem>)}</TextField>
-              {['CREATE','AMEND'].includes(e.action)?<TextField label={t('name')} value={e.title} disabled={disabled} onChange={event=>edit(e.key,{title:event.target.value})}/>:null}
-              {e.action!=='CANCELLED'&&(e.kind==='OBLIGATION'||e.action!=='AMEND')?<TextField name={'edit-'+e.key+'-amount'} label={t('amount')} value={e.amount} disabled={disabled} error={fieldError==='edit-'+e.key+'-amount'} helperText={fieldError==='edit-'+e.key+'-amount'?error:undefined} onChange={event=>edit(e.key,{amount:event.target.value})} slotProps={{htmlInput:{inputMode:'decimal',autoComplete:'off'}}}/>:null}
-              {e.action==='CREATE'?<TextField label={t('fundingPeriod')} type="month" value={e.period} disabled={disabled} onChange={event=>edit(e.key,{period:event.target.value})} slotProps={{inputLabel:{shrink:true}}}/>:null}
-              {e.kind==='OBLIGATION'&&['CREATE','AMEND'].includes(e.action)?<>
-                <TextField label={t('dueDate')} type="date" value={e.dueDate} disabled={disabled} onChange={event=>edit(e.key,{dueDate:event.target.value})} slotProps={{inputLabel:{shrink:true}}}/>
-                <FormControlLabel label={t('possible')} control={<Checkbox checked={e.isPossible} disabled={disabled} onChange={event=>edit(e.key,{isPossible:event.target.checked,reserveFull:true})}/>}/>
-                <FormControlLabel label={t('reserveFull')} control={<Checkbox checked={e.reserveFull} disabled={disabled||!e.isPossible} onChange={event=>edit(e.key,{reserveFull:event.target.checked})}/>}/>
-              </>:null}
-              {e.kind==='OBLIGATION'&&['PAID','PARTIAL_SETTLEMENT'].includes(e.action)?<>
-                <TextField select label={t('paymentSource')} value={e.source} disabled={disabled} onChange={event=>edit(e.key,{source:event.target.value as DraftEdit['source']})}><MenuItem value="TRACKED_CARD">{t('trackedCard')}</MenuItem><MenuItem value="OUTSIDE_TRACKED_CARD">{t('outsideCard')}</MenuItem></TextField>
-                <TextField label={t('bankDate')} type="date" value={e.bankDate} disabled={disabled} onChange={event=>edit(e.key,{bankDate:event.target.value})} slotProps={{inputLabel:{shrink:true}}}/>
-              </>:null}
-              <Button disabled={disabled} onClick={()=>change({edits:form.edits.filter(x=>x.key!==e.key)})}>{t('remove')}</Button>
-            </Stack>;
-          })}
+          <BudgetEditors seed={seed} form={form} disabled={disabled} fieldError={fieldError} error={error} edit={edit} change={change}/>
           <Button disabled={disabled||form.edits.filter(e=>e.kind==='OBLIGATION').length>=7} onClick={()=>add('OBLIGATION')}>{t('addObligation')}</Button>
           <Button disabled={disabled||form.edits.filter(e=>e.kind==='SAVING').length>=7} onClick={()=>add('SAVING')}>{t('addSaving')}</Button>
           <TextField label={t('reason')} value={form.reason} disabled={disabled} onChange={e=>change({reason:e.target.value})}/>

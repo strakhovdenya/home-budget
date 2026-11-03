@@ -1,3 +1,4 @@
+import { createManagementReader } from '@/infrastructure/db/management-reader';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import pg from 'pg';
@@ -109,6 +110,7 @@ it('HB11-15 payment requires actual check; no-observation reserve is still reada
   const f={ownerUserId:randomUUID(),accountId:randomUUID()}; await db.db.insert(s.users).values({id:f.ownerUserId});
   await db.db.insert(s.accounts).values({id:f.accountId,ownerUserId:f.ownerUserId,displayName:'Synthetic no bank'});
   await commit(f,0n,[change()]); expect([...(await read(f)).reserves.values()]).toEqual([20000n]);
+  expect(value(await createManagementReader(db).list(f))).toMatchObject({obligations:[{outstanding:'20000'}],projection:{kind:'UNAVAILABLE',reason:'NO_OBSERVATION'}});
   await expect(next(f,'PAID','2026-10-05',{amountCents:'20000'})).rejects.toMatchObject({code:'PAYMENT_CONFIRMATION_REQUIRED'});
 });
 it('HB11-16/17/18 unchanged actual balance requires acknowledgment, including outside card', async () => {
@@ -218,6 +220,9 @@ it('HB11 correction CREATE is legal and retains identity and original K', async 
   await commit(f,2n,[change('CREATE',{obligationId:e.obligationId,correctionId:e.id,data:{...change().data,title:'Corrected',originalCents:'22000'}})]);
   expect((await latest(f)).obligationId).toBe(e.obligationId); expect((await latest(f)).originalCents).toBe(22000n);
   expect((await read(f,'2026-10-02','2')).states[0].title).toBe('Synthetic rent');
+  const timeline=value(await createManagementReader(db).history(f,{kind:'OBLIGATION',identityId:e.obligationId,cursor:null}));
+  expect(timeline.entries.find(v=>v.id===e.id)?.supersededBy).toBeTruthy();
+  expect(timeline.entries[0].after).toMatchObject({title:'Corrected',originalCents:'22000'});
 });
 
 async function direct(f: Scope, overrides: Record<string, unknown>, day = '2026-10-20') {

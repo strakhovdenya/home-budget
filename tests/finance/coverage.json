@@ -34097,7 +34097,7 @@
     },
     {
       "path": "docs/DECISIONS.md",
-      "sha256": "73e65e594d01a90a10df5ab7e4a6ec07c5089e23fc7799b61ced2009275db4b6"
+      "sha256": "acb09e3bc65a7d5ee365d1337c0ce60a993588ef9166ffe1e174ad628e176887"
     },
     {
       "path": "docs/adr/0001-checkpoints-and-allocations.md",
@@ -34113,15 +34113,15 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "sha256": "af327b67ffa205680a28ba604264ee658f6433f52639f2366d907fd5f34744bf"
+      "sha256": "3e0429ed84136f77e7262be3b7d4e590642e1378daac16d2c75032e9091bfd8f"
     },
     {
       "path": "docs/architecture.json",
-      "sha256": "9f0fe6c457cb857c3a3eb8e703e1ca8be86fcf493aff522b474a3f282b2f60cc"
+      "sha256": "48d7ad1b8cdcd4849d042b338914429a25b3adf465238ea8eeacca25719f4788"
     },
     {
       "path": "docs/DATA_MODEL.md",
-      "sha256": "1bc57580d84b02dd7210c6c75578c4f2b52b57d5d2ad5779de331a72da146046"
+      "sha256": "7144f31576819bc32e3bed78ec7f625fa243dcc9907dc0fdee2684fd9b05815a"
     },
     {
       "path": "docs/conventions.md",
@@ -34133,7 +34133,7 @@
     },
     {
       "path": "docs/TASKS.md",
-      "sha256": "54c021d70ca350d98d079233c00e48b1c773323d53ee0cc06b61214882ed0db9"
+      "sha256": "be24d57f9fae02e601d5316a70bd014b7146fc87b51a1e17cd39bf8626931739"
     },
     {
       "path": "docs/OPEN_QUESTIONS.md",

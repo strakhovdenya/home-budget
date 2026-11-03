@@ -1,5 +1,15 @@
 {
-  "version": 8,
+  "version": 9,
+  "hb018_management": {
+    "routes": ["/obligations", "/savings"],
+    "read_port": "domain/management/contracts.ts:ManagementReader",
+    "read": "owned_repeatable_read_read_only_complete_bounded_evidence_before_paging",
+    "history": "immutable_identity_evidence_signed_scope_H_K_order_cursor_page50",
+    "write": "existing_HB017_only_shared_editors_and_memory_handoff_fresh_seed_revision",
+    "draft": "one_scoped_client_instance_original_unknown_request_no_persistent_storage",
+    "storage_changes": false,
+    "layer_directions_changed": false
+  },
   "project": "home-budget",
   "hb017_atomic_update": {
     "public_route": "/update-budget",

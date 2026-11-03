@@ -1,5 +1,28 @@
 # Product decision log — current correction and archived chronology
 
+## HB-018 Owner Acceptance — 2026-11-03
+
+The owner finally accepted HB-018 on **2026-11-03** after owner-reported independent
+ChatGPT repeat review R1: **APPROVED; Critical 0 / High 0 / Medium 0 / Low 0**.
+HB-018 is Done. Medium 1 is corrected with six component regressions; retained
+Codex R1 evidence is861 unit/component,332 PostgreSQL,509 timezone and22 LA.
+No new execution or independent ChatGPT test run is claimed here.
+
+The owner consciously accepts browser QA B01–B07 and physical screen reader
+NOT EXECUTED because the runtime was unavailable; unit/component/PG do not replace
+browser evidence. Process-local history cursors remain a limitation: restart or
+another process can invalidate a cursor, with safe refusal and explicit refresh.
+The previously accepted HB17-A03 exception is unchanged and not declared fixed.
+
+Owner Acceptance completes documentation; **it is not itself authorization to
+publish**. Commit/push/PR/merge/deploy require separate owner permission. Existing
+product decisions, financial rules, Accepted ADRs and historical evidence remain
+unchanged.
+
+References: [task](TASKS.md#hb-018--obligations-and-savings-management-screens),
+[approved plan](planning/hb-018-obligations-savings.md),
+[Owner Acceptance and verification](planning/hb-018-verification.md#owner-acceptance--2026-11-03).
+
 ## HB-017 Owner Acceptance with known Medium — 2026-11-03
 
 The owner explicitly accepts the current HB-017 implementation and authorizes

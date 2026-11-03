@@ -1,7 +1,7 @@
-import { PlaceholderScreen } from '@/features/shell/placeholder-screen';
+import { ManagementPage } from '../management-page';
 import { requirePageOwner } from '../require-page-owner';
 
 export default async function SavingsPage() {
   await requirePageOwner();
-  return <PlaceholderScreen section="savings" />;
+  return <ManagementPage kind="SAVING" />;
 }

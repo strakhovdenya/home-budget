@@ -1,5 +1,27 @@
 # Architecture — specification-first, Codex execution, Dark Factory-inspired
 
+## HB-018 management interface — local implementation, Review
+
+`/obligations` and `/savings` compose narrow `domain/management` read ports through
+`app/management-boundary.ts`. List, identity history and voluntary release proposal
+authorize independently. `management-reader` uses one REPEATABLE READ READ ONLY
+transaction, the existing bounded projection context and lifecycle/evidence
+validators. All sources are validated before identity history pages of50; an
+HMAC-authenticated read cursor pins owner/account/kind/identity/H/K/ordering/offset.
+The immutable process cursor key contains no user data; process restart invalidates
+cursors safely. No public arbitrary historical projection capability is exposed.
+
+Client instance `BudgetDraftProvider` is scoped by authenticated owner plus an
+owned account marker from fresh page composition. It retains one draft and original
+unknown-outcome request in memory through route unmounts. A marker is not an
+authorization credential or part of canonical financial commands. Management
+selection resolves against fresh HB-017 seed revisions; shared BudgetEditors and
+the existing preview/confirm/status/history actions are the only write flow.
+No quick-save, browser persistence, URL financial identifiers, new schema, finance
+formulas or import-direction changes. Existing HB17-A03 accepted Medium remains.
+[Approved baseline](planning/hb-018-obligations-savings.md),
+[local verification and limitations](planning/hb-018-verification.md).
+
 ## HB-014 projection layer
 
 Pure domain/forecast consumes validated confirmed snapshots and implements Accepted
