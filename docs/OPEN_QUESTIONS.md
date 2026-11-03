@@ -1,5 +1,23 @@
 # Remaining implementation-level questions
 
+## HB-017 planning review — 2026-11-03
+
+**Resolved by owner on 2026-11-03.** The original questions are retained as history;
+the dispositions below finalize HB-017 MVP scope, not new HB tasks.
+See [accepted decisions](DECISIONS.md#hb-017-scope-decisions--2026-11-03).
+See [HB-017 plan](planning/hb-017-update-budget.md) and
+[scenarios](../tests/scenarios/phase-01/hb-017-update-budget.md).
+
+| ID | Original question (history) | Accepted disposition — 2026-11-03 |
+|---|---|---|
+| Q-HB17-01 | Must one update support lifecycle edit/payment/release and funding transfer of the **same** obligation/saving? Current HB-013 excludes this compound; strict predecessor order and one new position per day prevent two dependent revisions at one position. | **Resolved — option A.** Lifecycle edits and funding transitions share one atomic update for disjoint identities only. Same-identity combination at one position receives typed refusal, zero partial financial writes and retained draft. No automatic split commits, fake positions/dates or weakened SQL/ordering. This is accepted MVP scope; same-identity compound support is not implemented or required. |
+| Q-HB17-02 | Include auth diagnostic UX in HB-017 or approve a separate change set? | **Resolved — included in HB-017 as an isolated change set**, no new HB-ID, independent financial/auth test evidence. A01–A07 are mandatory. Safe RU/DE/EN diagnostics, no membership/existence oracle through messages/statuses/redirects/cookies; preserve fail-closed/OAuth/JWT/CSRF/ownership and test actual callback/session boundaries. |
+| Q-HB17-03 | Is memory-only draft plus navigation guard sufficient, with explicit loss limits on reload/crash/full OAuth redirect? | **Resolved — memory-only.** Retain input on ordinary errors/conflicts and navigation within the mounted form; warn on unsaved changes. No financial localStorage/sessionStorage/IndexedDB/offline persistence or recovery promise after reload/crash/OAuth redirect. Unknown commit outcome uses original requestId and safe result checking, without automatic new financial action. |
+
+Owner reports independent ChatGPT plan review **APPROVED**, Critical0/High0/Medium0.
+Implementation still requires separate owner authorization; HB-017 remains Planned.
+Existing accepted financial rules and all other questions below are unchanged.
+
 Owner D32..D35 fixes actual-money allocations:A>=0,sum(A)=observed B>=0. Negative F=A-R-S from full obligations/savings remains valid. Expected income is excluded;an actual receipt can be allocated after a real checkpoint without a separate income operation. [Decision record](DECISIONS.md#actual-money-allocation-correction--2026-11-01). ADR0001/0002 are re-Accepted for corrected D32..D35 after owner-reported repeated independent review;original acceptance is historical. ADR0003 Accepted,HB-003 Done after owner-reported final independent review.
 
 ## Resolved by owner clarification

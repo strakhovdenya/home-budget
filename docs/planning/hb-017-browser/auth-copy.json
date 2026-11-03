@@ -1,0 +1,51 @@
+{
+  "cases": [
+    {
+      "locale": "ru",
+      "error": "AccessDenied",
+      "message": "Не удалось войти или подтвердить доступ. Повторите попытку."
+    },
+    {
+      "locale": "ru",
+      "error": "Configuration",
+      "message": "Не удалось войти или подтвердить доступ. Повторите попытку."
+    },
+    {
+      "locale": "ru",
+      "error": "<script>example</script>",
+      "message": "Не удалось войти или подтвердить доступ. Повторите попытку."
+    },
+    {
+      "locale": "de",
+      "error": "AccessDenied",
+      "message": "Die Anmeldung oder Zugriffsprüfung konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut."
+    },
+    {
+      "locale": "de",
+      "error": "Configuration",
+      "message": "Die Anmeldung oder Zugriffsprüfung konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut."
+    },
+    {
+      "locale": "de",
+      "error": "<script>example</script>",
+      "message": "Die Anmeldung oder Zugriffsprüfung konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut."
+    },
+    {
+      "locale": "en",
+      "error": "AccessDenied",
+      "message": "Sign-in or access verification could not be completed. Please try again."
+    },
+    {
+      "locale": "en",
+      "error": "Configuration",
+      "message": "Sign-in or access verification could not be completed. Please try again."
+    },
+    {
+      "locale": "en",
+      "error": "<script>example</script>",
+      "message": "Sign-in or access verification could not be completed. Please try again."
+    }
+  ],
+  "wrongOriginStatus": 500,
+  "liveOAuth": false
+}

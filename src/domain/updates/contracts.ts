@@ -6,7 +6,7 @@ import type { SavingErrorCode } from '@/domain/savings/contracts';
 import type { TransitionError } from '@/domain/transitions/contracts';
 export type CanonicalValue = null | string | boolean | number | bigint
   | readonly CanonicalValue[] | { readonly [key: string]: CanonicalValue };
-export type UpdateErrorCode = 'UNAUTHORIZED' | 'FORBIDDEN' | 'INVALID_INPUT'
+export type UpdateErrorCode = 'UNAUTHORIZED' | 'FORBIDDEN' | 'INVALID_INPUT' | 'SAME_IDENTITY_COMPOUND_NOT_SUPPORTED'
   | 'REQUEST_PAYLOAD_CONFLICT' | 'STALE_REVISION' | 'REVISION_RANGE'
   | 'INVALID_AUDIT' | 'TRANSACTION_FAILED' | 'RETRYABLE_STORAGE_ERROR'
   | 'COMMIT_OUTCOME_UNKNOWN' | 'STORAGE_ERROR' | CheckpointErrorCode | ObligationErrorCode | SavingErrorCode | TransitionError;

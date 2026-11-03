@@ -1,5 +1,72 @@
 # Product decision log — current correction and archived chronology
 
+## HB-017 Owner Acceptance with known Medium — 2026-11-03
+
+The owner explicitly accepts the current HB-017 implementation and authorizes
+publication in principle. Owner-reported independent ChatGPT implementation review:
+**CHANGES REQUESTED; Critical 0 / High 0 / Medium 1 / Low 0**. HB-017 is **Done by
+Owner Acceptance with a known exception**, not by an APPROVED implementation review.
+
+**Accepted exception: HB17-A03.** A separate public message for reliably known OAuth
+failure is not fully implemented. The owner consciously accepts the current neutral
+public fallback without fixing this Medium. A03 remains partially implemented;
+its full acceptance criteria must not be reported as passed, and the finding is
+not resolved. This narrowly qualifies Q-HB17-02's mandatory A01–A07 acceptance scope;
+it does not waive fail-closed, Google OAuth checks, JWT, CSRF/Origin, ownership,
+safe logging, privacy or protection against account enumeration. AccessDenied alone
+still does not establish Google rejection.
+
+Earlier scope/planning decisions and implementation evidence remain preserved as
+chronology. Q-HB17-01/03, D36–D39, Accepted ADR0001–0003 and financial rules are
+unchanged. No new HB-ID or implementation/test/schema change is introduced.
+This turn is documentation finalization only: no commit, push, PR, merge or deploy.
+
+References: [task](TASKS.md#hb-017--single-atomic-update-budget-flow),
+[Owner Acceptance and retained evidence](planning/hb-017-verification.md#owner-acceptance--2026-11-03),
+[original scope decisions](#hb-017-scope-decisions--2026-11-03).
+
+## HB-017 scope decisions — 2026-11-03
+
+The owner reports independent ChatGPT review of the HB-017 plan: **APPROVED**,
+Critical 0 / High 0 / Medium 0, and accepts the following three decisions.
+This records owner-reported review and scope acceptance, not a new independent
+review, executed tests or authorization to implement. HB-017 remains **Planned**.
+
+References: [HB-017 plan](planning/hb-017-update-budget.md),
+[acceptance scenarios](../tests/scenarios/phase-01/hb-017-update-budget.md),
+[retained question register](OPEN_QUESTIONS.md#hb-017-planning-review--2026-11-03).
+
+- **Q-HB17-01 — option A accepted, disjoint identities only.** One atomic update
+  may combine lifecycle edits with funding transitions for different identities.
+  A lifecycle edit/payment/release and FUNDING_TRANSFER of the same obligation or
+  saving identity at one position is forbidden in MVP. Return an explicit typed
+  refusal with zero partial financial writes and preserve the user's draft.
+  Never automatically split commits, create fake dates/positions or weaken SQL
+  constraints/historical ordering. Positive disjoint combinations and negative
+  same-identity combinations must be tested. This accepts an MVP restriction;
+  it does not claim implemented same-identity compound support.
+- **Q-HB17-02 — auth diagnostics included in HB-017 as an isolated change set.**
+  No separate HB-ID. Financial and auth changes require independent test evidence;
+  **HB17-A01–A07 are mandatory acceptance**. Provide clear safe RU/DE/EN messages,
+  distinguish a reliably known technical failure from access refusal only where
+  safe, and never equate every AccessDenied with Google rejection. Do not disclose
+  allowlist membership, SQL, DB URLs, email, tokens, secrets or internal data.
+  No account-enumeration oracle through messages, HTTP statuses, redirects or
+  cookies. Keep fail-closed, Google OAuth, JWT, CSRF and ownership; use safe server
+  diagnostic categories and verify actual Auth.js callback/session boundaries,
+  not only mocked signIn behavior.
+- **Q-HB17-03 — memory-only draft accepted.** Retain input on ordinary errors,
+  conflicts and navigation inside the mounted form; warn about unsaved changes.
+  No financial localStorage, sessionStorage, IndexedDB or offline persistence.
+  Do not promise recovery after reload, crash or full OAuth redirect. An unknown
+  commit outcome uses the original requestId and safe result checking, without
+  an automatic new financial action or replacement request key.
+
+D36–D39, Accepted ADR0001–0003, financial formulas and existing runtime contracts
+are unchanged. All three Q-HB17 questions are resolved; implementation, feature
+branch creation, commit/push/PR/merge/deploy still require separate authorization.
+This turn authorizes documentation finalization only.
+
 **Current rule:** D32..D35 below supersedes signed actual-cash interpretations in the archived D10/D22/D28..D31 text. Earlier decisions and acceptance records are preserved as chronology,not current permission for negative A.
 
 ## Archived original interview and clarifications

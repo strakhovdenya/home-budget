@@ -1,0 +1,7 @@
+{
+  "testedCopyIdenticalFiles": 241,
+  "normativeContexts": 34,
+  "schemaConfigDependenciesADRAndBusinessRules": "unchanged",
+  "historicalTests": "unchanged; existing finance context hashes refreshed only",
+  "stagedFiles": ""
+}

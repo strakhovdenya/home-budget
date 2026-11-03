@@ -10,7 +10,7 @@ import { markSavingReportImpact } from './report-impact';
 import { rejectBatch, type Transaction } from './commit';
 import * as s from './schema';
 /** Prove all original bases before sibling pending writes can obscure drift. */
-export async function transitionReportImpact(tx:Transaction,scope:AuthorizedScope,original:ObligationHistory,after:ObligationHistory,oldSavings:SavingHistory,newSavings:SavingHistory){
+export async function transitionReportImpact(tx:Transaction,scope:AuthorizedScope,original:ObligationHistory,after:ObligationHistory,oldSavings:SavingHistory,newSavings:SavingHistory,write=true){
   const reports=await tx.select({head:s.reportHeads,closing:s.monthClosings}).from(s.reportHeads).innerJoin(s.monthClosings,eq(s.monthClosings.id,s.reportHeads.closingId)).where(and(eq(s.reportHeads.ownerUserId,scope.ownerUserId),eq(s.reportHeads.accountId,scope.accountId)));
   const pending=new Map(reports.map(r=>[r.head.id,r.head.correctionPending]));
   const bank=await affectedReports(tx,original,after,scope.ownerUserId,scope.accountId),changed=new Set(bank.map(r=>r.head.id));
@@ -25,9 +25,9 @@ export async function transitionReportImpact(tx:Transaction,scope:AuthorizedScop
     if(relevant(before.value.states)!==relevant(next.value.states))changed.add(head.id);
   }
   // Savings validates its original pinned basis using the flags captured above.
-  const audits:AuditDescriptor[]=await markSavingReportImpact(tx,oldSavings,newSavings,scope,pending);
+  const audits:AuditDescriptor[]=await markSavingReportImpact(tx,oldSavings,newSavings,scope,pending,write);
   for(const {head} of reports)if(changed.has(head.id)&&!head.correctionPending&&!audits.some(a=>a.entityId===head.id)){
-    await tx.update(s.reportHeads).set({correctionPending:true}).where(and(eq(s.reportHeads.ownerUserId,scope.ownerUserId),eq(s.reportHeads.accountId,scope.accountId),eq(s.reportHeads.id,head.id)));
+    if(write) await tx.update(s.reportHeads).set({correctionPending:true}).where(and(eq(s.reportHeads.ownerUserId,scope.ownerUserId),eq(s.reportHeads.accountId,scope.accountId),eq(s.reportHeads.id,head.id)));
     audits.push({entityType:'REPORT_REVIEW_REQUIRED',entityId:head.id,before:{closingId:head.closingId,correctionPending:false},after:{closingId:head.closingId,correctionPending:true}});
   }
   return audits;

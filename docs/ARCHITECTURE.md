@@ -159,3 +159,15 @@ checkpoint and obligation writers validate retained savings at the same K.
 Report impact reuses bank/order proof with pinned savings refs, marking only
 affected heads. No import direction/allowlist, UI, ledger or funding transition.
 Contract: [HB-012](planning/hb-012-savings.md). Implementation awaits independent review.
+
+## HB-017 atomic budget update
+
+/update-budget composes HB-007 ownership with separately authorized feature load, preview, confirm, status and history operations. The client receives a minimal owned seed and decimal-string DTOs, holding only a memory draft. The pure domain candidate reuses HB-010–014 selectors/lifecycles; React and the writer contain no competing financial formulas. No generic writer, client-selected account, ledger or account provisioning is exposed. Existing layer directions and external allowlists are unchanged.
+
+Load/preview use one REPEATABLE READ READ ONLY snapshot. Transition prepare can separately create immutable control proposal/period rows under an account lock after rechecking revision; no financial counters/facts change. Confirm rebuilds the complete candidate in one existing commitBatch transaction/connection/account lock, compares exact reviewed input and persists one position, sequence, vector, optional actual checkpoint and receipt. Original-to-final report impact runs once; old report versions remain immutable. Same-identity lifecycle/funding overlap is refused before terminal edits can hide it.
+
+The private optional verifyReplay hook validates HB-017's immutable original proof before same-request replay. Legacy callers and canonical identity bytes are unchanged. Cross-request transition replay validates the whole compound command, proposal/decision/transfer mapping and funding/payment/release evidence. Unknown commit outcome retains the original command/requestId in the live form for authorized status or explicit same-key retry, without automatic resubmit.
+
+Auth diagnostics are an isolated HB-017 change set. Actual policy/binding/session boundaries log closed category, stage, random correlationId and timestamp only. Public technical text requires independent configuration/availability evidence; AccessDenied and untrusted query values never establish Google denial. OAuth/JWT/CSRF/ownership rules, schema and dependencies are unchanged.
+
+[Plan](planning/hb-017-update-budget.md), [scenarios](../tests/scenarios/phase-01/hb-017-update-budget.md), [verification](planning/hb-017-verification.md).
