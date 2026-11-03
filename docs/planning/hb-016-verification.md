@@ -1,5 +1,40 @@
 # HB-016 — Owner Acceptance and documentation finalization
 
+## CI context-hash correction — 2026-11-03
+
+The published acceptance commit `94d4fe84b24344cd44d88a605171c350e31aa7ac`
+failed [PR #17 CI run 24](https://github.com/strakhovdenya/home-budget/actions/runs/41620307758)
+at **Initialize current-run finance evidence**. Hosted lint and typecheck passed;
+unit tests, build, migrations and PostgreSQL tests were skipped after initialization
+exited1 with `HB015_GATE_REJECTED`. Local validation reproduced the specific
+`NORMATIVE_CONTEXT_MISMATCH` for **docs/TASKS.md only**: the documentation-only
+acceptance update below deliberately left its pinned context hash unchanged.
+
+The correction refreshes only that SHA-256 in `tests/finance/coverage.json`.
+Structural comparison proves every other manifest value unchanged, including
+scenario definitions, obligations, dispositions, test references and timezone
+files. All34 normative contexts validate. Application code, financial formulas,
+test assertions, checker implementation, CI workflow and TASKS are unchanged.
+The earlier documentation-only scope and runtime results below remain historical;
+HB-016 acceptance is not reopened by this metadata correction.
+
+Executed local checks (Node22.23.0, existing dependencies):
+
+| Command / check | Actual result |
+|---|---|
+| Existing `validateManifest` before/after correction; structural comparison | Before: `NORMATIVE_CONTEXT_MISMATCH`; after: valid, exactly one context hash changed |
+| `pnpm.cmd --config.verifyDepsBeforeRun=false exec vitest run tests/finance-coverage.test.ts` | exit0, **84/84 passed**, 1.68s; expected rejection messages are negative-test fixtures |
+| `node scripts/check-finance-coverage.mjs init C:/Users/Denys/AppData/Local/Temp/hb016-ci-pElxun/fresh-run` | exit0; the previously failing initialization step succeeds with a new current-source context |
+| `git diff --check` | exit0 |
+
+No DB, OAuth, env-file loading, build or full runtime gate was run for this one-hash
+correction. Historical reports were not copied or re-recorded as fresh evidence.
+The failed hosted run remains failed; downstream checks require a new GitHub run
+after publication. No commit, push, PR mutation, workflow rerun or merge was
+performed by the agent. Only the manifest and this verification addendum change.
+
+---
+
 **Owner Acceptance: 2026-11-03. HB-016: Done.** The owner reports independent
 ChatGPT implementation review **APPROVED**, with findings
 **Critical 0 / High 0 / Medium 0 / Low 1**. The Low finding is nonblocking;
