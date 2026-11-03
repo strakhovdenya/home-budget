@@ -1,7 +1,11 @@
-import { PlaceholderScreen } from '@/features/shell/placeholder-screen';
+import { redirect } from 'next/navigation';
+import { DashboardScreen } from '@/features/dashboard/dashboard-screen';
+import { loadDashboard } from './dashboard-loader';
 import { requirePageOwner } from './require-page-owner';
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> } = {}) {
   await requirePageOwner();
-  return <PlaceholderScreen section="overview" />;
+  const view = await loadDashboard(await searchParams ?? {});
+  if (view.kind === 'UNAUTHORIZED') redirect('/login');
+  return <DashboardScreen view={view} />;
 }

@@ -21,6 +21,21 @@ import { writeRedistribution } from '@/infrastructure/db/redistribution-writer';
 import { loadTransitionState } from '@/infrastructure/db/transition-state';
 import { auditDocuments } from '@/infrastructure/db/audit-writer';
 import * as s from '@/infrastructure/db/schema';
+import { identityRepository } from '@/infrastructure/auth/repository';
+import { createDashboardAccountResolver } from '@/app/dashboard-account-boundary';
+import { createDashboardLoader } from '@/app/dashboard-loader';
+import { createProjectionReader } from '@/features/budget-projection/read-account';
+vi.mock('@/infrastructure/auth/auth', () => ({ requireOwner: vi.fn(), requireOwnedAccount: vi.fn() }));
+
+function dashboard(f: AuthorizedScope) {
+  const repo = identityRepository(db);
+  const resolve = createDashboardAccountResolver(async () => ({ id: f.ownerUserId }), id => repo.findAccountIdsForOwner(id));
+  const reader = createProjectionReader(async selector => {
+    if (typeof selector !== 'string' || !await repo.ownsAccount(f.ownerUserId, selector)) throw Error('FORBIDDEN');
+    return { ownerUserId: f.ownerUserId, accountId: selector };
+  }, createProjectionRepository(db));
+  return createDashboardLoader(resolve, reader);
+}
 
 let db: ReturnType<typeof createDatabase>, admin: pg.Pool;
 let calendar: ReturnType<typeof transitionCalendar>;
@@ -270,4 +285,32 @@ it('HB14-054 F-009 PG immutable report bytes/head/flags survive repeated project
     return [{entityType:'SYNTHETIC_CLOSE',entityId:closingId,before:null,after:{synthetic:true}}];
   });
   const r=await read(f);expect(r.kind==='ACCOUNT_ESTIMATE'&&r.currentLiquidity.safeAvailable).toBe(0n);expect(await read(f)).toEqual(r);
+  const before = await baseline(f);
+  expect(before.rows.at(-1)).toHaveLength(1);
+  for (const query of [{}, { period: calendar.past }, { period: calendar.future }]) {
+    const view = await dashboard(f)(query);
+    expect(view.kind).toBe('READY');
+    if (view.kind !== 'READY') throw Error('ready');
+    if ('period' in query) expect(view.safe).toBeNull();
+    expect(JSON.stringify(view)).not.toContain(f.accountId);
+    expect(await baseline(f)).toEqual(before);
+  }
+});
+
+it('HB16-A06/C06/D07 PG account discovery and projection recheck ownership and leave every scoped row unchanged', async () => {
+  const f = await fixture(); await bank(f); await obligation(f); await saving(f);
+  const before = await baseline(f), load = dashboard(f);
+  const view = await load({}); expect(view.kind === 'READY' && view.safe?.safeAvailable).toBe('0');
+  expect(await load({})).toEqual(view);
+  const repo = identityRepository(db);
+  const resolve = createDashboardAccountResolver(async () => ({ id: f.ownerUserId }), id => repo.findAccountIdsForOwner(id));
+  const selected = await resolve(); expect(selected.kind).toBe('ACCOUNT');
+  // Simulate stale ownership authorization while keeping real SQL storage reads.
+  const reader = createProjectionReader(async selector => {
+    if (!await repo.ownsAccount(randomUUID(), String(selector))) throw Error('FORBIDDEN');
+    return f;
+  }, createProjectionRepository(db));
+  expect(await createDashboardLoader(async () => selected, reader)({})).toEqual({ kind: 'FORBIDDEN' });
+  expect(await createDashboardLoader(async () => selected, createProjectionReader(async () => ({...f,ownerUserId:randomUUID()}), createProjectionRepository(db)))({})).toEqual({kind:'FORBIDDEN'});
+  expect(await baseline(f)).toEqual(before);
 });
