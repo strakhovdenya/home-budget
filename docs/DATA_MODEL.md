@@ -152,3 +152,9 @@ complete before/after and revision/batch/position refs. Reader validates evidenc
 at K without reconstructing amounts. Same-position action-preserving reviewed
 corrections retain original evidence and validate the whole suffix. Funding stays
 unchanged until future HB-013. [Contract](planning/hb-012-savings.md).
+
+## HB-017 aggregate use of existing records
+
+No schema/migration change. One aggregate update uses existing budget_updates, historical_positions, ordering_revisions, optional balance_checkpoints, allocation_revisions/period_allocations and full obligation/savings events. Transition control proposals precede confirmation; transition_decisions, optional budget_transfers and FUNDING_TRANSFER evidence belong to the same confirmed batch as disjoint lifecycle edits. SQL historical ordering and same-identity restrictions remain intact.
+
+A mandatory versioned BUDGET_UPDATE_REVIEW audit document copies the normalized complete command, financial before/after review, original-to-final report impact and checkpoint/vector/proposal mapping. Payment/release/increase/funding evidence retains existing independent audit contracts. Receipt/history replay validates original source evidence at original H/K and date before disclosure; it never joins newer live titles into the copied result. Existing report versions and prior audit facts stay immutable. Memory-only drafts/unknown-outcome requestIds are not new persisted entities. [Verification](planning/hb-017-verification.md).

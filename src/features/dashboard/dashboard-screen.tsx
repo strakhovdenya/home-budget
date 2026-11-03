@@ -19,10 +19,12 @@ export function DashboardLoading() {
 }
 export function DashboardScreen({ view, base = '/' }: { view: DashboardView; base?: '/' | '/months' }) {
   const t = useTranslations('dashboard'), nav = useTranslations('navigation'), locale = useLocale();
+  const update = useTranslations('budgetUpdate');
   const money = (c: string) => formatMoney(c, locale), date = (d: string) => formatCalendarDate(d, locale);
   const hasPeriod = view.kind === 'READY' || view.kind === 'UNAVAILABLE';
   return <Stack spacing={3} sx={{ minWidth: 0 }}>
     <Box><Typography variant="overline" color="text.secondary">{t('eyebrow')}</Typography><Typography component="h1" variant="h1">{nav(base === '/' ? 'overview' : 'months')}</Typography></Box>
+    {view.kind==='READY'||view.kind==='UNAVAILABLE'?<Button component={Link} prefetch={false} href="/update-budget" variant="contained" sx={{alignSelf:'flex-start'}}>{update('title')}</Button>:null}
     {hasPeriod ? <>
       <Stack spacing={1}>
         <Box role="status" aria-live="polite" aria-atomic="true"><Typography component="h2" variant="h2">{formatMonth(view.period, locale)}</Typography></Box>

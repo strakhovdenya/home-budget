@@ -309,3 +309,9 @@ require proven strict historical order. Full evidence completeness/meaning, H/K,
 JSON manifests and suffix compatibility remain trusted-runtime guarantees.
 Direct-SQL evidence tests assert runtime refusal, not SQL audit enforcement.
 [HB-012 contract](planning/hb-012-savings.md), [evidence](planning/hb-012-verification.md).
+
+## HB-017 persistence boundary
+
+No new migration, table, constraint, connection setting or database target. Aggregate confirmation reuses commitBatch and the existing audit/receipt transaction. Preview/load are repeatable-read read-only; only transition prepare can persist nonfinancial proposal/period controls. All selected sources, ownership, revision, H/K, ordering, funding refs and report bases are rechecked under the existing account lock. Typed domain refusal throws rejectBatch to roll back the entire batch; audit INSERT and deferred COMMIT failures leave no partial financial writes. Unknown COMMIT outcome requires scoped status/original-key replay rather than an assumed rollback.
+
+The HB-017 local tests use an explicitly owned loopback disposable PostgreSQL container, all three URL overrides and local-target markers, existing migration chain and synthetic data only. Auth error rendering uses an identity-independent read-only SELECT 1 availability check with statement timeout; it neither diagnoses allowlist membership nor repairs/switches database targets. [Evidence and limits](planning/hb-017-verification.md).

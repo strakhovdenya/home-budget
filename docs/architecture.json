@@ -1,6 +1,25 @@
 {
-  "version": 7,
+  "version": 8,
   "project": "home-budget",
+  "hb017_atomic_update": {
+    "public_route": "/update-budget",
+    "actions": [
+      "load",
+      "preview",
+      "confirm",
+      "status",
+      "history"
+    ],
+    "read": "owned_repeatable_read_read_only_single_K",
+    "candidate": "pure_composition_existing_HB010_HB014_rules",
+    "confirm": "one_HB009_account_locked_transaction_complete_review_rebuilt",
+    "replay": "original_immutable_compound_proof_before_stale_calendar",
+    "same_identity": "SAME_IDENTITY_COMPOUND_NOT_SUPPORTED",
+    "draft": "memory_only_no_reload_recovery_promise",
+    "auth": "isolated_identity_independent_public_diagnostics_fail_closed",
+    "storage_changes": false,
+    "layer_directions_changed": false
+  },
   "hb014_projection": {
     "read": "private_HB007_repeatable_read_read_only_single_K_and_server_Berlin_date",
     "identity_completeness": "independent_creation_sequence_enumeration_full_chains_at_K",

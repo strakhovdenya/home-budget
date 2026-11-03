@@ -16,6 +16,8 @@ export type Transaction = Parameters<Parameters<Database['transaction']>[0]>[0];
 export interface CommitRequest {
   readonly scope: AuthorizedScope; readonly kind: string; readonly command: PreparedCommand;
   readonly replay?: (tx:Transaction,account:Readonly<typeof schema.accounts.$inferSelect>,identity:string)=>Promise<CommitReceipt|null>;
+  /** HB-017 proof verification only; legacy commands without this hook keep their original identity/replay contract. */
+  readonly verifyReplay?: (tx:Transaction,account:Readonly<typeof schema.accounts.$inferSelect>,prior:Readonly<typeof schema.budgetUpdates.$inferSelect>)=>Promise<void>;
 }
 export type BatchContext = Readonly<{
   id: string; recordedSeq: bigint; recordedAt: string;
@@ -50,6 +52,7 @@ export async function commitBatch(db: Database, request: CommitRequest, write: B
   ownerUserId = ownerUserId.toLowerCase(); accountId = accountId.toLowerCase();
   if (typeof kind !== 'string' || kind !== kind.trim() || !/^[A-Z][A-Z0-9_]{0,63}$/.test(kind) || !isPreparedCommand(command)) throw new BatchFailure('INVALID_INPUT');
   if(request.replay&&kind!=='PERIOD_TRANSITION')throw new BatchFailure('INVALID_INPUT');
+  if(request.verifyReplay&&!['BUDGET_UPDATE','PERIOD_TRANSITION'].includes(kind))throw new BatchFailure('INVALID_INPUT');
   const identity = createHash('sha256').update(encodeCanonical({ owner: ownerUserId, account: accountId, kind,
     expectedRevision: command.expectedRevision.toString(), payload: command.payload,
     effectiveDate: command.effectiveDate, reason: command.reason })).digest('hex');
@@ -68,6 +71,7 @@ export async function commitBatch(db: Database, request: CommitRequest, write: B
         const receipt = parseReceipt(prior.result);
         if (!receipt.ok || prior.expectedRevision < 0n || prior.expectedRevision >= MAX_CENTS || receipt.value.updateId !== prior.id || receipt.value.recordedSeq !== prior.recordedSeq.toString() ||
           receipt.value.aggregateRevision !== (prior.expectedRevision + 1n).toString()) throw new BatchFailure('STORAGE_ERROR');
+        if(request.verifyReplay)await request.verifyReplay(tx,account,prior);
         callbackCompleted = true;
         return receipt.value;
       }

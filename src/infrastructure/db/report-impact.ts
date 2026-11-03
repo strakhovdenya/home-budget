@@ -9,7 +9,7 @@ import { rejectBatch, type Transaction } from './commit';
 import * as s from './schema';
 /** Reuses the bank/order proof. Only savings relevant to a report's period cause savings impact. */
 export async function markSavingReportImpact(tx: Transaction, original: SavingHistory, candidate: SavingHistory, scope: AuthorizedScope,
-  originalPending?: ReadonlyMap<string, boolean>): Promise<AuditDescriptor[]> {
+  originalPending?: ReadonlyMap<string, boolean>, write = true): Promise<AuditDescriptor[]> {
   const changedBank = await affectedReports(tx, original, candidate, scope.ownerUserId, scope.accountId);
   const reports = await tx.select({ head: s.reportHeads, closing: s.monthClosings }).from(s.reportHeads)
     .innerJoin(s.monthClosings, eq(s.monthClosings.id, s.reportHeads.closingId))
@@ -28,7 +28,7 @@ export async function markSavingReportImpact(tx: Transaction, original: SavingHi
       || new Set(refs).size !== refs.length || [...refs].sort().join(',') !== ids(pinned.value.states)
       || (!(originalPending?.get(head.id) ?? head.correctionPending) && relevant(pinned.value.states) !== relevant(before.value.states))) return rejectBatch('REPORT_IMPACT_REVIEW_REQUIRED');
     if (!head.correctionPending && (relevant(before.value.states) !== relevant(after.value.states) || changedBank.some(r => r.head.id === head.id))) {
-      await tx.update(s.reportHeads).set({ correctionPending: true }).where(and(eq(s.reportHeads.id, head.id), eq(s.reportHeads.ownerUserId, scope.ownerUserId), eq(s.reportHeads.accountId, scope.accountId)));
+      if (write) await tx.update(s.reportHeads).set({ correctionPending: true }).where(and(eq(s.reportHeads.id, head.id), eq(s.reportHeads.ownerUserId, scope.ownerUserId), eq(s.reportHeads.accountId, scope.accountId)));
       audits.push({ entityType: 'REPORT_REVIEW_REQUIRED', entityId: head.id, before: { closingId: head.closingId, correctionPending: false }, after: { closingId: head.closingId, correctionPending: true } });
     }
   }

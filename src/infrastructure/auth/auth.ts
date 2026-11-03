@@ -4,6 +4,7 @@ import { cache } from 'react';
 import { createAuthConfig } from './config';
 import { ownerRepository } from './repository';
 import { authEnvironment, validId } from './policy';
+import { authDiagnostic } from './diagnostics';
 
 export const { auth, handlers, signIn, signOut } = NextAuth(() => createAuthConfig(process.env, ownerRepository));
 
@@ -13,7 +14,7 @@ export const currentOwner = cache(async function currentOwner() {
   try {
     const session = await auth();
     return validId(session?.user?.id) && session?.user?.email === config.email ? { id: session.user.id, email: session.user.email } : null;
-  } catch { return null; }
+  } catch {authDiagnostic('AUTH_SESSION_VALIDATION_FAILED','session');return null;}
 });
 
 export async function requireOwner() {
@@ -27,6 +28,6 @@ export async function requireOwnedAccount(accountId: unknown) {
   if (typeof accountId !== 'string') throw new Error('FORBIDDEN');
   try {
     if (await ownerRepository.ownsAccount(owner.id, accountId)) return { ownerUserId: owner.id, accountId };
-  } catch { /* Fail closed without leaking driver details. */ }
+  } catch {authDiagnostic('AUTH_STORAGE_UNAVAILABLE','ownership');}
   throw new Error('FORBIDDEN');
 }

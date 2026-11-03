@@ -64,39 +64,7 @@ export function createProjectionRepository(database: ReturnType<typeof createDat
         if (asOfDate > today) refuse('STATE_AFTER_AS_OF');
         const cut = selection?.knowledgeCut ?? account.recordedSeq;
         if (typeof cut !== 'bigint' || cut < 0n || cut > account.recordedSeq) refuse('INVALID_INPUT');
-        await preflight(tx, scope, cut);
-        const where = (t: { ownerUserId: AnyPgColumn; accountId: AnyPgColumn; recordedSeq: AnyPgColumn }) =>
-          and(eq(t.ownerUserId, scope.ownerUserId), eq(t.accountId, scope.accountId), lte(t.recordedSeq, cut));
-        const history = await loadCheckpointHistory(tx, scope, cut);
-        const audits = await tx.select().from(s.auditEvents).where(where(s.auditEvents));
-        const decisions = await tx.select().from(s.transitionDecisions).where(where(s.transitionDecisions));
-        const context = { history, audits, ...indexAudits(audits), decisions: new Map(decisions.map(d => [d.id, d])) };
-        const oh = await loadObligationHistory(tx, scope, cut, context), sh = await loadSavingHistory(tx, scope, cut, context);
-        // HB-011's general reader validates payment evidence. Projection additionally requires every obligation state audit.
-        const byRevision = new Map(oh.events.map(e => [e.id, e]));
-        try { for (const e of oh.events) {
-          const matches = context.auditByEntity.get(`OBLIGATION_STATE:${e.id}`) ?? [], audit = matches[0];
-          if (matches.length !== 1 || audit.recordedSeq !== e.recordedSeq || audit.budgetUpdateId !== e.budgetUpdateId) refuse('HISTORICAL_PAYMENT_CONFLICT');
-          const doc = normalizeValue(audit.beforeAfter);
-          if (!exactKeys(doc, ['schemaVersion', 'eventIndex', 'entity', 'before', 'after']) || doc.schemaVersion !== 1
-            || !Number.isSafeInteger(doc.eventIndex) || (doc.eventIndex as number) < 0
-            || !exactKeys(doc.entity, ['type', 'id']) || doc.entity.type !== 'OBLIGATION_STATE' || doc.entity.id !== e.id
-            || !exactKeys(doc.after, ['state', 'payment', 'effectiveDate', 'positionId', 'bankDate', 'supersedesId', 'confirmedAt'])) refuse('HISTORICAL_PAYMENT_CONFLICT');
-          const prior = byRevision.get(e.supersedesId ?? e.previousRevisionId ?? '');
-          const canonical = (v: unknown) => encodeCanonical(normalizeValue(v));
-          if (canonical(doc.before) !== canonical(prior ? obligationSnapshot(prior) : null)
-            || canonical(doc.after.state) !== canonical(obligationSnapshot(e)) || canonical(doc.after.payment) !== canonical(e.payment ? { ...e.payment, amountCents: e.payment.amountCents.toString() } : null)
-            || doc.after.effectiveDate !== e.effectiveDate || doc.after.positionId !== e.positionId || doc.after.bankDate !== e.bankDate
-            || doc.after.supersedesId !== e.supersedesId || doc.after.confirmedAt !== e.confirmedAt) refuse('HISTORICAL_PAYMENT_CONFLICT');
-        } } catch (e) {
-          if (e instanceof ForecastFailure) throw e;
-          refuse('HISTORICAL_PAYMENT_CONFLICT');
-        }
-        const obligationIdentities = await tx.select().from(s.obligations).where(where(s.obligations));
-        const savingIdentities = await tx.select().from(s.savingsGoals).where(where(s.savingsGoals));
-        const periods = await tx.select().from(s.budgetPeriods).where(and(eq(s.budgetPeriods.ownerUserId, scope.ownerUserId), eq(s.budgetPeriods.accountId, scope.accountId)));
-        const snapshot = assembleSnapshot({ scope, asOfDate, capturedSeq: account.recordedSeq, capturedAggregateRevision: account.aggregateRevision,
-          activeAllocationRevisionId: account.activeAllocationRevisionId, obligationHistory: oh, savingHistory: sh, obligationIdentities, savingIdentities, periods });
+        const { snapshot } = await readProjectionContext(tx,scope,account,asOfDate,cut);
         return { ok: true, value: { snapshot, asOfDate } } as const;
       }, { isolationLevel: 'repeatable read', accessMode: 'read only' });
     } catch (e) {
@@ -104,4 +72,42 @@ export function createProjectionRepository(database: ReturnType<typeof createDat
     }
   }
   return { read: scope => read(scope, null), readAt: (scope, selection) => read(scope, selection) };
+}
+
+/** Shared bounded coherent source loader, always on the caller's scoped transaction. */
+export async function readProjectionContext(tx:Transaction,scope:AuthorizedScope,account:typeof s.accounts.$inferSelect,asOfDate:import('@/shared/pure/calendar').BerlinDate,cut:bigint) {
+await preflight(tx, scope, cut);
+const where = (t: { ownerUserId: AnyPgColumn; accountId: AnyPgColumn; recordedSeq: AnyPgColumn }) =>
+  and(eq(t.ownerUserId, scope.ownerUserId), eq(t.accountId, scope.accountId), lte(t.recordedSeq, cut));
+const history = await loadCheckpointHistory(tx, scope, cut);
+const audits = await tx.select().from(s.auditEvents).where(where(s.auditEvents));
+const decisions = await tx.select().from(s.transitionDecisions).where(where(s.transitionDecisions));
+const context = { history, audits, ...indexAudits(audits), decisions: new Map(decisions.map(d => [d.id, d])) };
+const oh = await loadObligationHistory(tx, scope, cut, context), sh = await loadSavingHistory(tx, scope, cut, context);
+// HB-011's general reader validates payment evidence. Projection additionally requires every obligation state audit.
+const byRevision = new Map(oh.events.map(e => [e.id, e]));
+try { for (const e of oh.events) {
+  const matches = context.auditByEntity.get(`OBLIGATION_STATE:${e.id}`) ?? [], audit = matches[0];
+  if (matches.length !== 1 || audit.recordedSeq !== e.recordedSeq || audit.budgetUpdateId !== e.budgetUpdateId) refuse('HISTORICAL_PAYMENT_CONFLICT');
+  const doc = normalizeValue(audit.beforeAfter);
+  if (!exactKeys(doc, ['schemaVersion', 'eventIndex', 'entity', 'before', 'after']) || doc.schemaVersion !== 1
+    || !Number.isSafeInteger(doc.eventIndex) || (doc.eventIndex as number) < 0
+    || !exactKeys(doc.entity, ['type', 'id']) || doc.entity.type !== 'OBLIGATION_STATE' || doc.entity.id !== e.id
+    || !exactKeys(doc.after, ['state', 'payment', 'effectiveDate', 'positionId', 'bankDate', 'supersedesId', 'confirmedAt'])) refuse('HISTORICAL_PAYMENT_CONFLICT');
+  const prior = byRevision.get(e.supersedesId ?? e.previousRevisionId ?? '');
+  const canonical = (v: unknown) => encodeCanonical(normalizeValue(v));
+  if (canonical(doc.before) !== canonical(prior ? obligationSnapshot(prior) : null)
+    || canonical(doc.after.state) !== canonical(obligationSnapshot(e)) || canonical(doc.after.payment) !== canonical(e.payment ? { ...e.payment, amountCents: e.payment.amountCents.toString() } : null)
+    || doc.after.effectiveDate !== e.effectiveDate || doc.after.positionId !== e.positionId || doc.after.bankDate !== e.bankDate
+    || doc.after.supersedesId !== e.supersedesId || doc.after.confirmedAt !== e.confirmedAt) refuse('HISTORICAL_PAYMENT_CONFLICT');
+} } catch (e) {
+  if (e instanceof ForecastFailure) throw e;
+  refuse('HISTORICAL_PAYMENT_CONFLICT');
+}
+const obligationIdentities = await tx.select().from(s.obligations).where(where(s.obligations));
+const savingIdentities = await tx.select().from(s.savingsGoals).where(where(s.savingsGoals));
+const periods = await tx.select().from(s.budgetPeriods).where(and(eq(s.budgetPeriods.ownerUserId, scope.ownerUserId), eq(s.budgetPeriods.accountId, scope.accountId)));
+const snapshot = assembleSnapshot({ scope, asOfDate, capturedSeq: account.recordedSeq, capturedAggregateRevision: account.aggregateRevision,
+  activeAllocationRevisionId: account.activeAllocationRevisionId, obligationHistory: oh, savingHistory: sh, obligationIdentities, savingIdentities, periods });
+  return { snapshot, history, obligationHistory:oh, savingHistory:sh, periods };
 }

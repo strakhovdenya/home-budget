@@ -91,3 +91,26 @@ Sources: [Auth.js installation](https://authjs.dev/getting-started/installation)
 [session strategies](https://authjs.dev/concepts/session-strategies),
 [Google OIDC](https://developers.google.com/identity/openid-connect/openid-connect).
 Next.js APIs were checked against installed `node_modules/next/dist/docs/`.
+
+## HB-017 safe sign-in diagnostics
+
+An Auth.js `AccessDenied` response alone does not identify Google as the cause.
+RU/DE/EN error pages show a neutral sign-in message unless configuration or an
+identity-independent read-only storage check proves a service failure. A responsive
+wrong database target, plausible wrong OAuth credentials or an identity-specific
+binding/session failure can remain ambiguous; never infer membership or switch
+targets automatically. The query string is untrusted and never supplies diagnostic
+authority or raw displayed content.
+
+Server diagnostics contain only one closed category (`AUTH_CONFIG_INVALID`,
+`AUTH_STORAGE_UNAVAILABLE`, `AUTH_POLICY_DENIED`, `AUTH_IDENTITY_BINDING_CONFLICT`,
+`AUTH_OAUTH_FAILED`, `AUTH_SESSION_VALIDATION_FAILED`, `AUTH_UNKNOWN_FAILURE`),
+fixed stage, random correlationId and timestamp. Do not add raw causes, SQL,
+database URLs, email/subject, allowlist, cookies or provider tokens to logs or copy.
+Use the category/stage/time to investigate the actual configured environment
+privately. A storage failure after policy checks must not yield a special public
+message only for an allowed identity; status/redirect/cookie classification remains
+neutral. Fail-closed Google OAuth checks, JWT revalidation, CSRF/Origin and ownership
+remain mandatory. [HB-017 verification](planning/hb-017-verification.md) separates
+actual synthetic Auth.js callback/session tests, real local PostgreSQL tests and
+browser evidence from unperformed live Google/deployment checks.
