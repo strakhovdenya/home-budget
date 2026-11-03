@@ -1,7 +1,7 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 import { ownerId, foreignId, syntheticAuthEnvironment } from './fixtures/auth';
 
-const mocks = vi.hoisted(() => ({ auth: vi.fn(), signIn: vi.fn(), signOut: vi.fn(), matches: vi.fn(), ownsAccount: vi.fn(), bind: vi.fn() }));
+const mocks = vi.hoisted(() => ({ auth: vi.fn(), signIn: vi.fn(), signOut: vi.fn(), matches: vi.fn(), ownsAccount: vi.fn(), bind: vi.fn(), findAccountIdsForOwner: vi.fn() }));
 vi.mock('next-auth', async (original) => ({ ...await original<typeof import('next-auth')>(), default: () => ({ auth: mocks.auth, signIn: mocks.signIn, signOut: mocks.signOut, handlers: {} }) }));
 vi.mock('../src/infrastructure/auth/repository', () => ({ ownerRepository: mocks }));
 vi.mock('next/navigation', () => ({ redirect: (url: string) => { throw new Error(`REDIRECT:${url}`); } }));
@@ -17,11 +17,13 @@ beforeEach(() => {
   vi.resetAllMocks(); vi.unstubAllEnvs();
   for (const [key, value] of Object.entries(syntheticAuthEnvironment)) vi.stubEnv(key, value);
   mocks.auth.mockResolvedValue(null);
+  mocks.findAccountIdsForOwner.mockResolvedValue([]);
 });
-it.each([HomePage, MonthsPage, ObligationsPage, SavingsPage, SettingsPage])('redirects anonymous visitors from the actual %s server page', async (page) => {
+const protectedPages = [HomePage, MonthsPage, ObligationsPage, SavingsPage, SettingsPage].map(page => [page.name, page] as const);
+it.each(protectedPages)('redirects anonymous visitors from the actual %s server page', async (_name, page) => {
   await expect(page()).rejects.toThrow('REDIRECT:/login');
 });
-it.each([HomePage, MonthsPage, ObligationsPage, SavingsPage, SettingsPage])('renders the actual %s page for a trusted server session', async (page) => {
+it.each(protectedPages)('renders the actual %s page for a trusted server session', async (_name, page) => {
   mocks.auth.mockResolvedValue({ user: { id: ownerId, email: syntheticAuthEnvironment.ALLOWED_GOOGLE_EMAIL } });
   expect(await page()).toBeTruthy();
 });
@@ -58,4 +60,14 @@ it('delegates logout to Auth.js and rejects subsequent access without the sessio
   await logout();
   expect(mocks.signOut).toHaveBeenCalledWith({ redirectTo: '/login' });
   await expect(requireOwner()).rejects.toThrow('UNAUTHORIZED');
+});
+it('HB16-A01 rejects a direct explicit period before discovering an account', async () => {
+  await expect(MonthsPage({ searchParams: Promise.resolve({ period: '2026-12' }) })).rejects.toThrow('REDIRECT:/login');
+  expect(mocks.findAccountIdsForOwner).not.toHaveBeenCalled();
+});
+it('HB16-A02 renders the actual dashboard empty state for an authenticated owner without accounts', async () => {
+  mocks.auth.mockResolvedValue({ user: { id: ownerId, email: syntheticAuthEnvironment.ALLOWED_GOOGLE_EMAIL } });
+  const page = await HomePage();
+  expect(page.props.view).toEqual({ kind: 'NO_ACCOUNT' });
+  expect(mocks.findAccountIdsForOwner).toHaveBeenCalledExactlyOnceWith(ownerId);
 });

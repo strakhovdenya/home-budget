@@ -11,5 +11,82 @@
     "savings": {"title": "Platz für Ihre Pläne", "description": "Künftige Updates ermöglichen es Ihnen, Geld für Ihre Ziele zurückzulegen und Änderungen nachzuverfolgen."},
     "months": {"title": "Jeder Monat erzählt eine Geschichte", "description": "Budgetzeiträume und versionierte Monatsberichte erscheinen hier mit einem künftigen Update."},
     "settings": {"title": "Ganz nach Ihren Wünschen", "description": "Wählen Sie Sprache und Darstellung. Diese Einstellungen funktionieren bereits und bleiben in diesem Browser gespeichert."}
+  },
+  "dashboard": {
+    "eyebrow": "Bestätigte Daten · EUR",
+    "loading": "Budget wird geladen…",
+    "mode": {
+      "CURRENT": "Aktueller Budgetmonat",
+      "FUTURE": "Zukünftiger Monat · Vorschau",
+      "PAST": "Vergangener Monat · aktuelle Zuordnung"
+    },
+    "asOf": "Berechnet am {date}",
+    "bank": "Bestätigter Kartenkontostand",
+    "observed": "Geprüft am: {date}",
+    "bankBasis": "Dies ist die letzte Beobachtung und keine Garantie für den heutigen Kontostand.",
+    "bankNoncurrent": "Letzte Prüfung der gesamten Karte. Kein Kontostand zum Ende des ausgewählten Monats.",
+    "safeTitle": "Tageslimit auf Basis der Prüfung vom {date}",
+    "safeDaily": "Sicheres Tageslimit",
+    "safeAvailable": "Sicher verfügbar für freie Ausgaben",
+    "days": "Verbleibende Kalendertage einschließlich heute: {count}",
+    "budgetTitle": "Budget des ausgewählten Monats",
+    "allocated": "Dem Monat zugeordnet",
+    "free": "Freies Monatsbudget",
+    "reserved": "Vollständige Monatsreserven",
+    "savings": "Monatliche Rücklagen",
+    "deficit": "Monatliches Budgetdefizit",
+    "ordinary": "Budgetrichtwert pro Tag",
+    "futureGuideline": "Vorläufiger Budgetrichtwert pro Tag",
+    "ordinaryBasis": "Der Budgetrichtwert wird separat angezeigt. Für freie Ausgaben gilt das sichere Tageslimit.",
+    "futureBasis": "Vorschau für den gesamten Kalendermonat mit bereits bestätigten Mitteln. Keine heute verfügbaren Mittel und kein erwartetes Einkommen.",
+    "pastBasis": "Dies zeigt die aktuelle Zuordnung für den ausgewählten Monat. Ein historischer Bericht ist hier noch nicht verfügbar. Für vergangene Monate wird kein Tageslimit berechnet.",
+    "noticesTitle": "Datenstand und Deckung",
+    "notice": {
+      "EARLIER_OBSERVATION": "Die Berechnung beruht auf einer früheren Kartenprüfung. Der tatsächliche Kontostand kann abweichen.",
+      "REMINDER_DUE": "Die Prüfung liegt mindestens 7 Kalendertage zurück. Prüfen Sie den Kartenkontostand. Die Eingabe einer neuen Prüfung folgt in einem späteren Update.",
+      "MONTH_REVIEW_REQUIRED": "Nach dem Monatswechsel sollten die Daten geprüft werden. Geld und Reserven werden nicht automatisch übertragen.",
+      "CURRENT_UNFUNDED": "Dem aktuellen Monat wurden keine bestätigten Mittel zugeordnet."
+    },
+    "shortage": "Es fehlen {amount} auf Basis der Kartenprüfung",
+    "meaning": {
+      "OBLIGATIONS_UNDERFUNDED": "Zur Deckung aller vollständig reservierten offenen Verpflichtungen über alle Monate.",
+      "EARMARKS_UNDERFUNDED": "Zur gemeinsamen Deckung aller Verpflichtungen und beibehaltenen Rücklagen.",
+      "PROTECTION_UNDERFUNDED": "Zum Erhalt der Mittel anderer Monate sowie aller Reserven und Rücklagen."
+    },
+    "nonAdditive": "Diese Beträge werden nicht addiert: Die Vergleiche überschneiden sich.",
+    "budgetGap": "Der Budgetrichtwert übersteigt den sicher verfügbaren Betrag: Reserven und Mittel anderer Monate sind geschützt.",
+    "unavailable": {
+      "NO_OBSERVATION": "Keine bestätigte Kartenprüfung",
+      "INCOMPLETE_STATE": "Nicht genügend bestätigte Daten für die Berechnung",
+      "OVERDRAFT_POLICY_REQUIRED": "Keine Budgetberechnung für einen negativen Kontostand verfügbar"
+    },
+    "noEstimate": "Keine numerische Prognose verfügbar. Fehlende Daten bedeuten keinen Kontostand von null.",
+    "known": "Bekannte vollständige Reserven und Rücklagen; die Deckung ist unbekannt:",
+    "readOnly": "Diese Ansicht zeigt nur bestätigte Daten. Das Lesen verändert das Budget nicht.",
+    "retry": "Aktuellen Monat erneut laden",
+    "state": {
+      "UNAUTHORIZED": "Bitte anmelden",
+      "FORBIDDEN": "Kein Zugriff auf das Budget",
+      "NO_ACCOUNT": "Das Konto ist noch nicht eingerichtet",
+      "ACCOUNT_SELECTION_REQUIRED": "Das Konto konnte nicht eindeutig ausgewählt werden",
+      "STORAGE_ERROR": "Das Budget konnte nicht geladen werden. Bitte erneut versuchen.",
+      "PROJECTION_LIMIT_EXCEEDED": "Zu viele Daten für die Berechnung",
+      "CALCULATION_ERROR": "Das Budget konnte nicht berechnet werden",
+      "INVALID_PERIOD": "Ungültiger Budgetmonat"
+    }
+  },
+  "periodNavigation": {
+    "label": "Budgetmonat auswählen",
+    "previous": "Vorheriger Monat: {month}",
+    "next": "Nächster Monat: {month}",
+    "previousShort": "Zurück",
+    "nextShort": "Weiter",
+    "current": "Aktueller Monat",
+    "lowerBoundary": "Erster zulässiger Monat erreicht",
+    "upperBoundary": "Letzter zulässiger Monat erreicht",
+    "month": "Monat",
+    "year": "Jahr",
+    "show": "Monat anzeigen",
+    "loading": "Ausgewählter Monat wird geladen…"
   }
 }

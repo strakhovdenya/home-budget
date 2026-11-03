@@ -3901,27 +3901,27 @@
     "u0019": {
       "suite": "unit",
       "path": "tests/auth-boundaries.test.ts",
-      "name": "redirects anonymous visitors from the actual async function HomePage() {\n\tawait (0,__vite_ssr_import_1__.requirePageOwner)();\n\treturn /* @__PURE__ */ (0,__vite_ssr_import_2__.jsxDEV)((0,__vite_ssr_import_0__.PlaceholderScreen), { section: \"overview\" }, void 0, false, {\n\t\tfileName: _jsxFileName,\n\t\tlineNumber: 6,\n\t\tcolumnNumber: 10\n\t}, this);\n} server page"
+      "name": "redirects anonymous visitors from the actual HomePage server page"
     },
     "u0020": {
       "suite": "unit",
       "path": "tests/auth-boundaries.test.ts",
-      "name": "redirects anonymous visitors from the actual async function MonthsPage() {\n\tawait (0,__vite_ssr_import_1__.requirePageOwner)();\n\treturn /* @__PURE__ */ (0,__vite_ssr_import_2__.jsxDEV)((0,__vite_ssr_import_0__.PlaceholderScreen), { section: \"months\" }, void 0, false, {\n\t\tfileName: _jsxFileName,\n\t\tlineNumber: 6,\n\t\tcolumnNumber: 10\n\t}, this);\n} server page"
+      "name": "redirects anonymous visitors from the actual MonthsPage server page"
     },
     "u0021": {
       "suite": "unit",
       "path": "tests/auth-boundaries.test.ts",
-      "name": "redirects anonymous visitors from the actual async function ObligationsPage() {\n\tawait (0,__vite_ssr_import_1__.requirePageOwner)();\n\treturn /* @__PURE__ */ (0,__vite_ssr_import_2__.jsxDEV)((0,__vite_ssr_import_0__.PlaceholderScreen), { section: \"obligations\" }, void 0, false, {\n\t\tfileName: _jsxFileName,\n\t\tlineNumber: 6,\n\t\tcolumnNumber: 10\n\t}, this);\n} server page"
+      "name": "redirects anonymous visitors from the actual ObligationsPage server page"
     },
     "u0022": {
       "suite": "unit",
       "path": "tests/auth-boundaries.test.ts",
-      "name": "redirects anonymous visitors from the actual async function SavingsPage() {\n\tawait (0,__vite_ssr_import_1__.requirePageOwner)();\n\treturn /* @__PURE__ */ (0,__vite_ssr_import_2__.jsxDEV)((0,__vite_ssr_import_0__.PlaceholderScreen), { section: \"savings\" }, void 0, false, {\n\t\tfileName: _jsxFileName,\n\t\tlineNumber: 6,\n\t\tcolumnNumber: 10\n\t}, this);\n} server page"
+      "name": "redirects anonymous visitors from the actual SavingsPage server page"
     },
     "u0023": {
       "suite": "unit",
       "path": "tests/auth-boundaries.test.ts",
-      "name": "redirects anonymous visitors from the actual async function SettingsPage() {\n\tawait (0,__vite_ssr_import_1__.requirePageOwner)();\n\treturn /* @__PURE__ */ (0,__vite_ssr_import_2__.jsxDEV)((0,__vite_ssr_import_0__.PlaceholderScreen), { section: \"settings\" }, void 0, false, {\n\t\tfileName: _jsxFileName,\n\t\tlineNumber: 6,\n\t\tcolumnNumber: 10\n\t}, this);\n} server page"
+      "name": "redirects anonymous visitors from the actual SettingsPage server page"
     },
     "u0024": {
       "suite": "unit",
@@ -3931,27 +3931,27 @@
     "u0025": {
       "suite": "unit",
       "path": "tests/auth-boundaries.test.ts",
-      "name": "renders the actual async function HomePage() {\n\tawait (0,__vite_ssr_import_1__.requirePageOwner)();\n\treturn /* @__PURE__ */ (0,__vite_ssr_import_2__.jsxDEV)((0,__vite_ssr_import_0__.PlaceholderScreen), { section: \"overview\" }, void 0, false, {\n\t\tfileName: _jsxFileName,\n\t\tlineNumber: 6,\n\t\tcolumnNumber: 10\n\t}, this);\n} page for a trusted server session"
+      "name": "renders the actual HomePage page for a trusted server session"
     },
     "u0026": {
       "suite": "unit",
       "path": "tests/auth-boundaries.test.ts",
-      "name": "renders the actual async function MonthsPage() {\n\tawait (0,__vite_ssr_import_1__.requirePageOwner)();\n\treturn /* @__PURE__ */ (0,__vite_ssr_import_2__.jsxDEV)((0,__vite_ssr_import_0__.PlaceholderScreen), { section: \"months\" }, void 0, false, {\n\t\tfileName: _jsxFileName,\n\t\tlineNumber: 6,\n\t\tcolumnNumber: 10\n\t}, this);\n} page for a trusted server session"
+      "name": "renders the actual MonthsPage page for a trusted server session"
     },
     "u0027": {
       "suite": "unit",
       "path": "tests/auth-boundaries.test.ts",
-      "name": "renders the actual async function ObligationsPage() {\n\tawait (0,__vite_ssr_import_1__.requirePageOwner)();\n\treturn /* @__PURE__ */ (0,__vite_ssr_import_2__.jsxDEV)((0,__vite_ssr_import_0__.PlaceholderScreen), { section: \"obligations\" }, void 0, false, {\n\t\tfileName: _jsxFileName,\n\t\tlineNumber: 6,\n\t\tcolumnNumber: 10\n\t}, this);\n} page for a trusted server session"
+      "name": "renders the actual ObligationsPage page for a trusted server session"
     },
     "u0028": {
       "suite": "unit",
       "path": "tests/auth-boundaries.test.ts",
-      "name": "renders the actual async function SavingsPage() {\n\tawait (0,__vite_ssr_import_1__.requirePageOwner)();\n\treturn /* @__PURE__ */ (0,__vite_ssr_import_2__.jsxDEV)((0,__vite_ssr_import_0__.PlaceholderScreen), { section: \"savings\" }, void 0, false, {\n\t\tfileName: _jsxFileName,\n\t\tlineNumber: 6,\n\t\tcolumnNumber: 10\n\t}, this);\n} page for a trusted server session"
+      "name": "renders the actual SavingsPage page for a trusted server session"
     },
     "u0029": {
       "suite": "unit",
       "path": "tests/auth-boundaries.test.ts",
-      "name": "renders the actual async function SettingsPage() {\n\tawait (0,__vite_ssr_import_1__.requirePageOwner)();\n\treturn /* @__PURE__ */ (0,__vite_ssr_import_2__.jsxDEV)((0,__vite_ssr_import_0__.PlaceholderScreen), { section: \"settings\" }, void 0, false, {\n\t\tfileName: _jsxFileName,\n\t\tlineNumber: 6,\n\t\tcolumnNumber: 10\n\t}, this);\n} page for a trusted server session"
+      "name": "renders the actual SettingsPage page for a trusted server session"
     },
     "u0055": {
       "suite": "unit",

@@ -67,3 +67,23 @@ it('AUTH-DB03 refuses ambiguous/preexisting owners without rebinding or changing
   expect(after.rows).toEqual(before.rows);
   expect(await database.db.select().from(users).orderBy(users.id)).toEqual(usersBefore);
 });
+
+it('HB16-A02/A03/A04 PG bounds account discovery to the trusted owner without provisioning', async () => {
+  const repo = identityRepository(database), owner = (await repo.bind('synthetic-hb016-owner'))!;
+  const foreignOwner = randomUUID();
+  await database.db.insert(users).values({ id: foreignOwner });
+  await database.db.insert(accounts).values({ id: randomUUID(), ownerUserId: foreignOwner, displayName: 'Synthetic foreign' });
+  const before = await database.db.select().from(accounts);
+  expect(await repo.findAccountIdsForOwner(owner)).toEqual([]);
+  expect(await database.db.select().from(accounts)).toEqual(before);
+  const own = randomUUID();
+  await database.db.insert(accounts).values({ id: own, ownerUserId: owner, displayName: 'Synthetic own' });
+  expect(await repo.findAccountIdsForOwner(owner)).toEqual([own]);
+  await database.db.insert(accounts).values([1,2].map(() => ({ id: randomUUID(), ownerUserId: owner, displayName: 'Synthetic additional' })));
+  const allBefore = await database.db.select().from(accounts).orderBy(accounts.id);
+  const discovered = await repo.findAccountIdsForOwner(owner);
+  expect(discovered).toHaveLength(2);
+  expect(discovered.every(id => allBefore.some(a => a.id === id && a.ownerUserId === owner))).toBe(true);
+  await expect(repo.findAccountIdsForOwner('forged')).rejects.toThrow('FORBIDDEN');
+  expect(await database.db.select().from(accounts).orderBy(accounts.id)).toEqual(allBefore);
+});

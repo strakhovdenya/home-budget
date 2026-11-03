@@ -7,6 +7,12 @@ import { validId, validSubject } from './policy';
 
 export function identityRepository(database: ReturnType<typeof createDatabase>) {
   return {
+    async findAccountIdsForOwner(ownerId: string): Promise<readonly string[]> {
+      if (!validId(ownerId)) throw new Error('FORBIDDEN');
+      const rows = await database.db.select({ id: accounts.id }).from(accounts)
+        .where(eq(accounts.ownerUserId, ownerId)).limit(2);
+      return rows.map(row => row.id);
+    },
     async bind(subject: string): Promise<string | null> {
       if (!validSubject(subject)) return null;
       return database.db.transaction(async (tx) => {
@@ -36,6 +42,7 @@ export function identityRepository(database: ReturnType<typeof createDatabase>) 
 
 // Database remains lazy: a secret-free build or anonymous visit never connects.
 export const ownerRepository = {
+  findAccountIdsForOwner: (owner: string) => identityRepository(databaseFromEnvironment()).findAccountIdsForOwner(owner),
   bind: (subject: string) => identityRepository(databaseFromEnvironment()).bind(subject),
   matches: (id: string, subject: string) => identityRepository(databaseFromEnvironment()).matches(id, subject),
   ownsAccount: (owner: string, account: string) => identityRepository(databaseFromEnvironment()).ownsAccount(owner, account),

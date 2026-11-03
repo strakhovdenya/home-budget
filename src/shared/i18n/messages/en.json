@@ -11,5 +11,82 @@
     "savings": {"title": "Space for your plans", "description": "Future updates will let you set money aside for your goals and follow changes over time."},
     "months": {"title": "Every month has its story", "description": "Budget periods and versioned month reports will appear here in a future update."},
     "settings": {"title": "Make yourself at home", "description": "Choose your language and appearance. These preferences work now and stay with this browser."}
+  },
+  "dashboard": {
+    "eyebrow": "Confirmed data · EUR",
+    "loading": "Loading budget…",
+    "mode": {
+      "CURRENT": "Current budget month",
+      "FUTURE": "Future month · preview",
+      "PAST": "Past month · active allocation"
+    },
+    "asOf": "Calculated as of {date}",
+    "bank": "Confirmed card balance",
+    "observed": "Last checked: {date}",
+    "bankBasis": "This is the last observation, not a guarantee of today’s bank balance.",
+    "bankNoncurrent": "Last check of the whole card. This is not the closing balance of the selected month.",
+    "safeTitle": "Daily limit based on the check on {date}",
+    "safeDaily": "Safe daily limit",
+    "safeAvailable": "Safely available for discretionary spending",
+    "days": "Remaining calendar days, including today: {count}",
+    "budgetTitle": "Selected month’s budget",
+    "allocated": "Allocated to the month",
+    "free": "Free monthly budget",
+    "reserved": "Full monthly reserves",
+    "savings": "Monthly savings",
+    "deficit": "Monthly budget deficit",
+    "ordinary": "Monthly budget guideline per day",
+    "futureGuideline": "Preview budget guideline per day",
+    "ordinaryBasis": "The budget guideline is separate. Use the safe limit for discretionary spending.",
+    "futureBasis": "Full calendar month preview using already confirmed funds. These are not funds available today or expected income.",
+    "pastBasis": "This is the active allocation for the selected month. A historical report is not yet available here. Daily guidance is unavailable for past periods.",
+    "noticesTitle": "Data quality and coverage",
+    "notice": {
+      "EARLIER_OBSERVATION": "This calculation uses an earlier card check. The current bank balance may differ.",
+      "REMINDER_DUE": "The last check was at least 7 calendar days ago. Check your card balance. Recording a new check will be available in a later update.",
+      "MONTH_REVIEW_REQUIRED": "Review the data after the month changes. Money and reserves are not transferred automatically.",
+      "CURRENT_UNFUNDED": "No confirmed money is allocated to the current month."
+    },
+    "shortage": "Shortfall of {amount} based on the card check",
+    "meaning": {
+      "OBLIGATIONS_UNDERFUNDED": "To cover all fully reserved unpaid obligations across all months.",
+      "EARMARKS_UNDERFUNDED": "To cover all obligations and retained savings together across all months.",
+      "PROTECTION_UNDERFUNDED": "To preserve other months’ money and all full reserves and savings."
+    },
+    "nonAdditive": "Do not add these amounts: they describe overlapping comparisons.",
+    "budgetGap": "The budget guideline exceeds the safely available amount because reserves and other months’ money are protected.",
+    "unavailable": {
+      "NO_OBSERVATION": "No confirmed card check",
+      "INCOMPLETE_STATE": "Insufficient confirmed data for a calculation",
+      "OVERDRAFT_POLICY_REQUIRED": "Budget calculation is unavailable for a negative card balance"
+    },
+    "noEstimate": "No numeric forecast is available. Missing data does not mean a zero balance.",
+    "known": "Known full reserves and savings; cash coverage is unknown:",
+    "readOnly": "This screen only displays confirmed data. Reading does not change the budget.",
+    "retry": "Reload the current month",
+    "state": {
+      "UNAUTHORIZED": "Please sign in",
+      "FORBIDDEN": "Budget access denied",
+      "NO_ACCOUNT": "The account is not set up yet",
+      "ACCOUNT_SELECTION_REQUIRED": "An account could not be selected unambiguously",
+      "STORAGE_ERROR": "Could not load the budget. Please try again.",
+      "PROJECTION_LIMIT_EXCEEDED": "There is too much data to calculate the projection",
+      "CALCULATION_ERROR": "Could not calculate the budget",
+      "INVALID_PERIOD": "Invalid budget month"
+    }
+  },
+  "periodNavigation": {
+    "label": "Select a budget month",
+    "previous": "Previous month: {month}",
+    "next": "Next month: {month}",
+    "previousShort": "Previous",
+    "nextShort": "Next",
+    "current": "Current month",
+    "lowerBoundary": "First supported month reached",
+    "upperBoundary": "Last supported month reached",
+    "month": "Month",
+    "year": "Year",
+    "show": "Show month",
+    "loading": "Loading the selected month…"
   }
 }

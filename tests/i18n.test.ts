@@ -25,7 +25,8 @@ describe('HB-005 catalogs and server preferences', () => {
     const translate = createTranslator({ locale, messages: catalogs[locale], onError });
     for (const [key, value] of Object.entries(messages)) {
       expect(value.trim()).not.toBe('');
-      expect(translate(key as Parameters<typeof translate>[0])).toBe(value);
+      const argumentsForMessage = Object.fromEntries([...value.matchAll(/\{(\w+)\}/g)].map(([, name]) => [name, name === 'count' ? 3 : 'synthetic']));
+      expect(translate(key as Parameters<typeof translate>[0], argumentsForMessage)).toBe(value.replace(/\{(\w+)\}/g, (_, name: string) => String(argumentsForMessage[name])));
     }
     expect(onError).not.toHaveBeenCalled();
   });

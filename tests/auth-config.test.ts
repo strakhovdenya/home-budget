@@ -4,7 +4,7 @@ import type { JWT } from 'next-auth/jwt';
 import { createAuthConfig } from '../src/infrastructure/auth/config';
 import { ownerId, foreignId, syntheticAuthEnvironment as env } from './fixtures/auth';
 
-const repository = { bind: vi.fn(), matches: vi.fn(), ownsAccount: vi.fn() };
+const repository = { bind: vi.fn(), matches: vi.fn(), ownsAccount: vi.fn(), findAccountIdsForOwner: vi.fn() };
 const profile: Profile = { sub: 'google-owner-123', email: env.ALLOWED_GOOGLE_EMAIL, email_verified: true };
 const account: Account = { provider: 'google', type: 'oidc', providerAccountId: profile.sub!, access_token: 'synthetic-access', refresh_token: 'synthetic-refresh' };
 const callbacks = createAuthConfig(env, repository).callbacks!;
