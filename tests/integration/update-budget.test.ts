@@ -1,3 +1,4 @@
+import { createManagementReader } from '@/infrastructure/db/management-reader';
 import { randomUUID,createHash } from 'node:crypto';
 import pg from 'pg';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
@@ -254,6 +255,9 @@ it('HB17-P12 current transition preserves nonempty report bytes while historical
     const reviewed=value(prepareCommand(value(await f.repo.preview(f.scope,raw))));expect((await db.db.select().from(s.reportHeads).where(eq(s.reportHeads.id,r.head)))[0].correctionPending).toBe(false);
     value(await f.repo.confirm(f.scope,reviewed));expect(await db.db.select().from(s.monthClosings).where(eq(s.monthClosings.id,r.id))).toEqual(before);
     expect((await db.db.select().from(s.reportHeads).where(eq(s.reportHeads.id,r.head)))[0].correctionPending).toBe(historical);
+    const pinned=await baseline(f.scope),managed=value(await createManagementReader(db).list(f.scope));
+    value(await createManagementReader(db).history(f.scope,{kind:'OBLIGATION',identityId:managed.obligations[0].identityId,cursor:null}));
+    expect(await baseline(f.scope)).toEqual(pinned);
   }
 });
 it('HB17-P12 original invalid report evidence refuses preview without writes',async()=>{

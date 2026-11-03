@@ -163,9 +163,23 @@ Owner accepted HB-015 on 2026-11-03. Owner-reported independent ChatGPT repeat r
 **Acceptance:** one save for actual checkpoint plus full balance distribution, optional earmark changes, no required operations/net explanation; paid with same balance warns and requires fresh affirmation. Redistribution/transfer alone reuses confirmed unchanged balance; no auto debit or synthetic observation; show consent and revision timeline.
 
 ### HB-018 · Obligations and savings management screens
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-011, HB-012, HB-016, HB-017 · **Area:** UI
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-011, HB-012, HB-016, HB-017 · **Area:** UI
 **Deliverables:** obligation list/details and history, savings goals/history.
 **Acceptance:** edit/close/cancel with full history; savings release may be suggested during deficit but needs click; no partial reserves.
+
+**Owner Acceptance — 2026-11-03:** owner finally accepted HB-018 after
+owner-reported independent ChatGPT repeat review R1: **APPROVED; Critical 0 /
+High 0 / Medium 0 / Low 0**. Medium 1 is corrected and covered by six component
+regressions. Retained R1 execution:861 unit/component,332 PostgreSQL,509 timezone,
+22 supplementary LA; these are prior Codex runs, not new documentation-stage runs.
+[Approved plan](planning/hb-018-obligations-savings.md),
+[42 scenarios](../tests/scenarios/phase-01/hb-018-obligations-savings.md),
+[Owner Acceptance, verification and retained evidence](planning/hb-018-verification.md#owner-acceptance--2026-11-03).
+**Accepted limitations:** browser QA B01–B07 and physical screen reader remain
+NOT EXECUTED because the runtime was unavailable; owner consciously accepts the
+residual risk, not a browser PASS. History cursors remain process-local; HB17-A03
+is unchanged. Owner Acceptance completes documentation only and is not itself
+publication authorization; commit/push/PR/merge/deploy require separate permission.
 
 ### HB-019 · Manual month closing, versions and rollover
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-002, HB-013, HB-014, HB-017 · **Area:** finance/UI

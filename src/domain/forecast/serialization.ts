@@ -3,7 +3,7 @@ import { LIMITS, type AccountProjection, type PeriodProjection, type Obligation,
   type Bank, type PeriodBudget, type Liquidity, type AccountEstimate, type Unavailable } from './contracts';
 import { attempt, capture, checked, refuse } from './validation';
 
-export type Wire<T> = T extends bigint ? string : T extends readonly (infer E)[] ? readonly Wire<E>[]
+export type Wire<T> = T extends bigint ? string : T extends string ? T : T extends readonly (infer E)[] ? readonly Wire<E>[]
   : T extends object ? { readonly [K in keyof T]: Wire<T[K]> } : T;
 const money = (v: bigint) => checked(serializeCents(v));
 function provenance(p: Provenance): Wire<Provenance> {

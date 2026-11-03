@@ -1,5 +1,16 @@
 # Data model — checkpoint-first
 
+## HB-018 management read DTOs
+
+No storage entities or migration. Management list/history/proposal derives from
+existing immutable facts and validated audits in one coherent scoped transaction.
+History returns exact full before/after snapshots, correction/predecessor refs,
+recorded/effective/confirmation coordinates, actor/reason, original/funding periods,
+payment/source/checkpoint/affirmation, savings amounts and funding proofs.
+Signed read cursors and memory-only client drafts are not persisted entities.
+Historical full states are never rebuilt by applying deltas to live amounts.
+[Implementation evidence](planning/hb-018-verification.md).
+
 ## HB-014 read-only derived state
 
 No persisted forecast/warning/reminder entities. One captured account K plus H

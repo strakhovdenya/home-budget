@@ -109,5 +109,5 @@ const savingIdentities = await tx.select().from(s.savingsGoals).where(where(s.sa
 const periods = await tx.select().from(s.budgetPeriods).where(and(eq(s.budgetPeriods.ownerUserId, scope.ownerUserId), eq(s.budgetPeriods.accountId, scope.accountId)));
 const snapshot = assembleSnapshot({ scope, asOfDate, capturedSeq: account.recordedSeq, capturedAggregateRevision: account.aggregateRevision,
   activeAllocationRevisionId: account.activeAllocationRevisionId, obligationHistory: oh, savingHistory: sh, obligationIdentities, savingIdentities, periods });
-  return { snapshot, history, obligationHistory:oh, savingHistory:sh, periods };
+  return { snapshot, history, obligationHistory:oh, savingHistory:sh, periods, audits };
 }

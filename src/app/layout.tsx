@@ -10,6 +10,7 @@ import { Button, Stack, Typography } from '@mui/material';
 import { currentOwner } from '@/infrastructure/auth/auth';
 import { logout } from './auth-actions';
 import './globals.css';
+import { BudgetDraftProvider } from '@/features/budget-updates/budget-draft-provider';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('shell');
@@ -29,7 +30,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <InitColorSchemeScript attribute="data-mui-color-scheme" defaultMode="system" modeStorageKey="home-budget-mode" />
       <AppRouterCacheProvider>
         <NextIntlClientProvider locale={locale} messages={messages} timeZone="Europe/Berlin">
-          <AppThemeProvider><AppShell sessionControl={sessionControl}>{children}</AppShell></AppThemeProvider>
+          <AppThemeProvider><BudgetDraftProvider key={owner?.id ?? 'anonymous'}><AppShell sessionControl={sessionControl}>{children}</AppShell></BudgetDraftProvider></AppThemeProvider>
         </NextIntlClientProvider>
       </AppRouterCacheProvider>
     </body>

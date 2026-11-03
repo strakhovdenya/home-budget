@@ -1,3 +1,4 @@
+import { createManagementReader } from '@/infrastructure/db/management-reader';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import pg from 'pg';
@@ -98,6 +99,9 @@ it('HB12-S26/E08/E09/O01 reviewed suffix has two revisions, two savings audits a
   expect(k12).toBe(k11+1n);expect(BigInt(receipt.aggregateRevision)).toBe(k12);
   expect(rI).toMatchObject({previousRevisionId:rC.id,confirmedIncreaseAmount:3000n,amountCents:8000n});
   expect(rLC).toMatchObject({previousRevisionId:rI.id,positionId:rL.positionId,logicalFactId:rL.logicalFactId,confirmedReleasedAmount:2000n,amountCents:6000n,budgetUpdateId:rI.budgetUpdateId});
+  const managementHistory=value(await createManagementReader(db).history(f,{kind:'SAVING',identityId:rC.savingsId,cursor:null}));
+  expect(managementHistory.entries.find(e=>e.id===rL.id)?.supersededBy).toBe(rLC.id);
+  expect(managementHistory.entries.find(e=>e.id===rLC.id)).toMatchObject({released:'2000',after:{amountCents:'6000'}});
   expect(rLC.beforeState).toEqual(snapshot(rI));expect(h.savings.find(e=>e.id===rL.id)).toEqual(rL);
   expect(await db.db.select().from(s.auditEvents).where(and(eq(s.auditEvents.accountId,f.accountId),eq(s.auditEvents.recordedSeq,k11)))).toEqual(originalAudit);
   const assertions=[['2026-10-01',k12,null,0n],['2026-10-02',k11,rC.id,5000n],['2026-10-10',k11,rC.id,5000n],['2026-10-20',k11,rL.id,3000n],
@@ -151,6 +155,8 @@ async function direct(f: Scope, options: { full?: boolean; increase?: boolean; e
 it.each([false,true].flatMap(full=>['missing','amount','number','fraction','canonical','absent','revision','batch','predecessor','snapshot','duplicate','seq','scope'].map(evidence=>({full,evidence}))))('HB12-E03..E07 direct SQL $evidence full=$full refuses read and write without fallback',async({full,evidence})=>{
   const f=await fixture();await direct(f,{evidence,full});
   expect(await read(f)).toEqual({ok:false,code:'HISTORICAL_SAVINGS_CONFLICT'});
+  expect(await createManagementReader(db).list(f)).toMatchObject({ok:false,code:'HISTORICAL_SAVINGS_CONFLICT'});
+  expect(await createManagementReader(db).history(f,{kind:'SAVING',identityId:(await db.db.select().from(s.savingsGoals).where(eq(s.savingsGoals.accountId,f.accountId)))[0].id,cursor:null})).toMatchObject({ok:false,code:'HISTORICAL_SAVINGS_CONFLICT'});
   await unchangedFailure(f,()=>commit(f,[change('CREATE',{effectiveDate:'2026-10-21'})]),'HISTORICAL_SAVINGS_CONFLICT');
 });
 it('HB12-E03 FULL_RELEASE missing evidence refuses and E10 immutable history',async()=>{
