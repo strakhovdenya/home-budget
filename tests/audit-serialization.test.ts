@@ -42,6 +42,6 @@ it.each([
   [{ code: 'ECONNRESET', message: 'secret SQL' }, true, 'COMMIT_OUTCOME_UNKNOWN'],
   [new Error('secret'), true, 'COMMIT_OUTCOME_UNKNOWN'],
   [new Error('secret'), false, 'TRANSACTION_FAILED'],
-])('HB9-U16 distinguishes transaction outcomes', (error, completed, expected) => {
+])('HB9-U16 distinguishes transaction outcomes [case %#]', (error, completed, expected) => {
   expect(classifyTransactionError(error, completed as boolean)).toBe(expected);
 });

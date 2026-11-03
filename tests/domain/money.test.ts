@@ -11,7 +11,7 @@ describe('HB-008 / BR-10 exact signed cents', () => {
     expect(unwrap(validateCents(value))).toBe(value);
   });
 
-  it.each([0, 1, 0.01, -1, NaN, Infinity, null, undefined, '1', {}, true])('rejects non-bigint %s', (value) => {
+  it.each([0, 1, 0.01, -1, NaN, Infinity, null, undefined, '1', {}, true])('rejects non-bigint %s [case %#]', (value) => {
     expect(validateCents(value)).toEqual({ ok: false, code: 'INVALID_MONEY' });
   });
 

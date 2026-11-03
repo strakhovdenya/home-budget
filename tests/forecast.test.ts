@@ -218,3 +218,31 @@ it('HB14-058 divisor sweep, R/S decompositions and source permutations',()=>{
   const y=state(50000n,{'2026-11':40000n,'2026-12':10000n},[obligation(1000n,'2026-12')],[saving(2000n),saving(2000n,'2026-12',21)]);
   expect(estimate(y).currentLiquidity.safeAvailable).toBe(estimate(x).currentLiquidity.safeAvailable);
 });
+
+const monotonicPairs = [
+  ['HB15-M01', state(10000n, undefined, [obligation(1000n)]), state(10000n, undefined, [obligation(1001n)]), [9000n,3000n,0n], [8999n,2999n,2n]],
+  ['HB15-M02', state(10000n, undefined, [], [saving(1000n)]), state(10000n, undefined, [], [saving(1001n)]), [9000n,3000n,0n], [8999n,2999n,2n]],
+  ['HB15-M03', state(10000n, {'2026-11':5000n,'2026-12':5000n}, [obligation(4999n,'2026-12')]), state(10000n, {'2026-11':5000n,'2026-12':5000n}, [obligation(5000n,'2026-12')]), [5000n,1666n,2n], [5000n,1666n,2n]],
+  ['HB15-M04', state(10000n, {'2026-11':5000n,'2026-12':5000n}, [obligation(5000n,'2026-12')]), state(10000n, {'2026-11':5000n,'2026-12':5000n}, [obligation(5001n,'2026-12')]), [5000n,1666n,2n], [4999n,1666n,1n]],
+  ['HB15-M05', state(10000n, {'2026-11':5000n,'2026-12':5000n}, [obligation(4000n,'2026-12')], [saving(1000n,'2026-12')]), state(10000n, {'2026-11':5000n,'2026-12':5000n}, [obligation(4000n,'2026-12')], [saving(1001n,'2026-12')]), [5000n,1666n,2n], [4999n,1666n,1n]],
+  ['HB15-M06', state(MAX_CENTS, undefined, [obligation(MAX_CENTS-1n)]), state(MAX_CENTS, undefined, [obligation(MAX_CENTS)]), [1n,0n,1n], [0n,0n,0n]],
+] as const;
+it.each(monotonicPairs)('%s paired production protection monotonicity', (_, before, after, expectedBefore, expectedAfter) => {
+  const originals = structuredClone([before, after]);
+  // Both calls use the public pure production projection, not a manual next-state formula.
+  const first = value(projectAccount(before, '2026-11-28'));
+  const second = value(projectAccount(after, '2026-11-28'));
+  if (first.kind !== 'ACCOUNT_ESTIMATE' || second.kind !== 'ACCOUNT_ESTIMATE') throw Error('EXPECTED_COMPLETE');
+  for (const [result, expected] of [[first, expectedBefore], [second, expectedAfter]] as const) {
+    expect(result.currentLiquidity).toMatchObject({ days:3, safeAvailable:expected[0], safeDailyLimit:expected[1], safeRemainder:expected[2] });
+    expect(result.bank.balance).toBe(before.checkpoint.balance);
+    expect(result.bank.observedDate).toBe('2026-11-20');
+  }
+  expect(second.currentLiquidity.safeAvailable <= first.currentLiquidity.safeAvailable).toBe(true);
+  expect(second.currentLiquidity.safeDailyLimit <= first.currentLiquidity.safeDailyLimit).toBe(true);
+  expect(after.checkpoint).toEqual(before.checkpoint);
+  expect(after.allocations).toEqual(before.allocations);
+  const identities = (s: CompleteSnapshot) => [...s.obligations, ...s.savings].map(e => [e.identityId,e.revisionId,e.originPeriod,e.fundingPeriod,e.positionId,e.transitionDecisionId]);
+  expect(identities(after)).toEqual(identities(before));
+  expect([before, after]).toEqual(originals); // Pure calls cannot persist facts; also detect any in-memory mutation.
+});

@@ -114,3 +114,9 @@ Executable coverage: `tests/checkpoints.test.ts`, `tests/checkpoint-reconciliati
 `tests/checkpoint-types.ts`, `tests/integration/bank-checkpoints.test.ts`, plus retained
 HB-008/009 and persistence regression suites. Actual commands/counts and remaining
 limits belong to the [verification report](../../../docs/planning/hb-010-verification.md).
+
+HB-015 crosswalk: normative **HB10-DB02** (real concurrency) maps to executable
+**HB10-DB20** in `tests/integration/bank-checkpoints.test.ts`; normative
+**HB10-DB03** (lost COMMIT acknowledgment) maps to executable **HB10-DB21**.
+The executable labels DB02/DB03 describe initial confirmation/int64 endpoints,
+respectively, and are not proof of those two normative scenarios.
