@@ -1,7 +1,10 @@
 {
-  "version": 9,
+  "version": 10,
   "hb018_management": {
-    "routes": ["/obligations", "/savings"],
+    "routes": [
+      "/obligations",
+      "/savings"
+    ],
     "read_port": "domain/management/contracts.ts:ManagementReader",
     "read": "owned_repeatable_read_read_only_complete_bounded_evidence_before_paging",
     "history": "immutable_identity_evidence_signed_scope_H_K_order_cursor_page50",
@@ -107,7 +110,10 @@
   "finance_model": {
     "adr": "docs/adr/0001-checkpoints-and-allocations.md",
     "adr_status": "Accepted",
-    "primary_state": ["observed_bank_checkpoint", "complete_user_confirmed_month_allocation_revision"],
+    "primary_state": [
+      "observed_bank_checkpoint",
+      "complete_user_confirmed_month_allocation_revision"
+    ],
     "allocation_invariant": "each A[p] >= 0; sum(A[p]) = observed B >= 0",
     "operation_details_required": false,
     "user_suspense_category": false,
@@ -118,11 +124,18 @@
     "history_contract": {
       "adr": "docs/adr/0002-month-closing-and-corrections.md",
       "status": "Accepted",
-      "selection_coordinates": ["historical_through_date", "evidence_recorded_cutoff_seq"],
+      "selection_coordinates": [
+        "historical_through_date",
+        "evidence_recorded_cutoff_seq"
+      ],
       "same_day_order": "confirmed_historical_positions_with_pinned_ordering_revisions",
       "report_versions": "immutable_explicit_confirmation",
       "primary_month_transition": "actual_bank_check_explicit_carry_or_fresh_start_complete_vector_in_one_update",
-      "transition_modes": ["CARRY", "FRESH_START", "DEFER"],
+      "transition_modes": [
+        "CARRY",
+        "FRESH_START",
+        "DEFER"
+      ],
       "default_transition_mode": null,
       "fresh_start": "explicit_non_carry_history_preserved_all_unpaid_and_savings_earmarks_retained",
       "missed_months_fresh_start": "one_atomic_update_no_intermediate_checks_transfers_or_closes",
@@ -154,54 +167,163 @@
     {
       "name": "domain",
       "description": "Pure finance rules, cents, budgets and projections",
-      "paths": ["src/domain/**"],
-      "may_depend_on": ["shared-pure"],
-      "must_not_depend_on": ["app", "features", "infrastructure", "shared-ui", "shared-i18n"],
-      "forbidden_external_imports": ["react", "react/**", "react-dom", "react-dom/**", "next", "next/**", "@mui/**", "@emotion/**", "drizzle-orm", "drizzle-orm/**", "next-intl", "next-intl/**"]
+      "paths": [
+        "src/domain/**"
+      ],
+      "may_depend_on": [
+        "shared-pure"
+      ],
+      "must_not_depend_on": [
+        "app",
+        "features",
+        "infrastructure",
+        "shared-ui",
+        "shared-i18n"
+      ],
+      "forbidden_external_imports": [
+        "react",
+        "react/**",
+        "react-dom",
+        "react-dom/**",
+        "next",
+        "next/**",
+        "@mui/**",
+        "@emotion/**",
+        "drizzle-orm",
+        "drizzle-orm/**",
+        "next-intl",
+        "next-intl/**"
+      ]
     },
     {
       "name": "features",
       "description": "Application use cases and feature UI",
-      "paths": ["src/features/**"],
-      "may_depend_on": ["domain", "shared-pure", "shared-ui", "shared-i18n"],
-      "must_not_depend_on": ["app"]
+      "paths": [
+        "src/features/**"
+      ],
+      "may_depend_on": [
+        "domain",
+        "shared-pure",
+        "shared-ui",
+        "shared-i18n"
+      ],
+      "must_not_depend_on": [
+        "app"
+      ]
     },
     {
       "name": "infrastructure",
       "description": "DB/auth/documents implementations of ports",
-      "paths": ["src/infrastructure/**"],
-      "may_depend_on": ["domain", "shared-pure"],
-      "must_not_depend_on": ["app", "features", "shared-ui", "shared-i18n"]
+      "paths": [
+        "src/infrastructure/**"
+      ],
+      "may_depend_on": [
+        "domain",
+        "shared-pure"
+      ],
+      "must_not_depend_on": [
+        "app",
+        "features",
+        "shared-ui",
+        "shared-i18n"
+      ]
     },
     {
       "name": "app",
       "description": "Next.js routing and composition",
-      "paths": ["src/app/**"],
-      "may_depend_on": ["domain", "features", "infrastructure", "shared-pure", "shared-ui", "shared-i18n"],
+      "paths": [
+        "src/app/**"
+      ],
+      "may_depend_on": [
+        "domain",
+        "features",
+        "infrastructure",
+        "shared-pure",
+        "shared-ui",
+        "shared-i18n"
+      ],
       "must_not_depend_on": []
     },
     {
       "name": "shared-pure",
       "description": "Framework-free utilities; transitive UI/framework/ORM imports forbidden",
-      "paths": ["src/shared/pure/**"],
+      "paths": [
+        "src/shared/pure/**"
+      ],
       "may_depend_on": [],
-      "must_not_depend_on": ["domain", "features", "infrastructure", "app", "shared-ui", "shared-i18n"],
-      "forbidden_external_imports": ["react", "react/**", "react-dom", "react-dom/**", "next", "next/**", "@mui/**", "@emotion/**", "drizzle-orm", "drizzle-orm/**", "next-intl", "next-intl/**"]
+      "must_not_depend_on": [
+        "domain",
+        "features",
+        "infrastructure",
+        "app",
+        "shared-ui",
+        "shared-i18n"
+      ],
+      "forbidden_external_imports": [
+        "react",
+        "react/**",
+        "react-dom",
+        "react-dom/**",
+        "next",
+        "next/**",
+        "@mui/**",
+        "@emotion/**",
+        "drizzle-orm",
+        "drizzle-orm/**",
+        "next-intl",
+        "next-intl/**"
+      ]
     },
     {
       "name": "shared-ui",
       "description": "MUI theme and UI components",
-      "paths": ["src/shared/ui/**"],
-      "may_depend_on": ["shared-pure", "shared-i18n"],
-      "must_not_depend_on": ["domain", "features", "infrastructure", "app"]
+      "paths": [
+        "src/shared/ui/**"
+      ],
+      "may_depend_on": [
+        "shared-pure",
+        "shared-i18n"
+      ],
+      "must_not_depend_on": [
+        "domain",
+        "features",
+        "infrastructure",
+        "app"
+      ]
     },
     {
       "name": "shared-i18n",
       "description": "Locale catalogs and framework locale integration",
-      "paths": ["src/shared/i18n/**"],
-      "may_depend_on": ["shared-pure"],
-      "must_not_depend_on": ["domain", "features", "infrastructure", "app", "shared-ui"]
+      "paths": [
+        "src/shared/i18n/**"
+      ],
+      "may_depend_on": [
+        "shared-pure"
+      ],
+      "must_not_depend_on": [
+        "domain",
+        "features",
+        "infrastructure",
+        "app",
+        "shared-ui"
+      ]
     }
   ],
-  "unclassified_shared_paths_policy": "Reject root shared barrels and paths outside declared sublayers. Check external imports transitively; define an external package allowlist before implementation. Deny patterns are minimum constraints, not exhaustive purity proof."
+  "unclassified_shared_paths_policy": "Reject root shared barrels and paths outside declared sublayers. Check external imports transitively; define an external package allowlist before implementation. Deny patterns are minimum constraints, not exhaustive purity proof.",
+  "hb019_month_closing": {
+    "route": "/months",
+    "ports": "domain/closing",
+    "read": "independently_owned_repeatable_read_read_only_one_snapshot",
+    "candidate": "existing_H_K_selectors_full_identity_funding_and_audit_closure",
+    "confirmation": "stateless_authenticated_exact_content_consent_rebuilt_under_existing_account_lock",
+    "replay": "original_report_command_audit_receipt_before_calendar_and_stale_checks",
+    "write": "append_version_head_audits_receipt_counters_optional_missing_period_only",
+    "codec": "canonical_UTF8_8MiB_depth32_nodes100000_wire1MiB_binary_chunks128KiB",
+    "work": "two_roots_one_diff_sum_W_squared_plus_all_V_at_most_4M_chain1000_and_1MiB",
+    "historical_periods": "closing_only_explicit_K_reachability_including_future_allocations_origins_funding_and_transition_refs",
+    "read_admission": "cross_instance_account_advisory_try_lock_50ms_minimum_hold_statement_timeout10s",
+    "browser_verification": "NOT_EXECUTED_runtime_unavailable",
+    "storage_changes": false,
+    "layer_directions_changed": false
+  }
 }

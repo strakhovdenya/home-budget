@@ -97,11 +97,11 @@ describe('HB15-G02 normative inventory and explicit obligation scope',()=>{
   });
   it('keeps the implemented obligation required when a compound historical scenario is partial',()=>{
     const f=fixture(),e=f.manifest.scenarios[0];
-    f.contents[specs[0].path]='## F-013 — original historical version retained\n';
-    e.id='F-013';e.source.locator='## F-013 — original historical version retained';e.source.definitionHash=definitions(f.contents,specs).get('F-013').definitionHash;
+    f.contents[specs[0].path]='## F-014 — independent future statistics\n';
+    e.id='F-014';e.source.locator='## F-014 — independent future statistics';e.source.definitionHash=definitions(f.contents,specs).get('F-014').definitionHash;
     f.manifest.contexts=sourceContexts(f.contents,specs,[]);
     e.disposition='partial';
-    const future={key:'future',assertion:'explicit report confirmation workflow',gate:'deferred',task:'HB-019',reason:'future closing use case'};
+    const future={key:'future',assertion:'separate statistics integration',gate:'deferred',task:'HB-024',reason:'future statistics use case'};
     Reflect.set(e,'obligations',[...e.obligations,future]);expect(run(f).scenarios).toBe(1);
     e.disposition='deferred';Reflect.set(e,'obligations',[future]);
     expect(()=>run(f)).toThrow('IMPLEMENTED_OBLIGATION_REQUIRED');
@@ -155,7 +155,7 @@ describe('HB15-G03 CLI rejection and repository contract',()=>{
     const paths:string[]=manifest.contexts.map((e:{path:string})=>e.path);
     const contents=Object.fromEntries(paths.map(p=>[p,readFileSync(p,'utf8')]));
     expect(validateManifest(manifest,contents).size).toBe(manifest.scenarios.length);
-    expect(manifest.timezoneFiles).toEqual(timezoneFiles);
+    expect(manifest.timezoneFiles).toEqual([...timezoneFiles,'tests/closing.test.ts','tests/closing-boundary.test.ts']);
   });
   it('rejects a schema without positive passed results before resolving references',()=>{
     expect(()=>reportIndex({success:true},'unit',fixture().context)).toThrow('INVALID_REPORT');
@@ -211,14 +211,14 @@ describe('HB15-G02 R1 shared normative context and compound meaning',()=>{
     const before=e.obligations.find((o:{key:string})=>o.key==='unconfirmed-state');
     const after=e.obligations.find((o:{key:string})=>o.key==='confirmed-carry');
     if(variant==='missing-before')e.obligations=e.obligations.filter((o:{key:string})=>o.key!=='unconfirmed-state');
-    if(variant==='pretend-complete'){e.disposition='required';e.obligations=e.obligations.filter((o:{gate:string})=>o.gate!=='deferred');}
-    if(variant==='closing-as-runtime'){const index=e.obligations.findIndex((o:{gate:string})=>o.gate==='deferred');e.obligations[index]={...structuredClone(after),key:'pretend-production-close'};e.disposition='required';}
+    if(variant==='pretend-complete')e.obligations=e.obligations.filter((o:{key:string})=>o.key!=='manual-closing');
+    if(variant==='closing-as-runtime'){const index=e.obligations.findIndex((o:{key:string})=>o.key==='manual-closing');e.obligations[index]={...structuredClone(after),key:'manual-closing'};}
     if(variant==='after-test-as-before'){before.tests=structuredClone(after.tests);before.evidence=structuredClone(after.evidence);}
     if(variant==='false-exact')after.coverage='exact-oracle';
     if(variant==='wrong-evidence')before.evidence[0].ref=after.tests[0];
     expect(()=>validateManifest(f.manifest,f.contents)).toThrow();
   });
-  it.each(['F-011','HB1-011','HB2-016','HB3-028','HBL-023'])('cannot present the future branch of %s as fully executed',id=>{
+  it.each(['F-011','HB1-011','HB2-018','HB1-006','HBL-023'])('cannot present the future branch of %s as fully executed',id=>{
     const f=repositoryContract(),e=f.manifest.scenarios.find((s:{id:string})=>s.id===id);
     expect(e.disposition).toBe('partial');
     e.obligations=e.obligations.filter((o:{gate:string})=>o.gate!=='deferred');e.disposition='required';
@@ -228,5 +228,48 @@ describe('HB15-G02 R1 shared normative context and compound meaning',()=>{
     const f=repositoryContract(),e=f.manifest.scenarios.find((s:{id:string})=>s.id==='HB1-011');
     e.obligations.find((o:{gate:string})=>o.gate==='deferred').task='HB-019';
     expect(()=>validateManifest(f.manifest,f.contents)).toThrow('FALSE_DEFERRAL');
+  });
+});
+
+describe('HB19 finance inventory and honest verification status',()=>{
+  it('cannot green a required failed or unexecuted verification using other passed reports',()=>{
+    for(const status of ['FAILED','NOT_EXECUTED']){const f=fixture();Reflect.set(f.manifest,'blockingVerification',[{key:'required-boundary',scenario:'F-001',status,reason:'A required PostgreSQL boundary has not passed.'}]);expect(()=>run(f)).toThrow('BLOCKED_REQUIRED_VERIFICATION');}
+  });
+  it('rejects a fabricated PASS or unknown scenario in the blocking registry',()=>{
+    for(const item of [{key:'invalid-pass',scenario:'F-001',status:'PASS',reason:'This must never bypass a missing proof.'},{key:'unknown-case',scenario:'HB19-Z99',status:'FAILED',reason:'Unknown scenarios cannot replace the normative inventory.'}]){
+      const f=fixture();Reflect.set(f.manifest,'blockingVerification',[item]);expect(()=>run(f)).toThrow('INVALID_BLOCKING_VERIFICATION');
+    }
+  });
+  it('registers exactly91 unique HB19 definitions and all46 HB2 rows',()=>{
+    const f=repositoryContract(),inventory=definitions(f.contents);
+    expect([...inventory.keys()].filter(id=>id.startsWith('HB19-'))).toHaveLength(91);
+    expect(f.manifest.scenarios.filter((s:{id:string})=>s.id.startsWith('HB2-'))).toHaveLength(46);
+  });
+  it('parses HB19 definition headings without treating references as definitions',()=>{
+    const path='tests/scenarios/phase-01/hb-019-month-closing-versions-rollover.md';
+    const result=definitions({[path]:'See HB19-B01 and HB19-R03.\n## HB19-A01 actual contract\nGIVEN synthetic.\n## HB19-R07 chunk contract\nTHEN no partial proof.\n'},[{path,style:'heading',namespace:'HB19'}]);
+    expect([...result.keys()]).toEqual(['HB19-A01','HB19-R07']);
+  });
+  it('binds shared HB19 fixture prose before the first case to the normative hash',()=>{
+    const f=repositoryContract(),path='tests/scenarios/phase-01/hb-019-month-closing-versions-rollover.md';
+    f.contents[path]='Altered shared fixture admission\n'+f.contents[path];
+    expect(()=>validateManifest(f.manifest,f.contents)).toThrow('NORMATIVE_CONTEXT_MISMATCH');
+  });
+  it.each(['fake-pass','runtime-substitute','manual-finance','tests-under-manual'])('refuses %s browser/verification laundering',variant=>{
+    const f=repositoryContract(),browser=f.manifest.scenarios.find((s:{id:string})=>s.id==='HB19-E08'),finance=f.manifest.scenarios.find((s:{id:string})=>s.id==='HB19-B01');
+    if(variant==='fake-pass')browser.obligations[0].status='PASS';
+    if(variant==='runtime-substitute'){browser.obligations=structuredClone(finance.obligations);browser.disposition='required';}
+    if(variant==='manual-finance'){finance.obligations=structuredClone(browser.obligations);finance.disposition='verification';}
+    if(variant==='tests-under-manual')browser.obligations[0].tests=[finance.obligations[0].tests[0]];
+    expect(()=>validateManifest(f.manifest,f.contents)).toThrow();
+  });
+  it('cannot replace actual F009 closing with a seeded report projection',()=>{
+    const f=repositoryContract(),entry=f.manifest.scenarios.find((s:{id:string})=>s.id==='F-009'),obligation=entry.obligations.find((o:{key:string})=>o.key==='manual-closing');
+    obligation.tests=['i0568'];obligation.evidence=[{ref:'i0568',guarantee:'Seeded immutable rows alone are not an actual closing API proof.'}];
+    expect(()=>validateManifest(f.manifest,f.contents)).toThrow('PRODUCTION_CLOSING_PROOF_REQUIRED');
+  });
+  it('requires both added closing timezone files without reducing the prior source set',()=>{
+    const f=repositoryContract(),i=f.manifest.timezoneFiles.indexOf('tests/closing.test.ts');
+    f.manifest.timezoneFiles[i]='tests/unreviewed.test.ts';expect(()=>validateManifest(f.manifest,f.contents)).toThrow('INVALID_TIMEZONE_SET');
   });
 });

@@ -1,5 +1,65 @@
 # Product decision log — current correction and archived chronology
 
+## HB-019.1 budget-update UX and HB-020 first-run scope — 2026-11-04
+
+**Owner product decision — accepted for planning; implementation NOT authorized by this record.**
+These are UX/orchestration clarifications to accepted D29–D39 and Q-HB17-01, not
+permission to change financial invariants, history algorithms, or the database.
+
+- **D40 — one primary action.** "Обновить бюджет" is the everyday entry point.
+  Within the same current Berlin month, an ordinary actual-check update confirms
+  one real balance, complete nonnegative allocation vector and optional supported
+  lifecycle edits. No month-transition selection is demanded unless unresolved
+  funding/allocations from an earlier month still need an explicit decision.
+- **D41 — new-month primary route.** Present the clearly named action
+  "Начать месяц с актуального остатка" as the *explicit user choice* of
+  `FRESH_START`, followed by reviewed actual bank observation, complete vector,
+  affected old-period funding identities and required non-carry/future-edit
+  consent. Do not preselect a transition on page opening or silently infer it from
+  dates/amounts. This refines D29–D35 **UI** while preserving nondefault domain
+  transition decisions. Preserve untouched future allocations unless explicitly
+  reviewed and confirmed otherwise. No automatic saving creation or release.
+- **D42 — remaining modes.** Offer `CARRY` as a separately named secondary
+  "Перенести прежнее распределение" action; it supports a fresh actual check or
+  explicit reuse of the last valid confirmed check when allowed. `DEFER` is a
+  secondary "Оставить распределение без переноса" action: it does not move old
+  cash or earmark funding, but may accompany a valid explicitly confirmed update.
+  Neither action runs automatically. Existing canonical modes/events remain.
+- **D43 — obligations and savings.** An unpaid November bill can retain November
+  origin/due date yet be fully reserved in December after explicitly reviewed
+  funding transfer. Saved amounts persist with identity and current funding;
+  new savings and savings increases are voluntary. A mental "€400 left from
+  November" is not a verified November 30 bank balance or automatically created
+  savings. Actual card debits are never posted by payment flags; no double
+  subtraction. Retain full reserves even when R+S>B and display deficit.
+- **D44 — restricted same-identity sequence (owner chose option A).** Keep
+  Q-HB17-01 intact. If `FRESH_START`/`CARRY` moves funding of an existing
+  obligation or saving, changing that **same identity** (paid/partial/cancelled,
+  amend/increase/release) in the same atomic update remains unsupported with
+  `SAME_IDENTITY_COMPOUND_NOT_SUPPORTED`, retained draft and no partial financial
+  writes. The user first confirms month transition/funding, then submits the
+  lifecycle edit in a **separate later explicitly confirmed update**. UI explains
+  the sequence without silent two-step commits, fake historical positions,
+  inferred payment or relaxed SQL guards. Disjoint-identity compositions keep
+  their existing contract.
+- **D45 — delivery boundaries.** Finish HB-019's existing closing-review defect
+  and independent owner acceptance first. Add **HB-019.1** (P0, planning then
+  separately authorized implementation) before HB-020; it changes UX/orchestration,
+  not D36, schema or the established finance engine. Include **HB-020** in MVP as
+  P0, extending it with first-run authenticated *owned account creation* and
+  initial actual checkpoint/full allocation onboarding alongside recurring
+  obligation templates; no second card/multi-account UI. HB-021 tests the full
+  chain after both. Proposed HB-027 deployment remains unapproved.
+
+Closing remains independent of transition. History still resolves `state(H,K)`;
+without an observed month-end checkpoint, month-end bank balance stays UNKNOWN.
+Neither CARRY nor FRESH_START establishes how much cash physically existed on the
+last day of the previous month. Keep immutable old reports and all revisions.
+
+References: [rules](BUSINESS_RULES.md), [new task](TASKS.md#hb-0191--budget-update-ux-and-month-transition-clarity),
+[planning contract](planning/hb-019-1-budget-update-ux.md),
+[scenarios](../tests/scenarios/phase-01/hb-019-1-budget-update-ux.md).
+
 ## HB-018 Owner Acceptance — 2026-11-03
 
 The owner finally accepted HB-018 on **2026-11-03** after owner-reported independent

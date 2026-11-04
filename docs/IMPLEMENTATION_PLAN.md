@@ -41,18 +41,37 @@ Deliver in small PRs:
 
 **Goal:** user can run their budget without manual spreadsheet.
 
-1. Overview: physical balance, last check, reserved, voluntary savings, available, deficit, daily guideline, period switch and warning if old balance.
-2. Single "Update Budget" wizard: actual checkpoint date/amount + REQUIRED full balance distribution by month + optional obligation/savings changes + one confirmation. No operation entry, net-change allocation or explanation required.
-3. Obligations CRUD: full amount reserves, paid/cancelled, amount changes, partial payment of obligation (not partial reserve), event timeline.
-4. Savings: create/increase/decrease/release; optional proposal to free savings when deficit.
-5. Complete period allocation state: sum equals checkpoint; user confirms suggested/current/past/future amounts, with each share nonnegative and expected income excluded, without suspense. State deltas are not inferred income/expenses; optional physical operation details stay separate.
-6. Monthly open/close:detect current month on access;actual balance/full distribution and explicit A CARRY or B FRESH_START confirm atomically,neither default. Preserve full reserves/savings and historical versions;B supports missed months without compulsory per-month transfers. Complex multi-source A cases remain excluded under Q-HB2-02. Manual close supports unknown end balance without a final-day checkpoint;re-accepted corrected ADR0002 defines historical/correction contracts. D36 requires a safe main current limit protecting all selected reserves/savings across periods and other-month allocations;formula is Accepted for completed HB-003 after owner-reported final independent review with D37..D39:visible dated old-state estimates,nonblocking informational warnings and calendar-age>=7 reminder. HB-003 specifications are Done; financial implementation remains in later tasks.
-7. Recurring templates: suggestions requiring user confirmation, duplicate prevention; **MVP membership pending Q-HB1-03**, because HB-020/PRD classify them P1. This line is not approval to expand MVP.
-8. Responsive, multilingual, accessibility and e2e budget paths.
+1. HB-020 first-run onboarding (owner-authorized scope addition, documentation only): after an admitted Google login with no owned account, offer "Create budget", require a name and explicit confirmation, then resume the existing HB-010/HB-017 actual-balance/full-month-allocation flow. Account creation is independently authorized, atomic, auditable and protected against retries/concurrent requests; it creates no synthetic financial facts. Empty/unconfigured means unknown, not zero. Failures and relogin must permit safe continuation without duplicate accounts or changes to existing users/accounts. Login provisioning itself remains users-only; no allowlist expansion or multi-account UI. No implementation is added to HB-019.
+2. Overview: physical balance, last check, reserved, voluntary savings, available, deficit, daily guideline, period switch and warning if old balance.
+3. Single "Update Budget" wizard: actual checkpoint date/amount + REQUIRED full balance distribution by month + optional obligation/savings changes + one confirmation. No operation entry, net-change allocation or explanation required.
+4. Obligations CRUD: full amount reserves, paid/cancelled, amount changes, partial payment of obligation (not partial reserve), event timeline.
+5. Savings: create/increase/decrease/release; optional proposal to free savings when deficit.
+6. Complete period allocation state: sum equals checkpoint; user confirms suggested/current/past/future amounts, with each share nonnegative and expected income excluded, without suspense. State deltas are not inferred income/expenses; optional physical operation details stay separate.
+7. Monthly open/close:detect current month on access;actual balance/full distribution and explicit CARRY or FRESH_START confirm atomically,neither mode auto-selected. After HB-019 acceptance, HB-019.1 makes user-chosen FRESH_START the primary new-month UX; CARRY and DEFER remain secondary explicit actions. Preserve full reserves/savings and historical versions;FRESH_START supports missed months without compulsory per-month transfers. Complex multi-source CARRY remains excluded under Q-HB2-02. Manual close supports unknown end balance without a final-day checkpoint;re-accepted corrected ADR0002 defines historical/correction contracts. D36 requires the same safe main current limit protecting all selected reserves/savings across periods and other-month allocations;D37..D39 retain dated old-state estimates,nonblocking informational warnings and Berlin calendar-age>=7 reminder. No formulas, historical semantics, or pending HB-019 acceptance are changed by this UX planning decision.
+8. HB-020 recurring templates (retained; now approved P0 scope in D45): suggestions requiring explicit accept/edit/skip, one obligation per accepted template+period, old debt separate from the new month bill; no automatic acceptance/debit. Q-HB1-03 is resolved. The first-run onboarding scope in item 1 remains unchanged.
+9. Responsive, multilingual, accessibility and e2e budget paths. HB-019.1 precedes HB-020 and improves routine updating and the explicit new-month choice without changing financial math. HB-020 must include PostgreSQL/auth/browser first-run proofs from its [scenario contract](../tests/scenarios/phase-01/hb-020-first-run-and-recurring-templates.md); HB-021 supplies broader QA and does not substitute for those acceptance checks.
+
+**HB-019.1 sequencing/constraint (owner D40–D45):** when a new-month
+transition transfers the funding of an existing obligation or savings identity,
+payment or any lifecycle edit to that same identity must be a separate later,
+individually confirmed budget update. Existing SAME_IDENTITY_COMPOUND_NOT_SUPPORTED
+remains the atomic refusal; no silent two-step write or weakened H/K constraints.
+Within the current month a normal actual check requires no rollover choice unless
+old-period allocations or funding still require explicit disposition. New-month
+FRESH_START is a named user choice, not a background or implicit default.
+
+HB-020 implementation planning must specify bounded name validation, command identity,
+durable duplicate/race admission, atomic creation/audit and unknown-COMMIT recovery
+before coding; no persistence mechanism or migration is selected by this scope update.
+Keep account creation separate from the first confirmed financial update so a valid
+empty account can resume setup safely. A storage/auth error must not be interpreted
+as proof that no account exists. First-run onboarding here is distinct from M3's
+optional historical-data import. All HB-020 scenarios are Planned/NOT EXECUTED;
+this documentation work does not amend HB-019 code, tests or its frozen report.
 
 **Exit gate:** user acceptance for the real routine: open once per week, enter new card balance, close paid liabilities, get accurate daily forecast; close last month without losing historical outcome.
 
-**Shared MVP definition:** P0 tasks through HB-021 are the common baseline; recurring templates HB-020 remain a scope decision in [Q-HB1-03](OPEN_QUESTIONS.md#hb-001-approval-register--unresolved-no-business-rule-changed). M3/M4 are outside MVP. Align all scope documents after owner decision; do not infer approval from milestone placement.
+**Shared MVP definition (owner D45, 2026-11-04):** P0 includes HB-019.1 and HB-020 before HB-021. HB-020 combines previously agreed first-run owned-account onboarding and now-approved recurring templates. Sequence: finish/review/accept HB-019; independently review and separately authorize HB-019.1; independently review and authorize HB-020; then full HB-021 browser E2E/a11y. M3/M4 are outside MVP; a proposed HB-027 Vercel/deployment task has not been created. This is scope/documentation approval, not authorization for implementation, commit, push, PR, merge or deploy.
 
 ## Milestone M3 — History, reports and safe onboarding
 
