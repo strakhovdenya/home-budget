@@ -45,7 +45,7 @@ HBUX cases, financial invariants and immutable HB-019 versions unchanged.
 | ID | GIVEN / WHEN | Required THEN / negative assertions |
 |---|---|---|
 | HBUX-026 | C observed 2026-11-04 B=100000; complete V={Nov:80000,Dec:20000}; full unpaid RNov=20000, SNov=10000; user views current November | Dated latest card 1000 EUR is primary balance metric; Nov A=80000,R=20000,S=10000,F=50000 remain separately labelled, existing D36 guidance unchanged. Never imply all B is November free cash; no reserve debit, new C/V or audit on view. Repeat with an older C and preserve true date/freshness notices rather than hiding the balance or inventing freshness. |
-| HBUX-027 | Oct20 C0 B=80000,V0={Oct:60000,Nov:20000}, ROct=20000,SOct=10000; no Oct31 observation. Later Nov04 C1 B=100000,V1={Oct:0,Nov:80000,Dec:20000}, same O/S funded Nov after an explicit transfer. Select October; separately open its existing immutable report pinned to C0/V0 | Selected-month budget is the main section. Active-distribution view labels its current basis and Oct A=0,R=0,S=0,F=0; report view separately labels its version/historical basis and Oct A=60000,R=20000,S=10000,F=30000. Do not conflate the two. Latest-card 1000 EUR / 04.11.2026 is secondary and explicitly not October's balance. Both lack actual Oct31 proof: show "Остаток на конец месяца неизвестен"; neither 80000,100000 nor their 20000 difference is an end balance/income/expense. No live past daily forecast, report overwrite or writes on selection. |
+| HBUX-027 | Oct20 C0 B=80000,V0={Oct:60000,Nov:20000}, ROct=20000,SOct=10000; no Oct31 observation. Later Nov04 C1 B=100000,V1={Oct:0,Nov:80000,Dec:20000}, same O/S funded Nov after an explicit transfer. Select closed October with its existing immutable report pinned to C0/V0 | Selected accepted history is primary: Oct A=60000,R=20000,S=10000,F=30000, with version/historical basis. Any active-distribution context is secondary: Oct A=0,R=0,S=0,F=0 with current anchor, not a replacement report. No misleading "historical report unavailable" claim. Latest-card 1000 EUR / 04.11.2026 is secondary and explicitly not October's balance. Both lack actual Oct31 proof: show "Остаток на конец месяца неизвестен"; neither 80000,100000 nor their 20000 difference is an end balance/income/expense. No live past daily forecast, report overwrite or writes on selection. |
 | HBUX-028 | Independent branch: real final-day Oct31 C0 B=0,V0 complete all-zero cash; unpaid ROct=2000,SOct=1000,FOct=-3000; report v1 pins that evidence. Later Nov04 C1 B=100000,V1={Nov:100000}, O/S retained. Select v1, then review an independently confirmed historical correction v2 | Historical budget values including full R/S and negative F are retained; end balance is observed **0**, not unknown or latest 100000. Show actual Oct31 check date/time precision; no claim of midnight. Multiple final-day checks use existing confirmed order; a non-final-day check alone never qualifies. v1 stays unchanged when v2/current B differ. End cash is distinct from F and budget, with no inferred zero payment or bank debit. |
 | HBUX-029 | Independent empty-observation branch: no C or V, known full unpaid O=20000 and active S=10000 funded Oct. On Nov04 view October, then November | A/F/card/end amount remain unknown, not fabricated zero or sum(R/S). Known R=20000,S=10000 can be shown for October with their basis; unavailable/contradictory state stays explicit. No fallback to another month's values or client reconstruction. No writes, invented history or double-counted earmarks. |
 | HBUX-030 | Same complete current fixture as HBUX-026; RDec=5000,SDec=3000; expected unreceived December income=50000. Select future December | Future selected budget is primary: A=20000,R=5000,S=3000,F=12000; existing future daily preview, if shown, is a full-month budget estimate, not guaranteed spending or bank cash. Latest card 100000 checked Nov04 is secondary, dated and explicitly not December's balance; future card/end balance is unknown. Expected income adds nothing to A/F, Nov guidance or B; no automatic carry, savings, C/V or audit. |
@@ -64,3 +64,83 @@ C/V/O/S/funding, H/K, audit/receipt and rollback assertions; test retention of
 immutable v1 closing under later update and resource-bound errors. Unit/component
 can mock only transport, not finance proofs. Codex must separately report real
 executed test numbers and manual browser/AT NOT EXECUTED where applicable.
+
+## Owner QA general UX additions — 2026-11-04
+
+**HBUX-033–036: Planned / NOT EXECUTED.**
+[HB19.1-UX-01–05 register](../../../docs/planning/hb-019-browser-qa-findings-2026-11-04.md).
+HBUX-026–032 already cover selected-month cash attribution; HBUX-001–025 retain
+transition/financial proof. HBUX-027 is clarified for closed-history priority,
+not a change to its money, source semantics or prior test results (none claimed).
+
+All new fixtures are synthetic exact EUR cents, Europe/Berlin. Future real
+PG/browser uses completed server-relative months per HB19-R06, no calendar bypass;
+fixed Oct/Nov 2026 remains a pure/owner-narrative example. U/C/P/B/A means
+unit/component/isolated real PG/authenticated app browser/keyboard+physical AT.
+Existing owner/account auth, int64 cents, H/K, rollback/replay/resource bounds and
+version immutability remain necessary. No database/runtime changes in this task.
+
+### HBUX-033 Overview and Months have distinct purposes
+
+**Planned C/B/A; HB19.1-UX-01, reuse HBUX-026–032 and HB19-Q04.**
+GIVEN Nov04 current C B100000,V={Nov:100000},R/S0, saved October v1 unknown
+and explicitly confirmed v2 historical B/A/F90000,R/S0 (HB19 Q sequence).
+WHEN visit Overview, THEN prioritize current card/check date, Update budget,
+D36 safe daily limit and age notices. WHEN visit Months/October, THEN prioritize
+selected accepted history, versions and closing/revision context; explicit
+transition entry remains separate, no forced fresh bank check to close.
+Closed v2 default/explicit v1 retain their meanings; active Oct0 is subordinate,
+not a clone of Overview with unexplained conflicting numbers. Shared source
+results are unchanged and correctly labelled. Repeat current/future view and
+RU/DE/EN mobile/keyboard: logical page purpose remains clear. No finance/audit
+writes on page or version navigation; persistence proof is HB19-Q04, not mocks.
+
+### HBUX-034 Backdated proposal and current guideline are separate
+
+**Planned U/C/P/B; HB19.1-UX-03, reuse HBUX-019/026 and HB19-Q02.**
+GIVEN Nov04 Cn B100000,Vn={Nov:100000},R/S0, October accepted v1 unknown.
+WHEN propose actual Oct31 Co B90000,Vo={Oct:90000} through existing update flow,
+THEN primary proposed historical result states Oct31/900 EUR/October allocation;
+separate secondary November section identifies Cn's Nov04 date and unchanged
+current guideline from the same authoritative D36 calculation. Owner-reported
+37,03 EUR is context, not a hardcoded universal expected value. Do not label
+November safeDaily as the historical operation's cash/daily result.
+After explicit confirmation, actual current head stays Cn/Vn in this valid
+fixture, historical state(HOct31,Knew) selects Co/Vo and v1 becomes pending
+correction without automatic v2. Independently assert complete source anchors,
+audit and current-head parity in PG. Exact rules still permit other historical
+commands to require current-state review; if anchors conflict, refuse safely,
+never display a fabricated successful no-change promise. No inferred100 EUR
+income/expense, fake daily bank balance, current forecast inflation or double debit.
+
+### HBUX-035 One readable saved result and honest recovery
+
+**Planned C/P/B/A; HB19.1-UX-04, reuse HBUX-023 and HB19-Q06.**
+GIVEN HBUX-034 command, WHEN a real confirmed receipt and saved history load
+successfully, THEN one human success identifies actual Oct31 check900 EUR and
+October allocation, distinct from Nov04 current state. Repeated rendering of the
+same UUID cannot look like two operations; IDs only optional technical context.
+Date/amount/month must come from the verified result, not an unsaved edited form.
+Independent saved-but-history-read-failed branch still says saved with explicit
+reread, not resubmit as a new mutation. Independent unknown-COMMIT branch makes
+no success/rollback assertion until original request status/retry resolves.
+PG exact replay confirms one actual update/receipt/audit set, not two. This is
+future regression proof, not a conclusion that the owner saw duplicate DB entries.
+RU/DE/EN, screen-reader status/focus and small-screen wrapping remain clear.
+
+### HBUX-036 Screen actions map to existing transition intent
+
+**Planned C/B/A; HB19.1-UX-05, financial proof reused HBUX-001–025.**
+GIVEN existing HBUX-002/006/008/009/011/013 fixtures with their exact B/A/R/S,
+WHEN follow named actions, THEN ordinary same-month goes to one real full budget
+update unless past funding requires disposition; FRESH_START explicitly requests
+actual bank check/full vector/non-carry/funding review; secondary CARRY permits
+ACTUAL or supported REUSE; DEFER leaves funding in place. No mode silently
+preselected. For same moving identity plus payment/savings edit, show existing
+typed refusal and explain transition first, separately confirmed lifecycle later;
+retain draft under current memory rules. No hidden second commit, fake bank
+affirmation, default savings, obligation forgiveness or invented cash flow.
+Independent different-identity path stays supported. Clearly distinguish closing
+and reread navigation from these financial actions; page access alone writes
+nothing. Reuse existing PG assertions for atomicity/auth/rollback rather than
+claiming component navigation proves financial correctness.

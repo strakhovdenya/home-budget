@@ -240,9 +240,9 @@ describe('HB19 finance inventory and honest verification status',()=>{
       const f=fixture();Reflect.set(f.manifest,'blockingVerification',[item]);expect(()=>run(f)).toThrow('INVALID_BLOCKING_VERIFICATION');
     }
   });
-  it('registers exactly91 unique HB19 definitions and all46 HB2 rows',()=>{
+  it('registers 91 base plus 7 QA HB19 definitions and all46 HB2 rows',()=>{
     const f=repositoryContract(),inventory=definitions(f.contents);
-    expect([...inventory.keys()].filter(id=>id.startsWith('HB19-'))).toHaveLength(91);
+    expect([...inventory.keys()].filter(id=>id.startsWith('HB19-'))).toHaveLength(98);
     expect(f.manifest.scenarios.filter((s:{id:string})=>s.id.startsWith('HB2-'))).toHaveLength(46);
   });
   it('parses HB19 definition headings without treating references as definitions',()=>{

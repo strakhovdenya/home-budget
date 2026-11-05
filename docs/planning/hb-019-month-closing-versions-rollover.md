@@ -1,8 +1,32 @@
 # HB-019 — Manual month closing, versions and rollover
 
-**Status: planning proposal; implementation NOT AUTHORIZED.** Prepared 2026-11-04.
-HB-019 remains Planned. Independent ChatGPT review and separate owner permission
-are required before implementation. This document and the
+**Current status: Done — Owner Acceptance 2026-11-05.**
+Owner confirmed completion of manual testing. Owner-reported independent ChatGPT
+static review of `HB-019-pending-correction-20261105.zip` is **APPROVED,
+Critical/High/Medium/Low 0/0/0/0**; ZIP SHA-256
+`e5ff2dff103e376516833592cd69912ffc1e7ffbcc2a6e41207c27e941dc89b4`.
+The accepted, executed implementation gate remains tied to
+`62dd581631f76cfeb84596bd2ea4b01722004761c0aed679e31241290277f060`:
+960 UTC unit/component, 436 PostgreSQL, DB17 PASS, 552 timezone and
+lint/typecheck/build/finance PASS. This is not a claim of tests on the newly
+finalized documentation. See [acceptance and fingerprint distinction](hb-019-verification.md#documentation-finalization-and-owner-acceptance--2026-11-05).
+
+HB19-UX-01–07 are corrected/accepted; HB19-UX-08 / Q07 remains **OPEN / NOT
+REPRODUCED**. Google/relogin authenticated E2E, physical AT, real200% zoom and
+browser checks not repeated on the accepted final fingerprint remain **NOT
+EXECUTED**. Prior Chrome9/9 is historical only. HB-019.1/HB-020 remain Planned;
+later product decisions/follow-ups are outside HB-019 acceptance. No publication
+is authorized by completion. Historical records below retain their original
+scope, restrictions and results; their Review/Planned labels are chronology.
+
+**Historical status: Review / CHANGES REQUESTED (owner manual QA, 2026-11-04).**
+Existing implementation is checkpointed at `98f8890c07bbea7f102d2d4de18f837a713daf74`.
+The UX correction below is documentation only; separate implementation permission
+and independent review remain required. HB-019 is not Done or Owner Accepted.
+See [QA findings register](hb-019-browser-qa-findings-2026-11-04.md).
+
+**Historical planning proposal (2026-11-04):** the original turn left HB-019
+Planned and implementation NOT AUTHORIZED. This document and the
 [HB19 scenarios](../../tests/scenarios/phase-01/hb-019-month-closing-versions-rollover.md)
 are the only deliverables. No runtime tests were executed in this planning turn.
 
@@ -741,3 +765,83 @@ behavior and global limits/formulas/schema/layers must remain unchanged. Require
 PostgreSQL proof includes post-K growth, preserved historical future allocations,
 incomplete-link refusal and byte/digest equivalence before/after growth. This is
 a scope correction, not a new financial rule or architecture direction.
+
+## Owner browser QA scope correction — 2026-11-04 (OPEN)
+
+**Owner decisions A1/A2 and narrow implementation authorization — 2026-11-05:**
+implement financial changed/unchanged summary plus complete readable grouped
+confirmations with total coverage mapping; CLOSED selected accepted historical
+report first, latest default, active allocation below in a collapsed dated
+nonhistorical context. Keep full page/consent gate, H/K/digest/bounds and all
+financial rules. No HB-019.1 implementation, acceptance-date API expansion,
+commit/publication or acceptance. The documentation-only limit below describes
+the preceding stage; new correction evidence must be recorded separately.
+
+Authority: [findings HB19-UX-01–08](hb-019-browser-qa-findings-2026-11-04.md)
+and [dated owner evidence](hb-019-verification.md#owner-manual-browser-qa--2026-11-04).
+The previous two-document-only planning stop and implementation history above
+are chronology. This new task authorizes only the six existing documentation
+updates and the single findings register, with no source/runtime/mapping edits.
+
+Owner demonstrated incomplete October v1, no-op reason rejection, backdated
+Oct31 actual B=90000/full AOct=90000 after Nov04 B=100000/ANov=100000, then
+explicit four-page review and v2. Current head retention was observed, not
+independently verified in PG. Reload/relogin immutability remains unexecuted.
+The UI has **not** passed owner acceptance. Historical automated evidence and
+all prior financial/scenario contracts remain intact, not newly asserted PASS.
+
+### Reviewable correction slices (future authorization required)
+
+| Slice | At most five acceptance criteria | Planned proof (no execution) |
+|---|---|---|
+| UX summary/provenance (UX-01/02/03) | Changed-items-first B/end/A/F/date summary; R/S unchanged distinguished; group result/sources/history/diagnostics; meaningful refs/order/before-state completely represented; contextual EUR/null/unknown labels in RU/DE/EN | HB19-Q01/Q02/Q05, existing A04/A11/C02/E01–03/R07 |
+| Review/actions (UX-04/05) | Visible 1/4 -> 4/4 reason/progress; explicit consent only after all required content; invalidation binds pinned candidate/head/H/K/digest; neutral no-op/proposed/saved version states; navigation separates unsaved input from saved versions and unknown outcome | HB19-Q01/Q03/Q06, existing B/C replay/stale/rollback, E04/E06 |
+| Closed month/versions (UX-06/07) | Accepted history primary with latest default; explicit old version preserves its original values; active allocation separately labelled/subordinate; metadata only from existing trustworthy evidence; read-only bounded scoped navigation | HB19-Q04/Q05, existing C03/C14/E07 |
+| Render investigation (UX-08, provisional) | Reproduce in real browser; capture stack/context; prove component/library and scope; narrow authorized correction only; browser plus meaningful component regression | HB19-Q07; not a claim of reproduction or HB-019 ownership |
+
+For the exact owner fixture, summary v1 -> proposed v2 is: Oct31 end balance
+unknown -> 900 EUR, confirmed allocation unknown -> 900 EUR, free unknown ->
+900 EUR, no historical check -> Oct31 check. R/S=0 remain unchanged. New reason
+alone cannot create a version. Final-day observation does not prove all bank
+operations known; the 100 EUR checkpoint difference is not confirmed income.
+Equal-money evidence/order changes still require intelligible mandatory review.
+
+Grouped presentation must account for **all** meaningful changed data with
+traceability to the complete immutable document. It can avoid repeating the same
+financial fact; it cannot remove independent events or omit refs/order/evidence.
+Raw machine fields are optional diagnostics, never a substitute for readable
+mandatory evidence. Preserve complete reads/SHA validation, stored8MiB/wire1MiB/
+chunk128KiB, all source/work/audit/version-chain bounds and refusal on incomplete
+or contradictory proof. No truncation, fabricated labels or unconditional gate.
+
+Closed `/months` leads with selected accepted history (latest unless explicitly
+choosing an older version), not current Oct A=0 ahead of historical A=900 EUR.
+The current Nov04 anchored vector is a separate subordinate context. A true v1
+unknown stays unknown and the “historical report unavailable” claim cannot remain
+when the report exists. This is HB-019 page presentation; broader Overview versus
+Months and Update budget redesign belongs to Planned HB-019.1, not this fix.
+
+Code-inspection facts: the existing update CTA navigates to `/update-budget`;
+it neither closes nor requires a fresh check for close. Refresh performs closing
+`load` plus local review reset, not a financial update. Future copy must say so.
+Saved/unknown-result states must retain their actual meaning and original request
+identity. For version acceptance dates, inspect available authoritative read data;
+never infer dates from observation/current time or add an unapproved store.
+
+### Scope, proof and stopping rules
+
+Future HB-019 changes are limited to UI/read-model **presentation using existing
+history**, app composition, messages and necessary tests after owner authorization.
+No new domain selection policy, financial formula, storage, schema, library or
+architecture is approved. D36/ALL_PERIOD_MAX_V1, D40–D45 and Q-HB17-01 option A
+remain unchanged. Domain/DB changes require proven necessity and separate approval.
+React error ownership remains OPEN until reproduced; do not suppress or speculate.
+
+Retain all 91 base scenarios, 46 HB2 mappings, F-009/F-013, independent PG/DST/
+race/rollback/replay and final gate. Q01–Q07 are additional Planned/NOT EXECUTED
+regressions; existing finance mapping/results are untouched here. After separately
+authorized corrections and last source/normative edit, execute all required gates
+on the current fingerprint, including real application browser/auth and isolated
+synthetic PostgreSQL. Component/harness results do not replace those checks.
+Stop this stage at documentation for independent review; no implementation,
+additional commit, tag change or publication. HB-019 remains Review.

@@ -55,6 +55,25 @@ async function fixture(withBank=true,withObligation=true,obligationAmount='30000
 async function account(f:Scope){return (await db.db.select().from(s.accounts).where(eq(s.accounts.id,f.accountId)))[0];}
 async function observe(f:Scope,date:string,balance:string,allocations:{period:string;amountCents:string}[]){const a=await account(f);return commitBatch(db.db,{scope:f,kind:'BANK_CHECKPOINT',command:value(prepareCommand({requestId:randomUUID(),expectedRevision:a.aggregateRevision.toString(),effectiveDate:date,reason:'Synthetic actual bank check',payload:{observedDate:date,observedAt:null,balanceCents:balance,allocations,placement:null,correction:null}}))},writeBankCheckpoint);}
 const query=(version:number|null=null)=>({period:cal.past,version,offset:0,digest:null});
+it('HB19-Q01/Q02/Q04 production backdated budget update preserves current head and independently readable immutable versions',async()=>{
+  const f=await fixture(false,false);await observe(f,cal.today,'100000',[{period:cal.target,amountCents:'100000'}]);
+  const repo=createClosingRepository(db);value(await repo.confirm(f,await preview(f)));
+  const initial=(await baseline(f)),[v1]=await db.db.select().from(s.monthClosings).where(eq(s.monthClosings.accountId,f.accountId));
+  expect(v1.endBalanceCents).toBeNull();expect(v1.historicalAllocatedCents).toBeNull();expect(v1.historicalFreeCents).toBeNull();
+  const seed=await budgetSeed(f),budgetRepo=createBudgetRepository(db),date=cal.pastEnd;
+  const command=value(prepareCommand({requestId:randomUUID(),expectedRevision:seed.revision,effectiveDate:date,reason:'Synthetic real historical check',payload:{schemaVersion:1,knowledgeCut:seed.knowledgeCut,baseCheckpointId:seed.baseCheckpointId,baseVectorId:seed.baseVectorId,effectiveDate:date,
+    checkpoint:{observedDate:date,observedAt:null,balanceCents:'90000',allocations:[{period:cal.past,amountCents:'90000'}],placement:null,correction:null},allocationChange:null,completeVectorConfirmed:true,obligations:[],savings:[]}}));
+  const prepared=value(prepareCommand(value(await budgetRepo.preview(f,command))));value(await budgetRepo.confirm(f,prepared));
+  const current=await budgetSeed(f);expect(current.bank.balanceCents).toBe('100000');expect(current.baseCheckpointId).toBe(seed.baseCheckpointId);expect(current.baseVectorId).toBe(seed.baseVectorId);
+  const latest=value(await repo.load(f,query())) as unknown as {correctionPending:boolean};expect(latest.correctionPending).toBe(true);
+  const revision=await preview(f,'REVISION',v1.id,1);const receipt=value(await repo.confirm(f,revision));expect(value(await repo.confirm(f,revision))).toEqual(receipt);
+  const versions=await db.db.select().from(s.monthClosings).where(eq(s.monthClosings.accountId,f.accountId)).orderBy(s.monthClosings.version);
+  expect(versions).toHaveLength(2);expect(versions[0]).toEqual(v1);expect(versions[1].endBalanceCents).toBe(90000n);expect(versions[1].historicalAllocatedCents).toBe(90000n);expect(versions[1].historicalFreeCents).toBe(90000n);expect(versions[1].previousVersionId).toBe(v1.id);
+  const stable=await baseline(f),fresh=createClosingRepository(db);
+  for(const version of [1,2]){value(await fresh.load(f,query(version)));const bytes:Buffer[]=[];let offset=0;let digest:string;for(;;){const chunk=value(await fresh.chunk(f,{...query(version),offset})) as unknown as {base64:string;digest:string;nextOffset:number|null};bytes.push(Buffer.from(chunk.base64,'base64'));digest=chunk.digest;if(chunk.nextOffset===null)break;offset=chunk.nextOffset;}expect(createHash('sha256').update(Buffer.concat(bytes)).digest('hex')).toBe(digest);}
+  expect(await baseline(f)).toEqual(stable);expect(stable.rows[16]).toHaveLength(2);expect(initial.rows[16]).toHaveLength(1);
+  expect((await budgetSeed(f)).bank.balanceCents).toBe('100000');
+});
 async function preview(f:Scope,operation='INITIAL',headId:string|null=null,headVersion:number|null=null,period:string=cal.past){const a=await account(f),r=value(await createClosingRepository(db).preview(f,value(prepareCommand({requestId:randomUUID(),expectedRevision:a.aggregateRevision.toString(),effectiveDate:cal.today,reason:'Synthetic explicit closing consent',payload:{schemaVersion:1,operation,period,expectedHeadId:headId,expectedHeadVersion:headVersion}})))) as unknown as {command:unknown};return value(prepareCommand(r.command));}
 async function baseline(f:Scope){const tables=[s.budgetPeriods,s.budgetUpdates,s.balanceCheckpoints,s.allocationRevisions,s.periodAllocations,s.obligations,s.obligationEvents,s.savingsGoals,s.savingsEvents,s.historicalPositions,s.orderingRevisions,s.transferProposals,s.transitionDecisions,s.budgetTransfers,s.transferProposalCancellations,s.auditEvents,s.monthClosings,s.reportHeads];return {user:await db.db.select().from(s.users).where(eq(s.users.id,f.ownerUserId)),account:await account(f),rows:await Promise.all(tables.map(t=>db.db.select().from(t).where(eq(t.accountId,f.accountId)).orderBy(t.id)))};}
 

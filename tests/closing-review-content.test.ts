@@ -2,8 +2,31 @@ import {expect,it} from 'vitest';
 import {createTranslator} from 'next-intl';
 import {catalogs} from '@/shared/i18n/catalogs';
 import {closingReviewContent} from '@/features/month-closing/review-content';
+import {groupedClosingReview} from '@/features/month-closing/grouped-review';
 const translator=createTranslator({locale:'en',messages:catalogs.en,namespace:'monthClosing'});
 const t=(key:string,values?:Record<string,string|number>)=>translator(key as Parameters<typeof translator>[0],values);
+it('HB19-Q02/Q05 grouped review maps every changed leaf once without raw service numbers or lost evidence',()=>{
+  const old={sourceManifest:{schemaVersion:1,evidence:[{id:'proof-old',recordedSeq:'3',document:{schemaVersion:1,eventIndex:0,before:{balanceCents:'0'},after:{balanceCents:'90000',allocations:{'2026-10':'90000'}}}}]},orderingRevisionRefs:['order-a']};
+  const next={sourceManifest:{schemaVersion:1,evidence:[{id:'proof-new',recordedSeq:'4',document:{schemaVersion:1,eventIndex:1,before:{balanceCents:null},after:{balanceCents:'90000',allocations:{'2026-10':'90000'}}}}]},orderingRevisionRefs:['order-b']};
+  const raw=closingReviewContent(old,next,'en',t),grouped=groupedClosingReview(raw,false,t);
+  expect(grouped.flatMap(r=>r.coverage).sort()).toEqual(raw.flatMap(r=>r.coverage).sort());
+  expect(grouped.some(r=>r.field==='Historical recording and verification')).toBe(true);
+  expect(grouped.filter(r=>r.key==='recordedSeq'||r.key==='eventIndex').every(r=>!['0','1','3','4'].includes(r.before)&&!['0','1','3','4'].includes(r.after))).toBe(true);
+  expect(grouped.some(r=>r.before==='Ordering evidence 1'&&r.after==='Ordering evidence 2')).toBe(true);
+  expect(grouped.some(r=>r.before==='€0.00'&&r.after==='Unknown')).toBe(true);
+  const added=groupedClosingReview(closingReviewContent({evidence:[]},{evidence:[{recordedSeq:'3'}]},'en',t),false,t);expect(added[0].before).toBe('Not recorded in this version');
+  const all=closingReviewContent(null,next,'en',t);expect(all.some(r=>r.after==='€900.00')).toBe(true);expect(all.some(r=>r.after==='90000')).toBe(false);
+});
+it('HB19-Q02 summary coverage is explicit and separate from mandatory evidence, including unchanged-money source changes',()=>{
+  const old={endBalanceCents:null,sourceManifest:{checkpointId:'old-check'}},next={endBalanceCents:'90000',sourceManifest:{checkpointId:'new-check'}};
+  const rows=groupedClosingReview(closingReviewContent(old,next,'en',t),false,t);
+  expect(rows.filter(r=>r.destination==='summary').flatMap(r=>r.coverage)).toHaveLength(1);expect(rows.filter(r=>r.destination==='evidence').some(r=>r.before==='Card observation 1'&&r.after==='Card observation 2')).toBe(true);
+});
+it('HB19-Q05 independent long evidence survives grouping and duplicate coverage refuses safely',()=>{
+  const raw=closingReviewContent({sourceManifest:{evidence:[]}}, {sourceManifest:{evidence:Array.from({length:85},(_,i)=>({id:'fact-'+i,document:{note:'Independent fact '+i+' '+ '界'.repeat(400)}}))}},'en',t),grouped=groupedClosingReview(raw,false,t);
+  expect(grouped.flatMap(r=>r.coverage).sort()).toEqual(raw.flatMap(r=>r.coverage).sort());expect(grouped.map(r=>r.after).join('')).toContain('Independent fact 84');
+  expect(()=>groupedClosingReview([raw[0],raw[0]],false,t)).toThrow('REPORT_PROOF_INVALID');
+});
 it('HB19-E02 human review retains distinct source refs when money is unchanged',()=>{
   const old={historicalReservedCents:'30000',orderingRevisionRefs:['old-order'],sourceManifest:{evidence:[{id:'old-proof',document:{note:'Old supporting fact'}}]}};
   const next={...old,orderingRevisionRefs:['new-order'],sourceManifest:{evidence:[{id:'new-proof',document:{note:'New supporting fact'}}]}};

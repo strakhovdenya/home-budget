@@ -1,14 +1,14 @@
 # Home Budget — Task Backlog (Codex-ready)
 
 **Source:** [PRD](PRD.md) → [business rules](BUSINESS_RULES.md) → [implementation plan](IMPLEMENTATION_PLAN.md) → these tasks.
-**Status overview (2026-11-04):** HB-001..HB-018 Done, HB-019 Review (Owner Acceptance pending), HB-019.1/HB-020/HB-021 Planned. Accepted ADR0001..0003 remain normative. Per-task evidence and accepted exceptions are retained below.
+**Status overview (2026-11-05):** HB-001..HB-019 Done; HB-019.1/HB-020/HB-021 Planned. HB-019 Owner Acceptance and independent APPROVED are recorded below. Accepted ADR0001..0003 remain normative. Per-task evidence and accepted exceptions are retained below.
 **Conventions:** `HB-NNN` stable ID; owner-approved scoped follow-ups may use `HB-NNN.n` (for example HB-019.1); `Ready` = can start after prerequisites, `Planned` = not yet ready, `Blocked` = needs decision, `In progress`, `Review`, `Done`.
 **Work policy:** one task / coherent PR at a time. Codex must not silently mark tasks complete. GitHub Issues optional later; add each issue URL beside the stable ID rather than duplicating tasks.
 
 ### Priority legend
 P0 = indispensable for a correct first usable version; P1 = useful post-MVP; P2 = deferred functionality.
 
-MVP owner scope decision D45 (2026-11-04): P0 baseline includes new HB-019.1 and promoted HB-020 (recurring templates plus first-run owned-account onboarding) before HB-021. This is **planning approval**, not implementation or publication authorization. HB-019 remains Review until separate independent verification and Owner Acceptance; M3/M4 remain later.
+MVP owner scope decision D45 (2026-11-04): P0 baseline includes new HB-019.1 and promoted HB-020 (recurring templates plus first-run owned-account onboarding) before HB-021. This is **planning approval**, not implementation or publication authorization. The HB-019 independent-review/Owner-Acceptance prerequisite was satisfied on 2026-11-05; M3/M4 remain later.
 
 ## M0 — Close domain gaps before implementation
 
@@ -182,11 +182,18 @@ is unchanged. Owner Acceptance completes documentation only and is not itself
 publication authorization; commit/push/PR/merge/deploy require separate permission.
 
 ### HB-019 · Manual month closing, versions and rollover
-**Status:** Review · **Priority:** P0 · **Dependencies:** HB-002, HB-013, HB-014, HB-017 · **Area:** finance/UI
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-002, HB-013, HB-014, HB-017 · **Area:** finance/UI
 **Deliverables:** auto-start next calendar period, await-manual-close state, immutable closing snapshot, correction versions.
 **Acceptance:** calendar opens automatically, cash transfer only after one-button confirmation; preserve full reserves/savings and existing target cash once. Support manual close with unknown actual end balance and real last observation/date, known historical allocations/earmarks, completeness flag and immutable versions; no PDF or final-day checkpoint required. Old history survives later transfer/payment; coordinate HB-002 contract.
 **Cases:** F-009/F-013.
-**Implementation:** [R1 and authorized scope correction](planning/hb-019-month-closing-versions-rollover.md), [verification and remaining review gates](planning/hb-019-verification.md). Independent implementation review, browser/AT evidence and Owner Acceptance remain separate; not Done or published.
+**Implementation:** [R1 and authorized scope correction](planning/hb-019-month-closing-versions-rollover.md), [verification, acceptance and retained limitations](planning/hb-019-verification.md).
+**Completion / Owner Acceptance (2026-11-05):** owner confirmed completion of manual testing and accepted HB-019. Owner-reported independent ChatGPT static review of `HB-019-pending-correction-20261105.zip`, SHA-256 `e5ff2dff103e376516833592cd69912ffc1e7ffbcc2a6e41207c27e941dc89b4`, is **APPROVED, Critical/High/Medium/Low 0/0/0/0**. Codex's executed gate belongs to the accepted implementation fingerprint `62dd581631f76cfeb84596bd2ea4b01722004761c0aed679e31241290277f060`: 960 UTC unit/component, 436 PG, DB17 PASS, 552 timezone; lint/typecheck/build/finance PASS. This document-only closure does not rerun or reattribute those tests.
+**Retained limits:** HB19-UX-01–07 corrected/accepted; HB19-UX-08 / Q07 remains **OPEN / NOT REPRODUCED**. Google/relogin authenticated E2E, physical AT, real200% zoom and browser checks not repeated on the accepted final fingerprint remain **NOT EXECUTED**. Prior Chrome9/9 is historical evidence only. No publication is authorized; later product decisions are outside this acceptance. HB-019.1/HB-020 remain Planned.
+**Historical owner browser QA (2026-11-04): Review / CHANGES REQUESTED.**
+[HB19-UX-01–08 findings and status chronology](planning/hb-019-browser-qa-findings-2026-11-04.md),
+with planned HB19-Q01–Q07 regressions. Owner observed partial close/correction;
+reload/relogin/PG durability and render diagnosis remain unverified. This is
+documentation approval only; corrections require separate implementation authorization.
 
 ### HB-019.1 · Budget-update UX and month-transition clarity
 **Status:** Planned (documentation/independent plan review next) · **Priority:** P0 · **Dependencies:** HB-013, HB-017, HB-018, **HB-019 Owner Acceptance** · **Area:** product rules/UI/application
@@ -222,6 +229,11 @@ RU/DE/EN copy and a11y/mobile; browser and isolated synthetic PG regressions,
 including unchanged-money and old-paid-same-identity refusal/2-step recovery.
 **Plan:** [HB-019.1 planning contract](planning/hb-019-1-budget-update-ux.md) ·
 [scenarios](../tests/scenarios/phase-01/hb-019-1-budget-update-ux.md).
+**QA follow-up scope:** [HB19.1-UX-01–05](planning/hb-019-browser-qa-findings-2026-11-04.md)
+records distinct Overview/Months, noncurrent cash attribution, historical preview
+versus current guidance and readable success/actions; HBUX-026–036 are planned
+proof alongside earlier cases. Broader HB-019.1 UX does not block HB-019 as a
+whole; closed-history presentation remains an HB-019 correction. Status Planned P0.
 **Authorization:** planning only; owner separately approves implementation,
 review/acceptance, and every commit/push/PR/merge/deploy step.
 

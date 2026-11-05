@@ -4,7 +4,8 @@ import {formatCalendarDate} from '@/features/dashboard/presentation';
 
 type RecordValue={readonly [key:string]:Json};
 type Translate=(key:string,values?:Record<string,string|number>)=>string;
-export type ReviewContentRow=Readonly<{section:string;subject:string;field:string;before:string;after:string;part:number;parts:number;technical:string}>;
+export type ReviewContentRow=Readonly<{section:string;subject:string;field:string;before:string;after:string;part:number;parts:number;technical:string;
+  key:string;group:'card'|'allocation'|'earmarks'|'history';coverage:readonly string[];destination?:'summary'|'evidence'}>;
 const object=(v:Json|undefined):v is RecordValue=>v!==null&&typeof v==='object'&&!Array.isArray(v);
 const own=(v:Json|undefined,key:string):Json|undefined=>object(v)&&Object.hasOwn(v,key)?v[key]:Array.isArray(v)&&/^(0|[1-9]\d*)$/.test(key)?v[Number(key)]:undefined;
 const uuid=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
@@ -79,7 +80,7 @@ export function closingReviewContent(before:Json|null,after:Json,locale:string,t
   function value(v:Json|undefined,path:readonly string[],doc:Json|null):string{
     const key=path.at(-1)??'',parent=[...path].reverse().find(k=>!/^\d+$/.test(k))??key;
     if(v===undefined)return t('reviewNotRecorded');
-    if(v===null)return money.has(key)||key.endsWith('Cents')||['lastBankObservedDate','lastBankObservedAt','allocationEffectiveDate','observedDate','observedAt'].includes(key)?t('unknown'):t('reviewNotSpecified');
+    if(v===null){if(['observedAt','lastBankObservedAt'].includes(key))return t('timeNotRecorded');if(['supersedesId','previousRevisionId'].includes(key))return t('noPreviousRecord');return money.has(key)||key.endsWith('Cents')||['lastBankObservedDate','allocationEffectiveDate','observedDate'].includes(key)?t('unknown'):t('reviewNotSpecified');}
     if(typeof v==='boolean')return t(v?'reviewYes':'reviewNo');
     if(Array.isArray(v))return t(v.length?'reviewList':'reviewNoEntries');if(object(v))return t(Object.keys(v).length?'reviewStructuredData':'reviewNoDetails');
     if(typeof v==='string'){
@@ -88,7 +89,7 @@ export function closingReviewContent(before:Json|null,after:Json,locale:string,t
         const kind=refKind(path,doc),identity=kind+':'+v;if(!refs.has(identity)){const n=(counts.get(kind)??0)+1;counts.set(kind,n);refs.set(identity,t('reviewReferences.'+kind,{n}));}
         const period=kind==='period'?periodName(doc,v):null;return period?new Intl.DateTimeFormat(locale,{year:'numeric',month:'long',timeZone:'Europe/Berlin'}).format(new Date(period+'-15T12:00:00Z'))+' — '+refs.get(identity)!:refs.get(identity)!;
       }
-      if((money.has(key)||key.endsWith('Cents'))&&/^-?\d+$/.test(v))return formatMoney(v,locale);
+      if((money.has(key)||key.endsWith('Cents')||path.includes('allocations'))&&/^-?\d+$/.test(v))return formatMoney(v,locale);
       if(v==='')return t('reviewEmptyText');
       if(/^\d{4}-\d{2}$/.test(v))return new Intl.DateTimeFormat(locale,{year:'numeric',month:'long',timeZone:'Europe/Berlin'}).format(new Date(v+'-15T12:00:00Z'));
       if(/^\d{4}-\d{2}-\d{2}$/.test(v))return formatCalendarDate(v,locale);
@@ -120,7 +121,11 @@ export function closingReviewContent(before:Json|null,after:Json,locale:string,t
     const technical=fragments(name+'\n'+(initial?raw(b):raw(a)+' → '+raw(b)));
     // A bounded diagnostic preview never creates blank primary pages. Complete
     // meaningful values, including long note text, are in the primary fragments.
-    for(let part=0;part<parts;part++)rows.push({section:c.section,subject:subjects[part]??(subjects.length===1?subjects[0]:''),field:names[part]??(names.length===1?names[0]:''),before:left[part]??'',after:right[part]??'',part:part+1,parts,technical:technical[part]??''});
+    const sourcePath=b===undefined?oldPath:path,doc=b===undefined?before:after,evidence=sourcePath.indexOf('evidence');
+    const type=evidence<0?'':own(own(own(at(doc,sourcePath.slice(0,evidence+2)),'document'),'entity'),'type');
+    const scope=sourcePath.join(' ')+' '+String(type??'');
+    const group=/obligation|saving|OBLIGATION|SAVINGS/.test(scope)?'earmarks':/checkpoint|bank|BANK_CHECKPOINT/i.test(scope)?'card':/allocation|ALLOCATION_REVISION/i.test(scope)?'allocation':'history';
+    for(let part=0;part<parts;part++)rows.push({section:c.section,subject:subjects[part]??(subjects.length===1?subjects[0]:''),field:names[part]??(names.length===1?names[0]:''),before:left[part]??'',after:right[part]??'',part:part+1,parts,technical:technical[part]??'',key,group,coverage:[JSON.stringify([oldPath,path,part])]});
   }
   function itemKey(entry:Json,path:readonly string[],doc:Json|null):string|null{
     const collection=path.at(-1);

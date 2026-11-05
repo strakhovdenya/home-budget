@@ -6083,7 +6083,7 @@
     "hb19-0191": {
       "suite": "unit",
       "path": "tests/finance-coverage.test.ts",
-      "name": "HB19 finance inventory and honest verification status registers exactly91 unique HB19 definitions and all46 HB2 rows"
+      "name": "HB19 finance inventory and honest verification status registers 91 base plus 7 QA HB19 definitions and all46 HB2 rows"
     },
     "hb19-0192": {
       "suite": "unit",
@@ -6159,6 +6159,76 @@
       "suite": "integration",
       "path": "tests/integration/month-closing.test.ts",
       "name": "HB19-R03 measured R2 source overflow refuses preview and confirm with complete PostgreSQL rollback"
+    },
+    "hb19-ux-20261105-1": {
+      "suite": "unit",
+      "path": "tests/closing-page.test.tsx",
+      "name": "HB19-Q04 CLOSED composition leads with selected historical version and leaves active distribution collapsed"
+    },
+    "hb19-ux-20261105-2": {
+      "suite": "unit",
+      "path": "tests/closing-page.test.tsx",
+      "name": "HB19-Q04 nonclosed composition preserves the existing Dashboard surface"
+    },
+    "hb19-ux-20261105-3": {
+      "suite": "unit",
+      "path": "tests/closing-review-content.test.ts",
+      "name": "HB19-Q02/Q05 grouped review maps every changed leaf once without raw service numbers or lost evidence"
+    },
+    "hb19-ux-20261105-4": {
+      "suite": "unit",
+      "path": "tests/closing-review-content.test.ts",
+      "name": "HB19-Q02 summary coverage is explicit and separate from mandatory evidence, including unchanged-money source changes"
+    },
+    "hb19-ux-20261105-5": {
+      "suite": "unit",
+      "path": "tests/closing-review-content.test.ts",
+      "name": "HB19-Q05 independent long evidence survives grouping and duplicate coverage refuses safely"
+    },
+    "hb19-ux-20261105-6": {
+      "suite": "unit",
+      "path": "tests/closing-ui.test.tsx",
+      "name": "HB19-Q01 closed unchanged state is neutral and cannot invite a reason-only version"
+    },
+    "hb19-ux-20261105-7": {
+      "suite": "unit",
+      "path": "tests/closing-ui.test.tsx",
+      "name": "HB19-Q04 active allocation is initially collapsed, dated and separate from accepted history"
+    },
+    "hb19-ux-20261105-8": {
+      "suite": "unit",
+      "path": "tests/closing-ui.test.tsx",
+      "name": "HB19-Q02 proposed correction leads with unknown to 900 EUR and unchanged reserves, not audit fields"
+    },
+    "hb19-ux-20261105-9": {
+      "suite": "unit",
+      "path": "tests/closing-ui.test.tsx",
+      "name": "HB19-Q06 dirty warnings name the unsaved draft and preserve saved versions; clean state does not intercept"
+    },
+    "hb19-ux-20261105-10": {
+      "suite": "integration",
+      "path": "tests/integration/month-closing.test.ts",
+      "name": "HB19-Q01/Q02/Q04 production backdated budget update preserves current head and independently readable immutable versions"
+    },
+    "hb19-ux-latest-outside-page": {
+      "suite": "unit",
+      "path": "tests/closing-ui.test.tsx",
+      "name": "HB19-Q04 latest and explicitly selected versions remain visible outside the first metadata page without duplicate links"
+    },
+    "hb19-pending-refusal-0": {
+      "suite": "unit",
+      "path": "tests/closing-ui.test.tsx",
+      "name": "HB19-C04/Q01/Q06 ru NO_REPORT_CHANGE preserves server pending and accepted version without confirmation or optimistic writes"
+    },
+    "hb19-pending-refusal-1": {
+      "suite": "unit",
+      "path": "tests/closing-ui.test.tsx",
+      "name": "HB19-C04/Q01/Q06 de NO_REPORT_CHANGE preserves server pending and accepted version without confirmation or optimistic writes"
+    },
+    "hb19-pending-refusal-2": {
+      "suite": "unit",
+      "path": "tests/closing-ui.test.tsx",
+      "name": "HB19-C04/Q01/Q06 en NO_REPORT_CHANGE preserves server pending and accepted version without confirmation or optimistic writes"
     }
   },
   "scenarios": [
@@ -38774,12 +38844,27 @@
           "gate": "runtime",
           "coverage": "equivalent-guarantee",
           "tests": [
-            "hb19-0072"
+            "hb19-0072",
+            "hb19-pending-refusal-0",
+            "hb19-pending-refusal-1",
+            "hb19-pending-refusal-2"
           ],
           "evidence": [
             {
               "ref": "hb19-0072",
               "guarantee": "Executed production-path guarantee: HB19-C04 No change from advancing knowledge alone"
+            },
+            {
+              "ref": "hb19-pending-refusal-0",
+              "guarantee": "Executed HB19-C04/Q01/Q06 ru NO_REPORT_CHANGE preserves server pending and accepted version without confirmation or optimistic writes: server pending stays true after no-op, no confirmation/new version or write action, and only successful explicit reload may replace server state."
+            },
+            {
+              "ref": "hb19-pending-refusal-1",
+              "guarantee": "Executed HB19-C04/Q01/Q06 de NO_REPORT_CHANGE preserves server pending and accepted version without confirmation or optimistic writes: server pending stays true after no-op, no confirmation/new version or write action, and only successful explicit reload may replace server state."
+            },
+            {
+              "ref": "hb19-pending-refusal-2",
+              "guarantee": "Executed HB19-C04/Q01/Q06 en NO_REPORT_CHANGE preserves server pending and accepted version without confirmation or optimistic writes: server pending stays true after no-op, no confirmation/new version or write action, and only successful explicit reload may replace server state."
             }
           ],
           "proof": "Conjunction of the listed exact executed assertion identities, using equivalent fixture guarantees and existing engine regressions. This is not an exact-original oracle claim. The verification matrix records layer-specific resource coverage and separate browser/V statuses."
@@ -43710,6 +43795,375 @@
           "reason": "Historical planning-only integrity applies to its original two-document turn; later implementation authorization is recorded separately."
         }
       ]
+    },
+    {
+      "id": "HB19-Q01",
+      "br": [
+        "BR-08",
+        "BR-10",
+        "BR-11"
+      ],
+      "adr": [
+        "ADR0001",
+        "ADR0002",
+        "ADR0003"
+      ],
+      "disposition": "required",
+      "obligations": [
+        {
+          "key": "qa-automated-guarantees",
+          "assertion": "Readable closing review Q01 retains immutable financial evidence and explicit confirmation.",
+          "gate": "runtime",
+          "coverage": "equivalent-guarantee",
+          "tests": [
+            "hb19-ux-20261105-6",
+            "hb19-ux-20261105-10",
+            "hb19-pending-refusal-0",
+            "hb19-pending-refusal-1",
+            "hb19-pending-refusal-2"
+          ],
+          "evidence": [
+            {
+              "ref": "hb19-ux-20261105-6",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-Q01 closed unchanged state is neutral and cannot invite a reason-only version"
+            },
+            {
+              "ref": "hb19-ux-20261105-10",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-Q01/Q02/Q04 production backdated budget update preserves current head and independently readable immutable versions"
+            },
+            {
+              "ref": "hb19-pending-refusal-0",
+              "guarantee": "Executed HB19-C04/Q01/Q06 ru NO_REPORT_CHANGE preserves server pending and accepted version without confirmation or optimistic writes: server pending stays true after no-op, no confirmation/new version or write action, and only successful explicit reload may replace server state."
+            },
+            {
+              "ref": "hb19-pending-refusal-1",
+              "guarantee": "Executed HB19-C04/Q01/Q06 de NO_REPORT_CHANGE preserves server pending and accepted version without confirmation or optimistic writes: server pending stays true after no-op, no confirmation/new version or write action, and only successful explicit reload may replace server state."
+            },
+            {
+              "ref": "hb19-pending-refusal-2",
+              "guarantee": "Executed HB19-C04/Q01/Q06 en NO_REPORT_CHANGE preserves server pending and accepted version without confirmation or optimistic writes: server pending stays true after no-op, no confirmation/new version or write action, and only successful explicit reload may replace server state."
+            }
+          ],
+          "proof": "Owner A1/A2 authorized UX correction. Exact executed assertions provide automated equivalent guarantees; authenticated browser/relogin/physical AT and independent acceptance remain separately NOT EXECUTED. This is not an exact-original oracle or full manual-Q pass claim."
+        }
+      ],
+      "source": {
+        "path": "tests/scenarios/phase-01/hb-019-month-closing-versions-rollover.md",
+        "locator": "## HB19-Q01 Initial summary and phase-aware no-op",
+        "definitionHash": "cbc83161bcced2e6ff83fbcefe4bb6f011d1a92832097f16342d647db547c046"
+      }
+    },
+    {
+      "id": "HB19-Q02",
+      "br": [
+        "BR-08",
+        "BR-10",
+        "BR-11"
+      ],
+      "adr": [
+        "ADR0001",
+        "ADR0002",
+        "ADR0003"
+      ],
+      "disposition": "required",
+      "obligations": [
+        {
+          "key": "qa-automated-guarantees",
+          "assertion": "Readable closing review Q02 retains immutable financial evidence and explicit confirmation.",
+          "gate": "runtime",
+          "coverage": "equivalent-guarantee",
+          "tests": [
+            "hb19-ux-20261105-3",
+            "hb19-ux-20261105-4",
+            "hb19-ux-20261105-8",
+            "hb19-ux-20261105-10"
+          ],
+          "evidence": [
+            {
+              "ref": "hb19-ux-20261105-3",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-Q02/Q05 grouped review maps every changed leaf once without raw service numbers or lost evidence"
+            },
+            {
+              "ref": "hb19-ux-20261105-4",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-Q02 summary coverage is explicit and separate from mandatory evidence, including unchanged-money source changes"
+            },
+            {
+              "ref": "hb19-ux-20261105-8",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-Q02 proposed correction leads with unknown to 900 EUR and unchanged reserves, not audit fields"
+            },
+            {
+              "ref": "hb19-ux-20261105-10",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-Q01/Q02/Q04 production backdated budget update preserves current head and independently readable immutable versions"
+            }
+          ],
+          "proof": "Owner A1/A2 authorized UX correction. Exact executed assertions provide automated equivalent guarantees; authenticated browser/relogin/physical AT and independent acceptance remain separately NOT EXECUTED. This is not an exact-original oracle or full manual-Q pass claim."
+        }
+      ],
+      "source": {
+        "path": "tests/scenarios/phase-01/hb-019-month-closing-versions-rollover.md",
+        "locator": "## HB19-Q02 Late observation, meaningful summary and grouped sources",
+        "definitionHash": "03d2157de1c1bd7c8e2c21c81b11218ec662afc606a15bf9a1f4b74105ed7703"
+      }
+    },
+    {
+      "id": "HB19-Q03",
+      "br": [
+        "BR-08",
+        "BR-10",
+        "BR-11"
+      ],
+      "adr": [
+        "ADR0001",
+        "ADR0002",
+        "ADR0003"
+      ],
+      "disposition": "required",
+      "obligations": [
+        {
+          "key": "qa-automated-guarantees",
+          "assertion": "Readable closing review Q03 retains immutable financial evidence and explicit confirmation.",
+          "gate": "runtime",
+          "coverage": "equivalent-guarantee",
+          "tests": [
+            "hb19-ux-20261105-3",
+            "hb19-ux-20261105-4",
+            "hb19-0025",
+            "hb19-0026",
+            "hb19-0030",
+            "hb19-r2-4"
+          ],
+          "evidence": [
+            {
+              "ref": "hb19-ux-20261105-3",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-Q02/Q05 grouped review maps every changed leaf once without raw service numbers or lost evidence"
+            },
+            {
+              "ref": "hb19-ux-20261105-4",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-Q02 summary coverage is explicit and separate from mandatory evidence, including unchanged-money source changes"
+            },
+            {
+              "ref": "hb19-0025",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-E04 unknown outcome only checks or explicitly retries the original request"
+            },
+            {
+              "ref": "hb19-0026",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-E07 hidden detail pages cannot enable confirmation"
+            },
+            {
+              "ref": "hb19-0030",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-E04 stale refusal preserves reason and requires explicit refreshed review"
+            },
+            {
+              "ref": "hb19-r2-4",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-E02/E07 equal money with changed historical refs requires every digest-bound evidence page"
+            }
+          ],
+          "proof": "Owner A1/A2 authorized UX correction. Exact executed assertions provide automated equivalent guarantees; authenticated browser/relogin/physical AT and independent acceptance remain separately NOT EXECUTED. This is not an exact-original oracle or full manual-Q pass claim."
+        }
+      ],
+      "source": {
+        "path": "tests/scenarios/phase-01/hb-019-month-closing-versions-rollover.md",
+        "locator": "## HB19-Q03 Four-page complete review and invalidation",
+        "definitionHash": "b325a48e112a2ff6968d5517e6b8e9fbefb8f4a2f053f141d01e7c3475954baa"
+      }
+    },
+    {
+      "id": "HB19-Q04",
+      "br": [
+        "BR-08",
+        "BR-10",
+        "BR-11"
+      ],
+      "adr": [
+        "ADR0001",
+        "ADR0002",
+        "ADR0003"
+      ],
+      "disposition": "required",
+      "obligations": [
+        {
+          "key": "qa-automated-guarantees",
+          "assertion": "Readable closing review Q04 retains immutable financial evidence and explicit confirmation.",
+          "gate": "runtime",
+          "coverage": "equivalent-guarantee",
+          "tests": [
+            "hb19-ux-20261105-1",
+            "hb19-ux-20261105-2",
+            "hb19-ux-20261105-7",
+            "hb19-ux-20261105-10",
+            "hb19-ux-latest-outside-page"
+          ],
+          "evidence": [
+            {
+              "ref": "hb19-ux-20261105-1",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-Q04 CLOSED composition leads with selected historical version and leaves active distribution collapsed"
+            },
+            {
+              "ref": "hb19-ux-20261105-2",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-Q04 nonclosed composition preserves the existing Dashboard surface"
+            },
+            {
+              "ref": "hb19-ux-20261105-7",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-Q04 active allocation is initially collapsed, dated and separate from accepted history"
+            },
+            {
+              "ref": "hb19-ux-20261105-10",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-Q01/Q02/Q04 production backdated budget update preserves current head and independently readable immutable versions"
+            },
+            {
+              "ref": "hb19-ux-latest-outside-page",
+              "guarantee": "Verified latest and selected immutable versions remain visible beyond first metadata page, with descending roles and no duplicate links."
+            }
+          ],
+          "proof": "Owner A1/A2 authorized UX correction. Exact executed assertions provide automated equivalent guarantees; authenticated browser/relogin/physical AT and independent acceptance remain separately NOT EXECUTED. This is not an exact-original oracle or full manual-Q pass claim."
+        }
+      ],
+      "source": {
+        "path": "tests/scenarios/phase-01/hb-019-month-closing-versions-rollover.md",
+        "locator": "## HB19-Q04 Persisted versions, latest default and two budget bases",
+        "definitionHash": "596bfdc5aab9aa8368cc67673a5fab27293e1ac41db2ba8075ac6028d0500222"
+      }
+    },
+    {
+      "id": "HB19-Q05",
+      "br": [
+        "BR-08",
+        "BR-10",
+        "BR-11"
+      ],
+      "adr": [
+        "ADR0001",
+        "ADR0002",
+        "ADR0003"
+      ],
+      "disposition": "required",
+      "obligations": [
+        {
+          "key": "qa-automated-guarantees",
+          "assertion": "Readable closing review Q05 retains immutable financial evidence and explicit confirmation.",
+          "gate": "runtime",
+          "coverage": "equivalent-guarantee",
+          "tests": [
+            "hb19-ux-20261105-3",
+            "hb19-ux-20261105-5"
+          ],
+          "evidence": [
+            {
+              "ref": "hb19-ux-20261105-3",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-Q02/Q05 grouped review maps every changed leaf once without raw service numbers or lost evidence"
+            },
+            {
+              "ref": "hb19-ux-20261105-5",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-Q05 independent long evidence survives grouping and duplicate coverage refuses safely"
+            }
+          ],
+          "proof": "Owner A1/A2 authorized UX correction. Exact executed assertions provide automated equivalent guarantees; authenticated browser/relogin/physical AT and independent acceptance remain separately NOT EXECUTED. This is not an exact-original oracle or full manual-Q pass claim."
+        }
+      ],
+      "source": {
+        "path": "tests/scenarios/phase-01/hb-019-month-closing-versions-rollover.md",
+        "locator": "## HB19-Q05 Bounded exact coverage, contextual localization and isolation",
+        "definitionHash": "1b80e1f877c53115e58b05c5c472de29c34c0b9afc8640be52468b89a2147f13"
+      }
+    },
+    {
+      "id": "HB19-Q06",
+      "br": [
+        "BR-08",
+        "BR-10",
+        "BR-11"
+      ],
+      "adr": [
+        "ADR0001",
+        "ADR0002",
+        "ADR0003"
+      ],
+      "disposition": "required",
+      "obligations": [
+        {
+          "key": "qa-automated-guarantees",
+          "assertion": "Readable closing review Q06 retains immutable financial evidence and explicit confirmation.",
+          "gate": "runtime",
+          "coverage": "equivalent-guarantee",
+          "tests": [
+            "hb19-ux-20261105-9",
+            "hb19-0025",
+            "hb19-0026",
+            "hb19-0030",
+            "hb19-r2-4",
+            "hb19-pending-refusal-0",
+            "hb19-pending-refusal-1",
+            "hb19-pending-refusal-2"
+          ],
+          "evidence": [
+            {
+              "ref": "hb19-ux-20261105-9",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-Q06 dirty warnings name the unsaved draft and preserve saved versions; clean state does not intercept"
+            },
+            {
+              "ref": "hb19-0025",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-E04 unknown outcome only checks or explicitly retries the original request"
+            },
+            {
+              "ref": "hb19-0026",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-E07 hidden detail pages cannot enable confirmation"
+            },
+            {
+              "ref": "hb19-0030",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-E04 stale refusal preserves reason and requires explicit refreshed review"
+            },
+            {
+              "ref": "hb19-r2-4",
+              "guarantee": "Executed component/presentation or real PostgreSQL guarantee: HB19-E02/E07 equal money with changed historical refs requires every digest-bound evidence page"
+            },
+            {
+              "ref": "hb19-pending-refusal-0",
+              "guarantee": "Executed HB19-C04/Q01/Q06 ru NO_REPORT_CHANGE preserves server pending and accepted version without confirmation or optimistic writes: server pending stays true after no-op, no confirmation/new version or write action, and only successful explicit reload may replace server state."
+            },
+            {
+              "ref": "hb19-pending-refusal-1",
+              "guarantee": "Executed HB19-C04/Q01/Q06 de NO_REPORT_CHANGE preserves server pending and accepted version without confirmation or optimistic writes: server pending stays true after no-op, no confirmation/new version or write action, and only successful explicit reload may replace server state."
+            },
+            {
+              "ref": "hb19-pending-refusal-2",
+              "guarantee": "Executed HB19-C04/Q01/Q06 en NO_REPORT_CHANGE preserves server pending and accepted version without confirmation or optimistic writes: server pending stays true after no-op, no confirmation/new version or write action, and only successful explicit reload may replace server state."
+            }
+          ],
+          "proof": "Owner A1/A2 authorized UX correction. Exact executed assertions provide automated equivalent guarantees; authenticated browser/relogin/physical AT and independent acceptance remain separately NOT EXECUTED. This is not an exact-original oracle or full manual-Q pass claim."
+        }
+      ],
+      "source": {
+        "path": "tests/scenarios/phase-01/hb-019-month-closing-versions-rollover.md",
+        "locator": "## HB19-Q06 Dirty navigation, recovery and honest action names",
+        "definitionHash": "4d90d932d6abc579303e3732a067e2daba95d19756060a6aa4871e3ca8db0c58"
+      }
+    },
+    {
+      "id": "HB19-Q07",
+      "br": [
+        "BR-08",
+        "BR-10"
+      ],
+      "adr": [
+        "ADR0002"
+      ],
+      "disposition": "verification",
+      "obligations": [
+        {
+          "key": "external-verification",
+          "assertion": "Reproduce and localize the unattributed browser React suspension error before claiming a fix.",
+          "gate": "verification",
+          "status": "NOT_EXECUTED",
+          "ownerDecisionRequired": true,
+          "path": "docs/planning/hb-019-verification.md",
+          "reason": "Separate Chrome fallback is owner-authorized. No authenticated Next/Google session is available; production-component/repository harness cannot reproduce app route/Suspense behavior. OPEN / NOT REPRODUCED; no runtime test substitutes for diagnosis."
+        }
+      ],
+      "source": {
+        "path": "tests/scenarios/phase-01/hb-019-month-closing-versions-rollover.md",
+        "locator": "## HB19-Q07 React use() error — reproduce before assigning scope",
+        "definitionHash": "a721ffb36d32137c1ba2c56b314c12c1cbeca225d035092f12a18baea5be2ccc"
+      }
     }
   ],
   "contexts": [
@@ -43767,23 +44221,23 @@
     },
     {
       "path": "tests/scenarios/phase-01/hb-019-month-closing-versions-rollover.md",
-      "sha256": "409f158cdbbfb2588bf6229d5dd036ba8f7ba2bde20773342d1d2a5bc386ae2a"
+      "sha256": "e217cd690948b0bc6c8c537875917f5dde8925a54f86692b05fbb41f74bace76"
     },
     {
       "path": "docs/BUSINESS_RULES.md",
-      "sha256": "5c0d8904c99342af2e582a86c5023f48c1adcd3bb2656ea17485085986812a3f"
+      "sha256": "05b6821df1f25067f77eb691712124636f1be71635d28e80b8ed9d1c2c698557"
     },
     {
       "path": "docs/DECISIONS.md",
-      "sha256": "acb09e3bc65a7d5ee365d1337c0ce60a993588ef9166ffe1e174ad628e176887"
+      "sha256": "5607b75be8954da61b9f96769c8a61c32c38969c7a92755fa3e8f895a2a565cc"
     },
     {
       "path": "docs/adr/0001-checkpoints-and-allocations.md",
-      "sha256": "0ba3c8a19576c6e9f2377dbcd4ea749aaef3e60297d29b16ffb9c0ab41d60169"
+      "sha256": "1246f48868a8b2cbd05bb5b14855bb97ef45eda621be043d7ddf1a8f7553052c"
     },
     {
       "path": "docs/adr/0002-month-closing-and-corrections.md",
-      "sha256": "46f1fbaf4af9ccc659b8f89e0edabd0570d241fda79389b49b69df9c68ae94ee"
+      "sha256": "ad9aef927c8ba7491aceec90e43b6edbdc2ed00fd66792181b5570858c69c773"
     },
     {
       "path": "docs/adr/0003-daily-forecast-and-liquidity.md",
@@ -43791,7 +44245,7 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "sha256": "7031b406b123b1d46789969bde5c8742389485422a0bbb53562aa7f9c1a029e1"
+      "sha256": "fe519ce9c3f07736f0edf433db4c87b33abb8957ed3f2463b8814c9a70b31695"
     },
     {
       "path": "docs/architecture.json",
@@ -43807,19 +44261,19 @@
     },
     {
       "path": "docs/PRD.md",
-      "sha256": "3cb0d193f8d1aa2b9a395b23656742cb37af76814cc67a95481bf8eb3085ed7a"
+      "sha256": "9f1dcf63f005b02605430e03c6fec2d79a81be4c9bef74455b51b055ebaf3bb6"
     },
     {
       "path": "docs/TASKS.md",
-      "sha256": "9bfd619e2069e09170a286d7c2bb6e8e616eabdf4ddb85b830c0c1106d6c47bf"
+      "sha256": "21cb128a12430ab773407b864d6f546a64e0edc3299b69946a9f8d1439abd06e"
     },
     {
       "path": "docs/OPEN_QUESTIONS.md",
-      "sha256": "8e2d3076af1f1421ac11b54f2829f6e2abf052422cf036393bdf02d5bfc0fba3"
+      "sha256": "6cf5bb7eb0b8161009d00755bbf92852989d9948cecdca164c0b15af8568c3ab"
     },
     {
       "path": "docs/IMPLEMENTATION_PLAN.md",
-      "sha256": "192ae687f7668495ff52f1a120983d34b7365b393a8dacd80a52f9b3227d0b63"
+      "sha256": "e86f416cbaca8b4b041b32ce2cfb8e7355175c7a72e0970f2105d9cbc975573c"
     },
     {
       "path": "docs/planning/hb-008-money-dates.md",
@@ -43855,7 +44309,7 @@
     },
     {
       "path": "docs/planning/hb-019-month-closing-versions-rollover.md",
-      "sha256": "05c356f083fdae04f4de22b85ff64a743d2d8c9c2d67e7e512401bb6896c6593"
+      "sha256": "186f72c48cf29a6a5b64f291ef3cb5b91281b92a1fcc639412057859e857abad"
     }
   ],
   "blockingVerification": []

@@ -156,6 +156,7 @@ export function deferredTasks(id) { return [pureFuture.get(id)??futureParts.get(
 // remains visible in the gate result; no manual assertion can become a PASS.
 const externalVerification = new Map([
   ...['E08','E09','E10','E11','E12','E13','E14'].map(id=>[`HB19-${id}`,'NOT_EXECUTED']),
+  ['HB19-Q07','NOT_EXECUTED'], // Unattributed browser error: no runtime substitute proves diagnosis.
   ['HB19-F05','OUTSIDE_RUNTIME_GATE'],
   ['HB19-F06','PENDING_INDEPENDENT_REVIEW'],['HB19-F07','HISTORICAL_PLANNING_ONLY'],
 ]);

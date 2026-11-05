@@ -1,5 +1,11 @@
 # HB-019 — Month closing, immutable versions and rollover scenarios
 
+**Current task: Review / CHANGES REQUESTED.** Owner QA 2026-11-04 adds seven
+Planned/NOT EXECUTED Q01–Q07 cases at the end, retaining all 91 base cases and
+their historical evidence. [Findings register](../../../docs/planning/hb-019-browser-qa-findings-2026-11-04.md).
+The following R1 header describes its original planning stage, not current Git
+or implementation authorization; no new runtime tests ran in this doc task.
+
 **2026-11-04 · PLANNING CORRECTION R1 · NOT EXECUTED.** 91 unique normative HB19 cases.
 Independent ChatGPT review and separate owner implementation permission are pending.
 Prior review: CHANGES REQUESTED, Critical0/High1/Medium3/Low0; seven R-cases
@@ -1218,3 +1224,162 @@ Execution naming correction: A07 uses the existing HB-010 typed refusal
 ORDERING_CONFLICT for absent same-day placement; ORDER_CONFIRMATION_REQUIRED
 was a planning label absent from the accepted runtime error union. No placement
 rule, fallback or financial behavior changes.
+
+## Owner QA regression slice — 2026-11-04 (Planned / NOT EXECUTED)
+
+Owner A1/A2 (2026-11-05) authorize narrow HB-019 implementation of these oracles:
+mandatory grouped readable review with total coverage, changed/unchanged summary,
+and CLOSED accepted history first with latest-default/explicit-old versions and
+collapsed dated active-allocation context. Page counts are computed, not fixed4.
+No acceptance date is invented if absent from current DTO. The planned labels
+below remain until actual results are recorded separately; no automatic PASS.
+
+These seven Q cases add UI-specific oracles to existing proofs; they neither
+replace the 91 base scenarios/46 HB2 mappings nor assert current coverage-gate
+registration. [Finding IDs and scope](../../../docs/planning/hb-019-browser-qa-findings-2026-11-04.md).
+U/C/P/B/A mean unit/component/real isolated PostgreSQL/authenticated application
+browser/keyboard and physical assistive technology. Each case names its planned
+layers; component mocks cannot prove persistence or authenticated route behavior.
+
+**Q fixture (synthetic):** server Berlin date Nov04 2026, account alpha owned by
+alpha, Cn actual Nov04 B100000 with complete Vn={Oct:0,Nov:100000}, all R/S=0.
+There are initially no observations/effective vectors at or before Oct31.
+Close October into v1: bank/end/A/F unknown, R/S0, NO_OBSERVATION. Later accept
+one actual backdated Oct31 Co B90000 with complete Vo={Oct:90000}, effective on
+that day, through ordinary HB-017 review/confirm. Existing current-head/anchor
+rules in this valid fixture retain Cn/Vn, while state(Oct31,Knew) selects Co/Vo.
+All source refs, cuts, batch audit and expected revisions must be real in PG.
+Do not insert historical facts directly into DB to bypass production validation.
+
+Cases start independently unless they explicitly continue the Q sequence. Fixed
+dates are pure-test/owner-replay examples; future PG/browser execution uses the
+existing server-relative completed-month adapter R06 if October is not a valid
+elapsed-month fixture, preserving relationships/amounts and real calendar guards.
+No clock bypass, fake final-day check or new 8MiB fixture is authorized.
+
+## HB19-Q01 Initial summary and phase-aware no-op
+
+**Planned proof C/P/B; UX-05, initial branch UX-01/03; reuse A04/B01/C04/E08.**
+GIVEN Q before historical Co exists. WHEN review and explicitly save first close,
+THEN summarize an initial report, not absent-document diff; show end balance
+unknown, A/F unknown, known R/S0 and absent historical check. One production
+report/head/receipt/audit write set only; Cn/Vn/B100000/ANov100000 unchanged,
+no transfer, income, expense, debit or forced Oct31 checkpoint.
+WHEN try reason `2222` alone against accepted v1 with identical canonical facts,
+THEN neutral “Нет новых исторических изменений. Версия 1 сохранена”; hide or
+explain unavailable revision action. A direct valid server attempt still refuses
+NO_REPORT_CHANGE. Repeated request/no-op produces no new version, head/counter/
+receipt/audit/control or financial writes. Reuse existing rollback/replay proof;
+do not weaken a server guard based on UI knowledge of pending state.
+
+## HB19-Q02 Late observation, meaningful summary and grouped sources
+
+**Planned proof U/C/P/B; UX-01/02/03/05; reuse A08/C01/C02/E09.**
+GIVEN Q v1 plus production-confirmed Co/Vo. WHEN load October, THEN historical
+changes are pending, accepted v1 unchanged; CTA names **proposed** v2, not saved
+v2. Current Cn/Vn still B100000,ANov100000,active AOct0. WHEN preview with reason,
+THEN leading changed items: Oct31 end unknown ->90000 cents (UI 900 EUR), A and
+F unknown ->900 EUR, observation absent ->Oct31; R/S0 explicitly unchanged.
+Include correction basis/date, source check+vector relationship, distinct
+unknown/no-record/unspecified-time meanings. Financial result, sources, history/
+audit and optional diagnostics are separately grouped. Repeated references to
+the same check/vector do not look like independent 900 EUR cash movements;
+independent events/evidence/order are retained. No 100 EUR inferred income, no
+assumption of complete bank operations or midnight check. No writes on preview.
+Primary UI contains formatted EUR/date/meaning, not raw cents/schema/counters/
+UUID/paths/SHA/null/absent/object; exact raw material remains bounded diagnostics.
+
+## HB19-Q03 Four-page complete review and invalidation
+
+**Planned proof U/C/P/B/A; UX-01/04; reuse E02/E04/R01/R02/R07.**
+GIVEN a production-valid v1 -> candidate v2 pinned to its H/K/head/revision/digest
+whose readable significant evidence takes exactly four pages under unchanged
+page bounds. Use real independent evidence, not meaningless padding; before/
+after financial sections must also be fully reviewed. The owner observed four
+pages, but their old page boundaries are not assumed invariant after regrouping.
+WHEN only page1 visited, THEN visible instruction and progress1/4, consent and
+confirm unavailable with accessible explanation. WHEN all four visited, THEN
+progress4/4 permits explicit unchecked consent, not automatic confirmation;
+keyboard back/next and focus are usable. WHEN consent checked, THEN exact reviewed
+candidate can confirm. Independent equal-money/changed-ref branch must still
+show sources/order/evidence differences and require complete review.
+WHEN candidate changes or a fresh review starts, THEN page credit/consent resets.
+After reload local consent is not restored. Concurrent historical/head change
+must fail stale confirmation without writes, even if old local page credit was
+complete; require refresh/new review. Preserve original request/status/retry
+on unknown COMMIT, never silently rebase or create a replacement request.
+If a valid four-page fixture cannot be made under unchanged bounds, record the
+gap and retain existing production proof plus component four-page traversal;
+do not label missing PG/browser proof PASS or increase resource limits.
+
+## HB19-Q04 Persisted versions, latest default and two budget bases
+
+**Planned proof C/P/B/A; UX-06/07; reuse C03/C14/E07/E09/R05.**
+GIVEN Q after explicit v2 confirmation. WHEN production read, page reload,
+relogin and independent DB assertions run, THEN latest accepted v2 default;
+explicit v1 preserves original unknown end/A/F and original source bytes,
+manifest/digest/H/K, while v2 end/A/F90000,R/S0 pins Co/Vo. Verify both complete
+reports and audits under owner scope; do not infer durability from success UI.
+Version list has truthful latest/previous/selected accessible names, chronology,
+reason and acceptance date only where actually available from existing evidence.
+No bank date/client clock used as acceptance date.
+Closed October page leads with selected accepted history. Current vector AOct0,
+FOct0,ANov100000/B100000 is optional separate secondary context, never overwritten
+by v2. No “historical report unavailable” statement while the report exists;
+v1 selection does not borrow Nov B. Switching versions is read-only and cannot
+change current head, versions, receipts or audit. Repeat valid observed-zero
+historical branch via A04; zero stays zero, no-record/unknown stays unknown.
+
+## HB19-Q05 Bounded exact coverage, contextual localization and isolation
+
+**Planned proof U/C/P/B/A; UX-02/03/04/07; reuse A11/A13/A14/E01/E03/E05/R03/R07.**
+GIVEN a large admitted canonical report pair with independent events, source
+refs, ordering changes, same-money changes, long Unicode and a changed last-page
+item. Define a coverage oracle mapping every significant old/new fact/ref/order
+to mandatory readable content. WHEN grouped/paged review renders RU/DE/EN at
+320/375/1280px,200% zoom, keyboard/AT, THEN each meaningful item is reachable,
+no silent truncation, false merging, omission of before-state or double counting
+one money fact. Main view formats90000 as EUR and explains each null in context;
+no broken translation sequences or unexplained machine labels. Literal user text
+is escaped/preserved; do not censor a user's actual question marks.
+All pages/progress/titles remain accessible; optional diagnostics are delimited
+and never substitute for visible significant meaning. Preserve original complete
+document bytes/SHA, H/K/head/identity binding and unchanged source/report/wire/
+work/audit/chain bounds. Mixed/missing chunks or uncertain coverage fail safely,
+not partial report or bypassed consent. Foreign-account read/version/chunk/
+review/status/confirm attempts expose no data and make no writes; expired auth
+cannot reuse cached UI consent. This extends existing R03/R07 tests, not new8MiB
+research, a new auth policy or a claim they ran in this documentation stage.
+
+## HB19-Q06 Dirty navigation, recovery and honest action names
+
+**Planned proof C/P/B/A; UX-05; reuse B09–B14/E04/E06/E14.**
+GIVEN accepted v1/v2 and, independently, a newly typed unsaved reason/review.
+WHEN navigate away from the dirty draft, THEN warning names unsaved proposal
+only and says accepted versions remain saved; cancel keeps draft where existing
+scoped-memory rules allow. Clean state has no false “report unsaved” warning.
+WHEN choose refresh, THEN explain reread/review reset, no money update, no
+automatic confirm or new report. WHEN choose Update budget, THEN navigate to
+the separate existing flow and explain it is optional for card/transfer changes,
+not prerequisite for closing. With unknown COMMIT, preserve original identity
+and safe status/retry, not false saved/failed claims or silent second writes.
+After known successful commit say version2 saved; links v1/v2 remain. After
+saved-but-refresh-failed keep saved status and safe reread action. PG baselines
+prove navigation/reread do not create reports/C/V/O/S/audit; existing exact
+replay/rollback tests provide persistence proof independently of component mocks.
+
+## HB19-Q07 React use() error — reproduce before assigning scope
+
+**Planned proof B then C if meaningful; UX-08; status NOT REPRODUCED independently.**
+GIVEN the owner runtime/console narrative, no stack, and isolated synthetic
+accounts with Q v1/v2 and savings navigation. WHEN authorized future investigation
+exercises /savings -> /months -> selected elapsed month -> v1/v2, including load/
+reload and route transitions, THEN capture exact failing steps, stack, build,
+locale, component/library and expected/actual visible result. GET200 alone is not
+a pass. Account/auth and report state must remain verifiable, no private logs.
+Only after proven cause propose narrow correction and owner scope disposition
+if outside HB-019; no speculative Suspense rewrite/dependency upgrade or console
+suppression. Real browser regression must show absence of the reproduced failure
+and usable workflow; component test only where it reproduces the proven cause.
+If not reproduced, retain OPEN/NOT REPRODUCED, environment and limits; never
+claim root cause fixed. Escalate Medium to High only with demonstrated impact.

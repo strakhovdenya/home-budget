@@ -48,7 +48,7 @@ Europe/Berlin calendar date**, not the device clock or observation month.
 | Selected month | Primary content | Other visible information |
 |---|---|---|
 | Current | Last confirmed card balance, with its real observation date and existing freshness notices; retain the separately labelled D36 safe guideline | Selected current-month A/R/S/F remain visible and distinct from card cash |
-| Past | Clearly named selected-month budget: allocation A, full reserves R, savings S and free funds F, with data basis/effective date; unknown values stay unknown | Latest confirmed card balance, its actual check date and explicit explanation that it is not the selected month's balance |
+| Past | Closed month: selected accepted historical version (latest by default), with its A/R/S/F and unknown values. Unclosed month: clearly labelled available selected-period budget and basis, without invented month-end cash | Latest confirmed card balance, its actual check date and explicit explanation that it is not the selected month's balance; any active allocation for a closed past month is distinct subordinate context |
 | Future | Clearly named selected-month budget/planning view: already confirmed allocation A, full R, S and F; any existing daily preview is labelled a future budget estimate | Latest confirmed card balance and real check date, explicitly not a future-month balance or forecast of future bank cash |
 
 Five acceptance criteria for this presentation slice:
@@ -63,8 +63,11 @@ Five acceptance criteria for this presentation slice:
    confirmed distribution for a selected period is not an as-closed historical
    snapshot. A carried/cleared old active A=0 must not overwrite a retained report;
    when displaying an existing historical version, identify its version and H/K
-   provenance through the existing history contract. This work does not select a
-   different financial state silently, synthesize missing reports or introduce a
+   provenance through the existing history contract. For a closed month, the
+   selected accepted history leads (latest by default, explicit old selection
+   respected); any active old-period allocation is secondary and labelled with
+   its current anchor. This must not claim a historical report is unavailable
+   when it exists. This work does not synthesize missing reports or introduce a
    new historical reader. Missing/unavailable state is shown explicitly; never
    substitute latest-card cash for a missing month budget. Zero is valid only
    where the existing complete-state contract proves it.
@@ -215,3 +218,67 @@ fixtures for provenance; preserve current/past/future financial outputs exactly.
   unit/component/PG fixtures, screen evidence, known limitations, source hashes;
   assistant independently reviews submitted ZIP. Owner acceptance and any
   commit/push/PR/merge/deploy are separate approvals.
+
+## 7. Owner browser QA follow-up — 2026-11-04 (Planned only)
+
+[Single findings register](hb-019-browser-qa-findings-2026-11-04.md):
+HB19.1-UX-01–05. Owner observed partial synthetic browser flow; no independent
+rerun in this documentation task, no new PASS or implementation permission.
+Retain D40–D45, D36/ALL_PERIOD_MAX_V1, accepted H/K/anchor rules and Q-HB17-01
+option A. No source/formula/storage/schema/architecture change is approved here.
+
+### 7.1 Overview versus Months (HB19.1-UX-01/02)
+
+Five acceptance criteria: (1) Overview prioritizes current money, Update budget,
+D36 safe daily limit, check age and essential aggregates; (2) Months prioritizes
+selected period, historical result/version/close plus distinct explicit transition
+entry, not a clone with arbitrary extra buttons; (3) closed past history is
+primary, latest card dated and secondary as section1.1 specifies; (4) unclosed
+unknown and future planning remain honest, with no new financial read-selection
+policy or expected cash; (5) shared authoritative financial read models and
+RU/DE/EN/mobile/a11y semantics remain consistent, no duplicated formulas/writes.
+Proof: existing HBUX-026–032 plus HBUX-033, split into page-purpose and hierarchy
+verification runs of at most seven cases each. Immediate closed `/months`
+misrepresentation (HB19-UX-06) stays in HB-019; this broader task does not block
+HB-019 acceptance as a whole and does not authorize redesign inside HB-019.
+
+### 7.2 Historical update preview and saved result (HB19.1-UX-03/04)
+
+Five acceptance criteria: (1) primary preview explains proposed Oct31 real check
+B90000/full AOct90000 and effective date; (2) secondary current November guidance
+states its Nov04 B100000 anchor/date, outside the historical-result card; (3)
+exact existing projections explain historical pending-report impact and current
+head retention **for this fixture**, not a universal promise; (4) one readable
+success gives saved check date/amount/allocation month, UUID only diagnostic;
+(5) saved-but-reread-failed and unknown-COMMIT states preserve genuine outcome,
+original request identity and explicit safe recovery, not a second hidden save.
+Proof: HBUX-034/035 plus existing HBUX-019/023. Owner saw 37,03 EUR/day for
+current November next to historical900 EUR; this is not evidence of a wrong D36
+result. Do not hardcode that rounded value as a new formula or historical limit.
+Never infer gross flows from the 100 EUR observation difference or automatically
+publish v2. Historical operations that genuinely affect current state still
+follow accepted current-state review/anchor rules; inspect real candidate data.
+
+### 7.3 Update and transition journeys (HB19.1-UX-05)
+
+Five acceptance criteria: (1) ordinary same-month action unless unresolved past
+funding needs explicit disposition; (2) named, intentional FRESH_START requires
+actual bank check/full A/funding/non-carry consent; (3) CARRY ACTUAL/REUSE and
+DEFER remain separate explicit alternatives with correct effects; (4) same-identity
+funding plus lifecycle still refuses atomically, followed only by two separately
+confirmed user actions, never hidden orchestration; (5) voluntary savings,
+immutable history, complete reserves/future allocations and no presumed cash-flow
+remain intact. Reuse HBUX-001–025 in their existing independent slices; new
+HBUX-036 checks screen/action clarity, not a second finance engine.
+
+## 8. Documentation review boundaries and open questions
+
+All Q01–Q07 / HBUX-033–036 additions are Planned / NOT EXECUTED. Existing scenario
+results, finance mapping/required guard and verification receipts are untouched.
+No normative financial question is reopened. Remaining presentation questions:
+grouped-review exact-coverage proof (HB-019 OPEN-01), authentic acceptance-date
+availability (OPEN-02), unattributed React error scope (OPEN-03), and independent
+screen/copy review before implementation (OPEN-04), all in the findings register.
+Do not create another task or change BUSINESS_RULES/ADR/DECISIONS for these UX
+questions. Any proven need to change domain/storage or a shared financial contract
+must stop for separate owner approval. HB-019.1 remains Planned P0.
