@@ -29,12 +29,12 @@ Owner D32..D35 fixes actual-money allocations:A>=0,sum(A)=observed B>=0. Negativ
 
 ## HB-001 approval register — unresolved, no business rule changed
 
-This historical heading is retained for existing links. D32..D35 changes the former signed-A rule;the following decisions remain open.
+This historical heading is retained for existing links. D32..D35 changes the former signed-A rule; items marked Resolved, including Q-HB1-03 on 2026-11-04, are no longer open. Other listed items remain as shown.
 
 | ID | Decision | Gate |
 |---|---|---|
 | Q-HB1-01 | Resolved:Accepted ADR0003 covers exact D36 safe-main formula and D37..D39 UX after owner-reported final independent review | HB-003 Done;runtime proof remains implementation work |
-| Q-HB1-03 | Recurring-template MVP membership:keep HB-020 P1 or explicitly promote into baseline | Owner M2 scope |
+| Q-HB1-03 | **Resolved 2026-11-04, owner D45:** include HB-020 in MVP as P0; add first-run owned-account onboarding to confirmed recurring templates. Original P1-vs-MVP question is closed. | [D45](DECISIONS.md#hb-0191-budget-update-ux-and-hb-020-first-run-scope--2026-11-04); implementation still separately authorized |
 | Q-HB2-01 | Resolved by re-Accepted corrected ADR0002 and owner-reported repeated independent review | HB-002 Done;runtime proof remains later |
 | Q-HB2-02 | Simultaneous multi-source CARRY proposal composition only | Before generalized A;not a FRESH_START gate |
 | Q-HB3-02 | Real negative bank observations/overdraft scope;no credit capacity inferred | Before any B<0 allocation feature |

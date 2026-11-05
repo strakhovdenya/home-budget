@@ -193,3 +193,58 @@ The private optional verifyReplay hook validates HB-017's immutable original pro
 Auth diagnostics are an isolated HB-017 change set. Actual policy/binding/session boundaries log closed category, stage, random correlationId and timestamp only. Public technical text requires independent configuration/availability evidence; AccessDenied and untrusted query values never establish Google denial. OAuth/JWT/CSRF/ownership rules, schema and dependencies are unchanged.
 
 [Plan](planning/hb-017-update-budget.md), [scenarios](../tests/scenarios/phase-01/hb-017-update-budget.md), [verification](planning/hb-017-verification.md).
+
+## HB-019 manual closing (implementation under review)
+
+/months composes independently authorized closing load, preview, confirm, status,
+version and canonical detail reads. domain/closing adapts the existing historical
+selectors and checked finance calculations. The app boundary composes ownership;
+infrastructure implements the ports. No import direction, dependency or storage
+schema changes. Rollover continues through the existing /update-budget save.
+
+Read/preview use one REPEATABLE READ READ ONLY transaction. Account-scoped
+transaction advisory admission is cross-instance and transient: a concurrent read
+refuses retryably and the lock remains held at least 50ms. Every chunk revalidates
+the full selected original report within the per-operation budget. No persistent
+preview token, new signing secret, report store or process affinity is required.
+Confirmation is authenticated explicit exact-content consent, never proof that a
+preview screen was visited. commitBatch locks the account and rebuilds pinned
+H/K/revision/head, digest and evidence before appending the immutable report and
+head audit pair. Original replay validates command, receipt and report first.
+
+The historical period opt-in is restricted to closing. It admits all period IDs
+reachable from facts at K, including future allocations, immutable identity
+origins, all funding revisions and transition evidence. Missing/foreign refs
+refuse. Ordinary projection/forecast and HB-017 retain their existing complete
+current-period preflight. A later unreferenced period cannot invalidate old K.
+
+[Approved R1 and authorized scope amendment](planning/hb-019-month-closing-versions-rollover.md),
+[scenario contracts](../tests/scenarios/phase-01/hb-019-month-closing-versions-rollover.md),
+[execution evidence and limitations](planning/hb-019-verification.md).
+
+## HB-019.1 budget-update UX route (planned; no implementation authorization)
+
+Owner decision D40–D45 refines `/update-budget` routing without creating a
+second finance writer. UI words/actions map explicitly to existing HB-017
+candidate/preview/confirm contracts: same-month `ORDINARY` actual check when
+no past-period disposition is required; chosen new-month `FRESH_START` with actual
+check, full A, and old funding proofs; secondary `CARRY` with supported actual or
+reused checkpoint; secondary `DEFER` retaining old funding. Opening a screen
+never selects or confirms a mode. An old-period unresolved allocation/funding
+still requires explicit transition/deferral even if the bank check is current.
+
+Client previews a single coherent H/K candidate and meaningful before/after
+financial state with server-side preflight/consent. React has no money formulas;
+D36 and source/identity validation stay in domain/infrastructure. Existing
+same-identity transfer+lifecycle restriction is mandatory: refuse atomically,
+retain draft and guide the user to two **separately confirmed** updates (first
+transition, later payment/edit) rather than silently performing two commits.
+Disjoint identities continue to work within the established contract.
+
+HB-020 is planned to add first-run creation of **one owned account** after
+successful allowlisted authentication, then an initial real checkpoint and full
+allocation using existing HB-010/017 protections; not an account selector,
+multi-card model, new authorization path or automatic real-bank integration.
+
+[Decision](DECISIONS.md#hb-0191-budget-update-ux-and-hb-020-first-run-scope--2026-11-04) ·
+[HB-019.1 plan](planning/hb-019-1-budget-update-ux.md).

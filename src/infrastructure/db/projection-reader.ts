@@ -24,7 +24,34 @@ export function checkProjectionBudget(rows: bigint, bytes: bigint, workRows: big
   // Existing chronological validators do bounded suffix/index scans. Admission caps their conservative quadratic work at 4M pairs.
   if (rows > BigInt(LIMITS.historyRows) || bytes > BigInt(LIMITS.storageBytes) || workRows * workRows > 4000000n || periodCount > BigInt(LIMITS.periods)) refuse('PROJECTION_LIMIT_EXCEEDED');
 }
-async function preflight(tx: Transaction, scope: AuthorizedScope, cut: bigint) {
+/** Private opt-in for closing only. This is reachability at K, never period <= H. */
+export function closingPeriodReferences(scope:AuthorizedScope,cut:bigint):SQL {
+  const at=(t:{ownerUserId:AnyPgColumn;accountId:AnyPgColumn;recordedSeq:AnyPgColumn})=>and(eq(t.ownerUserId,scope.ownerUserId),eq(t.accountId,scope.accountId),lte(t.recordedSeq,cut));
+  return sql`SELECT ${s.periodAllocations.periodId}::text AS id FROM ${s.periodAllocations}
+    JOIN ${s.allocationRevisions} ON ${s.allocationRevisions.id}=${s.periodAllocations.allocationRevisionId}
+    WHERE ${at(s.allocationRevisions)} AND ${s.periodAllocations.ownerUserId}=${scope.ownerUserId} AND ${s.periodAllocations.accountId}=${scope.accountId}
+    UNION SELECT ${s.obligations.originatingPeriodId}::text FROM ${s.obligations} WHERE ${at(s.obligations)}
+    UNION SELECT ${s.obligationEvents.fundingPeriodId}::text FROM ${s.obligationEvents} WHERE ${at(s.obligationEvents)}
+    UNION SELECT ${s.savingsGoals.originatingPeriodId}::text FROM ${s.savingsGoals} WHERE ${at(s.savingsGoals)}
+    UNION SELECT ${s.savingsEvents.fundingPeriodId}::text FROM ${s.savingsEvents} WHERE ${at(s.savingsEvents)}
+    UNION SELECT ${s.budgetTransfers.sourcePeriodId}::text FROM ${s.budgetTransfers} WHERE ${at(s.budgetTransfers)}
+    UNION SELECT ${s.budgetTransfers.targetPeriodId}::text FROM ${s.budgetTransfers} WHERE ${at(s.budgetTransfers)}
+    UNION SELECT ${s.transitionDecisions.manifest}->>'targetPeriodId' FROM ${s.transitionDecisions} WHERE ${at(s.transitionDecisions)}
+    UNION SELECT jsonb_array_elements_text(CASE WHEN jsonb_typeof(${s.transitionDecisions.manifest}->'sourcePeriodIds')='array' THEN ${s.transitionDecisions.manifest}->'sourcePeriodIds' ELSE '[null]'::jsonb END)
+      FROM ${s.transitionDecisions} WHERE ${at(s.transitionDecisions)}
+    UNION SELECT proof->>'sourcePeriodId' FROM ${s.transitionDecisions}
+      CROSS JOIN LATERAL jsonb_array_elements(CASE WHEN jsonb_typeof(${s.transitionDecisions.manifest}->'funding')='array' THEN ${s.transitionDecisions.manifest}->'funding' ELSE '[null]'::jsonb END) AS funding_ref(proof) WHERE ${at(s.transitionDecisions)}
+    UNION SELECT proof->>'targetPeriodId' FROM ${s.transitionDecisions}
+      CROSS JOIN LATERAL jsonb_array_elements(CASE WHEN jsonb_typeof(${s.transitionDecisions.manifest}->'funding')='array' THEN ${s.transitionDecisions.manifest}->'funding' ELSE '[null]'::jsonb END) AS funding_ref(proof) WHERE ${at(s.transitionDecisions)}
+    UNION SELECT ${s.transferProposals.targetPeriodId}::text FROM ${s.transferProposals} JOIN ${s.transitionDecisions} ON ${s.transitionDecisions.proposalId}=${s.transferProposals.id}
+      WHERE ${at(s.transitionDecisions)} AND ${s.transferProposals.ownerUserId}=${scope.ownerUserId} AND ${s.transferProposals.accountId}=${scope.accountId}
+    UNION SELECT ${s.transferProposals.sourcePeriodId}::text FROM ${s.transferProposals} JOIN ${s.transitionDecisions} ON ${s.transitionDecisions.proposalId}=${s.transferProposals.id}
+      WHERE ${at(s.transitionDecisions)} AND ${s.transferProposals.ownerUserId}=${scope.ownerUserId} AND ${s.transferProposals.accountId}=${scope.accountId} AND ${s.transferProposals.sourcePeriodId} IS NOT NULL`;
+}
+export function closingPeriodPredicate(scope:AuthorizedScope,cut:bigint):SQL {
+  return sql`${s.budgetPeriods.id}::text IN (${closingPeriodReferences(scope,cut)})`;
+}
+async function preflight(tx: Transaction, scope: AuthorizedScope, cut: bigint, historicalClosing:boolean) {
   type ScopedTable = PgTable & { ownerUserId: AnyPgColumn; accountId: AnyPgColumn };
   const where = (t: ScopedTable) => and(eq(t.ownerUserId, scope.ownerUserId), eq(t.accountId, scope.accountId));
   const tables = [s.balanceCheckpoints, s.allocationRevisions, s.historicalPositions, s.orderingRevisions,
@@ -42,7 +69,18 @@ async function preflight(tx: Transaction, scope: AuthorizedScope, cut: bigint) {
   }
   await count(s.periodAllocations, and(where(s.periodAllocations), sql`EXISTS (SELECT 1 FROM ${s.allocationRevisions}
     WHERE ${s.allocationRevisions.id}=${s.periodAllocations.allocationRevisionId} AND ${s.allocationRevisions.recordedSeq}<=${cut})`));
-  const periods = await count(s.budgetPeriods, where(s.budgetPeriods));
+  if(historicalClosing){
+    const foreignAllocation=await tx.execute(sql`SELECT 1 FROM ${s.periodAllocations}
+      JOIN ${s.allocationRevisions} ON ${s.allocationRevisions.id}=${s.periodAllocations.allocationRevisionId}
+      WHERE ${where(s.allocationRevisions)} AND ${s.allocationRevisions.recordedSeq}<=${cut}
+      AND (${s.periodAllocations.ownerUserId}<>${scope.ownerUserId} OR ${s.periodAllocations.accountId}<>${scope.accountId}) LIMIT 1`);
+    if(foreignAllocation.rows.length)refuse('HISTORICAL_FUNDING_CONFLICT');
+    const missing=await tx.execute(sql`SELECT 1 FROM (${closingPeriodReferences(scope,cut)}) required
+      LEFT JOIN ${s.budgetPeriods} ON ${s.budgetPeriods.id}::text=required.id AND ${where(s.budgetPeriods)}
+      WHERE ${s.budgetPeriods.id} IS NULL LIMIT 1`);
+    if(missing.rows.length)refuse('HISTORICAL_FUNDING_CONFLICT');
+  }
+  const periods = await count(s.budgetPeriods, and(where(s.budgetPeriods),historicalClosing?closingPeriodPredicate(scope,cut):undefined));
   checkProjectionBudget(rows, bytes, work, periods);
 }
 
@@ -75,8 +113,9 @@ export function createProjectionRepository(database: ReturnType<typeof createDat
 }
 
 /** Shared bounded coherent source loader, always on the caller's scoped transaction. */
-export async function readProjectionContext(tx:Transaction,scope:AuthorizedScope,account:typeof s.accounts.$inferSelect,asOfDate:import('@/shared/pure/calendar').BerlinDate,cut:bigint) {
-await preflight(tx, scope, cut);
+export async function readProjectionContext(tx:Transaction,scope:AuthorizedScope,account:typeof s.accounts.$inferSelect,asOfDate:import('@/shared/pure/calendar').BerlinDate,cut:bigint,mode?:Readonly<{kind:'HISTORICAL_CLOSING'}>) {
+const historicalClosing=mode?.kind==='HISTORICAL_CLOSING';
+await preflight(tx, scope, cut,historicalClosing);
 const where = (t: { ownerUserId: AnyPgColumn; accountId: AnyPgColumn; recordedSeq: AnyPgColumn }) =>
   and(eq(t.ownerUserId, scope.ownerUserId), eq(t.accountId, scope.accountId), lte(t.recordedSeq, cut));
 const history = await loadCheckpointHistory(tx, scope, cut);
@@ -106,7 +145,7 @@ try { for (const e of oh.events) {
 }
 const obligationIdentities = await tx.select().from(s.obligations).where(where(s.obligations));
 const savingIdentities = await tx.select().from(s.savingsGoals).where(where(s.savingsGoals));
-const periods = await tx.select().from(s.budgetPeriods).where(and(eq(s.budgetPeriods.ownerUserId, scope.ownerUserId), eq(s.budgetPeriods.accountId, scope.accountId)));
+const periods = await tx.select().from(s.budgetPeriods).where(and(eq(s.budgetPeriods.ownerUserId, scope.ownerUserId), eq(s.budgetPeriods.accountId, scope.accountId),historicalClosing?closingPeriodPredicate(scope,cut):undefined));
 const snapshot = assembleSnapshot({ scope, asOfDate, capturedSeq: account.recordedSeq, capturedAggregateRevision: account.aggregateRevision,
   activeAllocationRevisionId: account.activeAllocationRevisionId, obligationHistory: oh, savingHistory: sh, obligationIdentities, savingIdentities, periods });
   return { snapshot, history, obligationHistory:oh, savingHistory:sh, periods, audits };

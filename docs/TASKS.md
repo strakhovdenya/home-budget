@@ -1,14 +1,14 @@
 # Home Budget — Task Backlog (Codex-ready)
 
 **Source:** [PRD](PRD.md) → [business rules](BUSINESS_RULES.md) → [implementation plan](IMPLEMENTATION_PLAN.md) → these tasks.
-**Status:** HB-001..HB-004 Done, as confirmed by the owner in the HB-005 request. ADRs0001/0002/0003 Accepted; historical evidence retained. HB-005 Done: responsive MUI shell and RU/DE/EN preferences. Financial features remain unimplemented.
-**Conventions:** `HB-NNN` stable ID; `Ready` = can start after prerequisites, `Planned` = not yet ready, `Blocked` = needs decision, `In progress`, `Review`, `Done`.
+**Status overview (2026-11-05):** HB-001..HB-019 Done; HB-019.1/HB-020/HB-021 Planned. HB-019 Owner Acceptance and independent APPROVED are recorded below. Accepted ADR0001..0003 remain normative. Per-task evidence and accepted exceptions are retained below.
+**Conventions:** `HB-NNN` stable ID; owner-approved scoped follow-ups may use `HB-NNN.n` (for example HB-019.1); `Ready` = can start after prerequisites, `Planned` = not yet ready, `Blocked` = needs decision, `In progress`, `Review`, `Done`.
 **Work policy:** one task / coherent PR at a time. Codex must not silently mark tasks complete. GitHub Issues optional later; add each issue URL beside the stable ID rather than duplicating tasks.
 
 ### Priority legend
 P0 = indispensable for a correct first usable version; P1 = useful post-MVP; P2 = deferred functionality.
 
-MVP common baseline is P0 tasks through HB-021. Inclusion of P1 HB-020 is pending owner decision [Q-HB1-03](OPEN_QUESTIONS.md#hb-001-approval-register--unresolved-no-business-rule-changed); do not silently promote it or treat milestone placement as approval. M3/M4 remain later.
+MVP owner scope decision D45 (2026-11-04): P0 baseline includes new HB-019.1 and promoted HB-020 (recurring templates plus first-run owned-account onboarding) before HB-021. This is **planning approval**, not implementation or publication authorization. The HB-019 independent-review/Owner-Acceptance prerequisite was satisfied on 2026-11-05; M3/M4 remain later.
 
 ## M0 — Close domain gaps before implementation
 
@@ -182,21 +182,73 @@ is unchanged. Owner Acceptance completes documentation only and is not itself
 publication authorization; commit/push/PR/merge/deploy require separate permission.
 
 ### HB-019 · Manual month closing, versions and rollover
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-002, HB-013, HB-014, HB-017 · **Area:** finance/UI
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-002, HB-013, HB-014, HB-017 · **Area:** finance/UI
 **Deliverables:** auto-start next calendar period, await-manual-close state, immutable closing snapshot, correction versions.
 **Acceptance:** calendar opens automatically, cash transfer only after one-button confirmation; preserve full reserves/savings and existing target cash once. Support manual close with unknown actual end balance and real last observation/date, known historical allocations/earmarks, completeness flag and immutable versions; no PDF or final-day checkpoint required. Old history survives later transfer/payment; coordinate HB-002 contract.
 **Cases:** F-009/F-013.
+**Implementation:** [R1 and authorized scope correction](planning/hb-019-month-closing-versions-rollover.md), [verification, acceptance and retained limitations](planning/hb-019-verification.md).
+**Completion / Owner Acceptance (2026-11-05):** owner confirmed completion of manual testing and accepted HB-019. Owner-reported independent ChatGPT static review of `HB-019-pending-correction-20261105.zip`, SHA-256 `e5ff2dff103e376516833592cd69912ffc1e7ffbcc2a6e41207c27e941dc89b4`, is **APPROVED, Critical/High/Medium/Low 0/0/0/0**. Codex's executed gate belongs to the accepted implementation fingerprint `62dd581631f76cfeb84596bd2ea4b01722004761c0aed679e31241290277f060`: 960 UTC unit/component, 436 PG, DB17 PASS, 552 timezone; lint/typecheck/build/finance PASS. This document-only closure does not rerun or reattribute those tests.
+**Retained limits:** HB19-UX-01–07 corrected/accepted; HB19-UX-08 / Q07 remains **OPEN / NOT REPRODUCED**. Google/relogin authenticated E2E, physical AT, real200% zoom and browser checks not repeated on the accepted final fingerprint remain **NOT EXECUTED**. Prior Chrome9/9 is historical evidence only. No publication is authorized; later product decisions are outside this acceptance. HB-019.1/HB-020 remain Planned.
+**Historical owner browser QA (2026-11-04): Review / CHANGES REQUESTED.**
+[HB19-UX-01–08 findings and status chronology](planning/hb-019-browser-qa-findings-2026-11-04.md),
+with planned HB19-Q01–Q07 regressions. Owner observed partial close/correction;
+reload/relogin/PG durability and render diagnosis remain unverified. This is
+documentation approval only; corrections require separate implementation authorization.
 
-### HB-020 · Recurring payment templates (confirm, don't auto-create)
-**Status:** Planned · **Priority:** P1 · **Dependencies:** HB-011, HB-017 · **Area:** finance/UI
-**Deliverables:** configurable monthly templates and suggestions for future period/new income.
-**Acceptance:** accept/edit/skip; one obligation per accepted template+period; old debt and new month bill distinct.
-**Cases:** F-016.
+### HB-019.1 · Budget-update UX and month-transition clarity
+**Status:** Planned (documentation/independent plan review next) · **Priority:** P0 · **Dependencies:** HB-013, HB-017, HB-018, **HB-019 Owner Acceptance** · **Area:** product rules/UI/application
+**Scope:** refine the primary update UX per owner D40–D45. Same-month routine
+needs no transition choice absent unresolved old-period funding. A user-chosen
+"Начать месяц с актуального остатка" maps to FRESH_START with explicit actual
+check, full vector, old obligations/savings funding review and consent; secondary
+named CARRY (ACTUAL or REUSE) and DEFER remain separately selectable. Show
+meaningful before/after amounts, old debt origin vs funding and voluntary
+savings. No automatic savings, debit, month-end inference or silent mode change.
+**Dashboard scope addition (owner, 2026-11-04):** visually separate the latest
+confirmed card observation from the selected-month budget. CURRENT keeps the
+dated card balance primary; PAST makes selected-month A/R/S/F primary, with
+truthful active-vs-as-closed provenance; FUTURE makes already-funded planning
+A/R/S/F primary without expected income or future bank-cash claims. For PAST
+and FUTURE show latest card cash secondarily with its real date and an explicit
+"not the selected month's balance" explanation. Historical month-end cash is
+shown only from an actual final-day observation under the existing historical
+contract; otherwise "Остаток на конец месяца неизвестен". No inference from
+checkpoint differences, substitution of current B, or rewriting closed versions.
+RU/DE/EN, 320px/desktop/zoom, semantic reading order and keyboard access required.
+See plan section 1.1 and planned scenarios **HBUX-026–032**; no code or normative
+financial change is authorized by this addition.
+**Accepted restriction:** existing Q-HB17-01 **option A** stays. Same-identity
+funding transfer plus payment/other lifecycle edit in one batch refuses with
+SAME_IDENTITY_COMPOUND_NOT_SUPPORTED and no writes; guide two **individually
+confirmed** updates, transition first, lifecycle second. No hidden split writes.
+**Non-goals:** remove domain modes, multi-source CARRY, new financial formulas,
+new DB schema, redesign HB-019 closing, multi-account/second card, deployment.
+**Acceptance:** exhaustive reviewed decision mapping, D36 parity, preservation
+of history/H/K and identities, explicit consents, no background writes, clear
+RU/DE/EN copy and a11y/mobile; browser and isolated synthetic PG regressions,
+including unchanged-money and old-paid-same-identity refusal/2-step recovery.
+**Plan:** [HB-019.1 planning contract](planning/hb-019-1-budget-update-ux.md) ·
+[scenarios](../tests/scenarios/phase-01/hb-019-1-budget-update-ux.md).
+**QA follow-up scope:** [HB19.1-UX-01–05](planning/hb-019-browser-qa-findings-2026-11-04.md)
+records distinct Overview/Months, noncurrent cash attribution, historical preview
+versus current guidance and readable success/actions; HBUX-026–036 are planned
+proof alongside earlier cases. Broader HB-019.1 UX does not block HB-019 as a
+whole; closed-history presentation remains an HB-019 correction. Status Planned P0.
+**Authorization:** planning only; owner separately approves implementation,
+review/acceptance, and every commit/push/PR/merge/deploy step.
+
+### HB-020 · First-run budget onboarding and recurring payment templates
+**Status:** Planned · **Priority:** P0 (owner D45) · **Dependencies:** HB-007, HB-009, HB-010, HB-011, HB-017, HB-019.1 · **Area:** auth/finance/UI
+**Deliverables:** first-run "Create budget" screen after an admitted Google login with no owned budget account; user-entered budget name and explicit creation confirmation; resumable initial financial setup through existing checkpoint/full-allocation mechanisms. Retain configurable monthly templates and suggestions for future period/new income (suggestions never allocate expected income).
+**Acceptance — onboarding:** the authenticated owner can create their first named account without a dead-end NO_ACCOUNT; login alone never creates an account. Creation is authorized per operation, atomic and durably protected against retries and concurrent requests, including different request IDs; no second account or silent rename. No fabricated checkpoints, income, expenses or history. Initial actual balance and complete month allocation require separate explicit financial confirmation through HB-010/HB-017; an empty account remains unknown, not zero. Creation failure rolls back; interrupted financial setup preserves a valid empty account and resumes safely after retry/relogin. Existing users/accounts/history remain unchanged; the Google allowlist and single-account scope are not expanded.
+**Acceptance — recurring (retained):** accept/edit/skip; one obligation per accepted template+period; old debt and new month bill distinct. No automatic obligation acceptance or bank debit.
+**Cases:** F-016; [HB20-A01–A09, B01–B04, T01–T03](../tests/scenarios/phase-01/hb-020-first-run-and-recurring-templates.md). PostgreSQL, auth and browser first-run scenarios are required future proofs, not executed results.
+**Scope decision (owner D45, 2026-11-04):** HB-020 is now P0 and included in the MVP after HB-019.1. Q-HB1-03 is resolved. Prior first-run requirements, durable idempotency/concurrency rules and scenario coverage above are retained unchanged. No onboarding implementation in HB-019; HB-020 remains Planned. Detailed command/receipt, name-bound and persistence design must be reviewed before implementation; this scope update approves no schema or auth-policy change.
 
 ### HB-021 · Core browser E2E, a11y and responsive QA
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-016..HB-019 · **Area:** quality
-**Deliverables:** Playwright flows for mobile/desktop, multi-locale, auth boundaries, changing balance and closing a month.
-**Acceptance:** tests actually execute and pass; bug fixes reviewed; no data/privacy exposure.
+**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-016..HB-020 (including HB-019.1) · **Area:** quality
+**Deliverables:** Playwright flows for mobile/desktop, multi-locale, auth boundaries, first-run onboarding, recurring bills, actual checkpoints, FRESH_START/CARRY/DEFER UX, savings, same-identity two-step payment and closing.
+**Acceptance:** tests actually execute and pass against isolated synthetic DB; reviewed fixes, no data/privacy exposure and no unverified browser PASS.
 
 ## M3 — Reporting and historical onboarding
 

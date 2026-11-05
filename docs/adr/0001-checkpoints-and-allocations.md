@@ -8,6 +8,19 @@
 
 **References:** [Business rules](../BUSINESS_RULES.md), [decision log D21..D25](../DECISIONS.md), [HB1-001..HB1-020 scenarios](../../tests/scenarios/phase-01/hb-001-checkpoints-and-allocations.md).
 
+### Owner UX addendum — 2026-11-04 (D40–D45)
+
+The already accepted checkpoint/full-vector model is unchanged. "Обновить бюджет"
+remains the daily primary action; within a month it needs no transition choice
+unless old-period funding still needs explicit disposition. On a new-month visit,
+"Начать месяц с актуального остатка" is an **explicit user action** selecting
+FRESH_START and its full reviewed actual B/A/funding/non-carry consents; the app
+never chooses it on page open. Separately named CARRY and DEFER preserve their
+existing contracts. Source identity/funding month are not bank-money provenance;
+no inferred month-end cash or automatic savings. Existing same-identity
+funding-transfer-plus-lifecycle prohibition remains; two separate confirmed
+updates are the approved MVP path. See [D40–D45](../DECISIONS.md#hb-0191-budget-update-ux-and-hb-020-first-run-scope--2026-11-04)
+and [HB-019.1](../planning/hb-019-1-budget-update-ux.md).
 ## Context: the user confirms a state
 
 The complete ordinary workflow is: check card in banking app → enter actual balance/date → confirm how the WHOLE balance is distributed among financial months → save. Purchases, income, categories and explanations are optional. Lack of bank details never blocks this workflow.

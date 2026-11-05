@@ -27,6 +27,7 @@ export const sources = [
   ['hb-013-period-allocations.md','transition','HB13'],
   ['hb-014-daily-forecast.md','numeric','HB14'],
   ['hb-015-finance-tests-ci.md','heading','HB15'],
+  ['hb-019-month-closing-versions-rollover.md','heading','HB19'],
 ].map(([name,style,namespace]) => ({path:`tests/scenarios/phase-01/${name}`,style,namespace}));
 
 // Whole-file context is deliberately conservative: shared GIVENs, table legends,
@@ -39,6 +40,7 @@ export const normativeContexts = [
   'docs/planning/hb-008-money-dates.md','docs/planning/hb-009-audit-idempotency.md',
   'docs/planning/hb-010-bank-checkpoints.md','docs/planning/hb-011-obligations.md','docs/planning/hb-012-savings.md',
   'docs/planning/hb-013-period-allocations.md','docs/planning/hb-014-daily-forecast.md','docs/planning/hb-015-finance-tests-ci.md',
+  'docs/planning/hb-019-month-closing-versions-rollover.md',
 ];
 export function sourceContexts(contents, specs=sources, contextPaths=normativeContexts) {
   const paths=[...specs.map(s=>s.path),...contextPaths];
@@ -94,7 +96,7 @@ export function definitions(contents, specs = sources) {
       if (spec.style === 'transition' && line === '## Explicit exclusions') review = false;
       let expressions = [];
       if (spec.style === 'heading') {
-        const m = /^## ((?:F|HB1|HB2|HB3|HBA|HBL|HB9|HB15)-[A-Z]*\d+(?:[ab])?)\s/.exec(line);
+        const m = /^## ((?:F|HB1|HB2|HB3|HBA|HBL|HB9|HB15|HB19)-[A-Z]*\d+(?:[ab])?)\s/.exec(line);
         if (m) expressions = [m[1]];
       } else if (spec.style === 'bullet') {
         const m = /^- \*\*(HB10-[A-Z]+\d+)/.exec(line); if(m) expressions=[m[1]];
@@ -145,7 +147,19 @@ const futureParts = new Map([
 // These cases only consume an existing closing in GIVEN or do not close at all.
 // Their implemented history/transfer guarantees must not be hidden behind HB-019.
 for(const id of ['HB1-016','HB2-003','HB2-005']) futureParts.delete(id);
+// HB-019 implements these formerly deferred closing/rollover guarantees.
+// Unrelated PDF/statistics and unsupported HB-017 compounds remain deferred.
+for(const id of ['F-009','F-013','HB1-017','HB1-018','HB2-001','HB2-002','HB2-004','HB2-006','HB2-007','HB2-008','HB2-009','HB2-010','HB2-012','HB2-016','HB2-022','HB2-026','HB2-027','HB2-028','HB2-029','HB2-030','HB2-036','HB2-040','HB3-028'])futureParts.delete(id);
 export function deferredTasks(id) { return [pureFuture.get(id)??futureParts.get(id)??[]].flat(); }
+
+// These are B/V specifications, not executable financial proofs. Their status
+// remains visible in the gate result; no manual assertion can become a PASS.
+const externalVerification = new Map([
+  ...['E08','E09','E10','E11','E12','E13','E14'].map(id=>[`HB19-${id}`,'NOT_EXECUTED']),
+  ['HB19-Q07','NOT_EXECUTED'], // Unattributed browser error: no runtime substitute proves diagnosis.
+  ['HB19-F05','OUTSIDE_RUNTIME_GATE'],
+  ['HB19-F06','PENDING_INDEPENDENT_REVIEW'],['HB19-F07','HISTORICAL_PLANNING_ONLY'],
+]);
 
 // Independent minimum obligation structure for audited compound scenarios.
 // Human review still establishes semantics; runtime execution is not an oracle proof.
@@ -194,9 +208,9 @@ export function validateManifest(manifest, contents, specs = sources, contextPat
     check(def && plain(entry.source) && entry.source.path===def.path && entry.source.locator===def.locator && entry.source.definitionHash===def.definitionHash,'DEFINITION_MISMATCH');
     check(Array.isArray(entry.br) && entry.br.length>0 && entry.br.every(v=>/^BR-(?:0[1-9]|10|11)$/.test(v)),'MISSING_NORM');
     check(Array.isArray(entry.adr) && entry.adr.length>0 && entry.adr.every(v=>/^ADR000[123]$/.test(v)),'MISSING_NORM');
-    check(['required','partial','deferred'].includes(entry.disposition),'INVALID_DISPOSITION');
+    check(['required','partial','deferred','verification'].includes(entry.disposition),'INVALID_DISPOSITION');
     check(Array.isArray(entry.obligations) && entry.obligations.length>0 && entry.obligations.length<=20,'MISSING_OBLIGATION');
-    let required=0,deferred=0; const keys=new Set(),tasks=new Set();
+    let required=0,deferred=0,verification=0; const keys=new Set(),tasks=new Set();
     for(const obligation of entry.obligations) {
       check(plain(obligation) && /^[a-z][a-z0-9-]{0,60}$/.test(obligation.key) && !keys.has(obligation.key) && text(obligation.assertion),'INVALID_OBLIGATION'); keys.add(obligation.key);
       if(obligation.gate==='runtime') {
@@ -220,10 +234,14 @@ export function validateManifest(manifest, contents, specs = sources, contextPat
       } else if(obligation.gate==='deferred') {
         deferred++;
         check(deferredTasks(entry.id).includes(obligation.task) && !tasks.has(obligation.task) && text(obligation.reason) && !obligation.tests,'FALSE_DEFERRAL'); tasks.add(obligation.task);
+      } else if(obligation.gate==='verification') {
+        verification++;
+        check(externalVerification.get(entry.id)===obligation.status && text(obligation.reason) && !obligation.tests && !obligation.coverage
+          && obligation.ownerDecisionRequired===true && obligation.path==='docs/planning/hb-019-verification.md','INVALID_VERIFICATION_CONTRACT');
       } else fail('INVALID_OBLIGATION_GATE');
     }
-    check(entry.disposition===(required?(deferred?'partial':'required'):'deferred'),'DISPOSITION_MISMATCH');
-    check(pureFuture.has(entry.id) ? !required && deferred===1 : required>0,'IMPLEMENTED_OBLIGATION_REQUIRED');
+    check(entry.disposition===(verification?'verification':required?(deferred?'partial':'required'):'deferred'),'DISPOSITION_MISMATCH');
+    check(externalVerification.has(entry.id)?verification===1&&!required&&!deferred:pureFuture.has(entry.id) ? !required && deferred===1 : required>0,'IMPLEMENTED_OBLIGATION_REQUIRED');
     check(deferredTasks(entry.id).length===deferred,'FUTURE_OBLIGATION_REQUIRED');
     for(const key of compoundContracts.get(entry.id)??[])
       check(entry.obligations.some(o=>o.key===key && o.gate==='runtime'),'COMPOUND_OBLIGATION_REQUIRED');
@@ -231,9 +249,23 @@ export function validateManifest(manifest, contents, specs = sources, contextPat
       const obligation=entry.obligations.find(o=>o.key===key);
       for(const [path,name] of bindings) check(obligation.tests.some(ref=>manifest.tests[ref].path===path && manifest.tests[ref].name===name),'COMPOUND_EVIDENCE_REQUIRED');
     }
+    const closingProof=entry.id==='F-009'?'HB19-D07 Exact F-009 carry and historical close':entry.id==='F-013'?'HB19-C07 Exact F-013 reserve correction preserves bank and original report':null;
+    if(closingProof&&inventory.has('HB19-A01')){
+      const obligation=entry.obligations.find(o=>o.key==='manual-closing'&&o.gate==='runtime');
+      check(obligation?.tests.some(ref=>manifest.tests[ref].path==='tests/integration/month-closing.test.ts'&&manifest.tests[ref].name===closingProof),'PRODUCTION_CLOSING_PROOF_REQUIRED');
+    }
     if(entry.id==='HB9-027') check(entry.obligations.length===1 && entry.obligations[0].gate==='typecheck','INVALID_TYPECHECK_CONTRACT');
   }
   check([...inventory.keys()].every(id=>seen.has(id)),'INVENTORY_MISMATCH');
+  if(manifest.blockingVerification!==undefined){
+    check(Array.isArray(manifest.blockingVerification)&&manifest.blockingVerification.length<=1000,'INVALID_BLOCKING_VERIFICATION');
+    const blocked=new Set();
+    for(const item of manifest.blockingVerification){
+      check(plain(item)&&/^[a-z][a-z0-9-]{0,60}$/.test(item.key)&&!blocked.has(item.key)&&inventory.has(item.scenario)
+        &&['FAILED','NOT_EXECUTED'].includes(item.status)&&text(item.reason),'INVALID_BLOCKING_VERIFICATION');blocked.add(item.key);
+      if(item.test!==undefined)check(plain(item.test)&&repoPath(item.test.path).startsWith('tests/')&&/\.test\.tsx?$/.test(item.test.path)&&text(item.test.name),'INVALID_BLOCKING_VERIFICATION');
+    }
+  }
   const expectedContexts=sourceContexts(contents,specs,contextPaths);
   check(Array.isArray(manifest.contexts) && manifest.contexts.length===expectedContexts.length,'CONTEXT_SET_MISMATCH');
   const contextMap=new Map();
@@ -242,7 +274,9 @@ export function validateManifest(manifest, contents, specs = sources, contextPat
     contextMap.set(repoPath(context.path),context.sha256);
   }
   for(const context of expectedContexts) check(contextMap.get(context.path)===context.sha256,'NORMATIVE_CONTEXT_MISMATCH');
-  check(Array.isArray(manifest.timezoneFiles) && manifest.timezoneFiles.length===14 && new Set(manifest.timezoneFiles).size===14,'INVALID_TIMEZONE_SET');
+  const timezoneCount=inventory.has('HB19-A01')?16:14;
+  check(Array.isArray(manifest.timezoneFiles) && manifest.timezoneFiles.length===timezoneCount && new Set(manifest.timezoneFiles).size===timezoneCount,'INVALID_TIMEZONE_SET');
+  if(timezoneCount===16)for(const path of ['tests/closing.test.ts','tests/closing-boundary.test.ts'])check(manifest.timezoneFiles.includes(path),'INVALID_TIMEZONE_SET');
   for(const file of manifest.timezoneFiles) check(repoPath(file).startsWith('tests/') && !file.startsWith('tests/integration/') && file.endsWith('.test.ts'),'INVALID_TIMEZONE_SET');
   check(Array.isArray(manifest.support) && manifest.support.length>=3,'MISSING_SUPPORT');
   for(const support of manifest.support) {
@@ -286,6 +320,7 @@ export function reportIndex(report, suite, context) {
 }
 export function validateGate(manifest, contents, reports, context, specs = sources, contextPaths=normativeContexts) {
   validateManifest(manifest,contents,specs,contextPaths);
+  check(!(manifest.blockingVerification??[]).length,'BLOCKED_REQUIRED_VERIFICATION');
   check(plain(context) && text(context.root) && text(context.runId) && Number.isFinite(context.startedAt) && Number.isFinite(context.now),'INVALID_RUN');
   const indices=Object.fromEntries(['unit','integration','timezone'].map(suite=>[suite,reportIndex(reports[suite],suite,context)]));
   for(const ref of Object.values(manifest.tests)) check(indices[ref.suite].has(`${ref.path}\0${ref.name}`),'TEST_NOT_EXECUTED');
@@ -293,7 +328,7 @@ export function validateGate(manifest, contents, reports, context, specs = sourc
   const la=[...indices.timezone.keys()].sort();
   check(utc.length>0 && utc.length===la.length && utc.every((key,i)=>key===la[i]),'TIMEZONE_IDENTITY_MISMATCH');
   for(const file of manifest.timezoneFiles) check(utc.some(key=>key.startsWith(`${file}\0`)),'MISSING_TIMEZONE_FILE');
-  return {scenarios:manifest.scenarios.length,dispositions:Object.fromEntries(['required','partial','deferred'].map(d=>[d,manifest.scenarios.filter(e=>e.disposition===d).length])),obligations:manifest.scenarios.reduce((n,e)=>n+e.obligations.length,0),references:Object.keys(manifest.tests).length,unit:indices.unit.size,integration:indices.integration.size,timezone:la.length};
+  return {scenarios:manifest.scenarios.length,dispositions:Object.fromEntries(['required','partial','deferred','verification'].map(d=>[d,manifest.scenarios.filter(e=>e.disposition===d).length])),pendingVerifications:manifest.scenarios.filter(e=>e.disposition==='verification').map(e=>({id:e.id,status:e.obligations[0].status})),obligations:manifest.scenarios.reduce((n,e)=>n+e.obligations.length,0),references:Object.keys(manifest.tests).length,unit:indices.unit.size,integration:indices.integration.size,timezone:la.length};
 }
 
 export function validateReceipt(context, receipt, digest) {

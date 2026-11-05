@@ -8,6 +8,20 @@
 
 References: [Accepted ADR 0001](0001-checkpoints-and-allocations.md), [business rules](../BUSINESS_RULES.md), [logical model](../DATA_MODEL.md), [HB2 scenarios](../../tests/scenarios/phase-01/hb-002-month-closing-and-corrections.md), [owner questions](../OPEN_QUESTIONS.md#hb-002-review-questions).
 
+### Owner UX addendum — 2026-11-04 (D40–D45)
+
+The transition **presentation** is refined, not the H/K snapshot or closing
+contract. The named "Начать месяц с актуального остатка" action explicitly
+selects FRESH_START after the user enters real current bank data and reviews the
+complete vector/funding and required consent; there is no automatic default on
+calendar opening. CARRY (with real check or supported reuse) and DEFER remain
+separate secondary explicit actions. Past allocation history survives a fresh
+start, while the actual end balance of a month without an end-date bank check
+remains UNKNOWN regardless of later allocations or rollover. The user first
+confirms a funding transfer, then uses a distinct later confirmed update to
+pay/edit any **same** obligation/saving identity (Q-HB17-01 option A); do not
+weaken ordering rules. [D40–D45](../DECISIONS.md#hb-0191-budget-update-ux-and-hb-020-first-run-scope--2026-11-04),
+[HB-019.1](../planning/hb-019-1-budget-update-ux.md).
 ## Context and scope
 
 Irregular bank checks leave genuine gaps. A report must preserve both the historical facts and what was known when it was closed. A December transfer changes the active allocation, not November history. This ADR refines ADR 0001 without replacing complete checkpoint-first allocations, optional operations, full earmarks or one-button transfer consent.

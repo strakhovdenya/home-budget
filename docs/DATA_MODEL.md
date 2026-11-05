@@ -169,3 +169,24 @@ unchanged until future HB-013. [Contract](planning/hb-012-savings.md).
 No schema/migration change. One aggregate update uses existing budget_updates, historical_positions, ordering_revisions, optional balance_checkpoints, allocation_revisions/period_allocations and full obligation/savings events. Transition control proposals precede confirmation; transition_decisions, optional budget_transfers and FUNDING_TRANSFER evidence belong to the same confirmed batch as disjoint lifecycle edits. SQL historical ordering and same-identity restrictions remain intact.
 
 A mandatory versioned BUDGET_UPDATE_REVIEW audit document copies the normalized complete command, financial before/after review, original-to-final report impact and checkpoint/vector/proposal mapping. Payment/release/increase/funding evidence retains existing independent audit contracts. Receipt/history replay validates original source evidence at original H/K and date before disclosure; it never joins newer live titles into the copied result. Existing report versions and prior audit facts stay immutable. Memory-only drafts/unknown-outcome requestIds are not new persisted entities. [Verification](planning/hb-017-verification.md).
+
+## HB-019 use of existing immutable reports
+
+No schema or migration is added. month_closings stores copied historical scalar
+facts, snapshot_json, source_manifest, ordering_revision_refs and typed change
+refs at original H/K and selection/schema version1. A real end is present only
+with a real observation on the Berlin last day; no observation and actual zero
+remain distinct. operation_detail_status is independently NOT_PROVIDED.
+
+One MONTH_CLOSE batch appends the version and moves/creates its report_heads row,
+plus exactly REPORT_VERSION and REPORT_HEAD audit documents, original normalized
+command and existing durable receipt/counters. An absent period may materialize
+only in this explicit transaction. Current bank/vector/lifecycle/funding rows do
+not change. Existing historical writers alone mark affected heads pending.
+
+The checksum binds exact reviewed content and scope, not authentication. The
+server stamps cutoff_at at confirmation with the prior recorded sequence as K.
+Reads and recovery prove the original immutable command/receipt/audit/report;
+ancestor validation is bounded metadata work, not a replay of every old graph.
+The source manifest keeps top-level obligationRevisionIds/savingsRevisionIds for
+existing report-impact compatibility. [Verification](planning/hb-019-verification.md).

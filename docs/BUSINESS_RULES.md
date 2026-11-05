@@ -65,6 +65,45 @@ Keep budget deficit=max(0,-F[current]),obligation shortage=max(0,sum(R)-B),earma
 - B works after several missed months in one update without serial carries,observations or closes. Example Nov20 2026 B10000,A={Nov:4000,Dec:6000};no December check;Jan5 2027 actual B8000,A={Nov:0,Dec:0,Jan:8000}. Store mode,not-carried period IDs/prior amounts,before/after revisions and consent. Historical Dec allocation6000 remains known effectiveNov20;Dec31 actual bank balance remains unknown.
 - Fresh start never pays/cancels/amends an obligation or releases savings implicitly. Preserve each active unpaid identity and full outstanding reserve and each saving's identity/amount; explicitly review funding of affected old-period earmarks in the current month, count them once. If R+S>B,retain full earmarks and show deficit. Amount/status/release changes require separate explicit normal events. Missing identities, invalid sums, stale dependencies and unauthorized writes remain blockers; historical negative free or number of missed months alone do not block B. Current/future edits are part of the full reviewed vector, never an automatic sweep of unrelated future money.
 
+### D40–D45: owner-approved user workflow clarification (2026-11-04)
+
+The financial rules above remain unchanged; the ordinary UX must map the user's
+**explicit confirmed action** to a supported existing transition intent.
+
+- Same-month routine: actual bank check + full valid A + optional supported
+  lifecycle changes in one atomic update; do not demand a month-transition mode
+  solely because an observation is fresh. Unresolved earlier-month cash/funding
+  still requires an explicit reviewed transition or deferral.
+- On a new-month visit, the primary *user-chosen* "Начать месяц с актуального
+  остатка" action invokes FRESH_START with a real observed balance, full reviewed
+  vector, old-period A cleared, historical revisions untouched and reviewed move
+  of each active old funding identity to the current period. No mode preselection
+  on mere page access, no automatic financial mutation or presumed receipts.
+- Secondary explicit "Перенести прежнее распределение" invokes existing CARRY;
+  it may use an actual check or the last confirmed unchanged check, depending on
+  reviewed observation mode. CARRY carries one supported completed source fully,
+  including funding identities; simultaneous multi-source CARRY is still gated.
+  Secondary "Оставить распределение без переноса" invokes DEFER, leaving old
+  funding in place and requiring an exactly balanced final A if the bank changed.
+- An obligation's origin/due month differs from its **current funding period**:
+  unpaid November debt may be paid in December and reserved there in full after
+  approved funding transfer. Existing savings persist; new savings are voluntary.
+  No assumed November leftover, no automatic saving creation, no double debit,
+  no month-end bank value inferred from a December check or allocation decision.
+- **Approved MVP sequencing limitation:** if a transition transfers an identity's
+  funding, a lifecycle edit/payment/release of **that same identity** cannot be
+  co-confirmed in one update. Reject with SAME_IDENTITY_COMPOUND_NOT_SUPPORTED
+  without writes; preserve draft and explain the next step. First explicitly
+  confirm the transition, then separately confirm a later budget/lifecycle
+  update with any required actual check and payment affirmation. Never silently
+  chain or fabricate historical positions. Different identities retain the
+  existing atomic-composition allowance.
+- A normal UI may display "December available", "reserve for November bill"
+  and "laptop savings" as parts of the **same** confirmed B. Underlying storage
+  remains A (all physical cash), R and S (protections), F=A-R-S; don't sum
+  R/S as extra cash or create a second current month cash bucket.
+
+See [D40–D45](DECISIONS.md#hb-0191-budget-update-ux-and-hb-020-first-run-scope--2026-11-04).
 ## BR-06: Status and due date
 - Keep unpaid/paid/cancelled status, creation period, current funding period, optional due/bank dates, confirmation date and history.
 - Confirmation date is not a guessed bank debit date; optional later PDF evidence may refine the latter.
