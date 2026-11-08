@@ -1,0 +1,11 @@
+
+ RUN  v5.0.5 D:/projects_js/home-budget
+
+
+ Test Files  2 passed | 9 skipped (11)
+      Tests  2 passed | 441 skipped (443)
+   Start at  22:57:52
+   Duration  11.10s (import 77%, tests 19%, transform 3%, worker 1%)
+
+    Isolate  11 workers spawned · ~167ms startup each (spawn + environment, per file)
+             at least ~1.67s faster with isolate: false — reuses workers across files instead of one per file

@@ -1,0 +1,349 @@
+[
+  {
+    "label": "typegen-final",
+    "command": [
+      "node",
+      "node_modules/next/dist/bin/next",
+      "typegen"
+    ],
+    "cwd": "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108/build",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:46:07.993Z",
+    "exit": 0
+  },
+  {
+    "label": "typecheck-final",
+    "command": [
+      "node",
+      "node_modules/typescript/bin/tsc",
+      "--noEmit",
+      "--incremental",
+      "false"
+    ],
+    "cwd": "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108/build",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:46:08.737Z",
+    "exit": 0
+  },
+  {
+    "label": "init-final",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "init",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108\\finance-final"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:46:27.318Z",
+    "exit": 0
+  },
+  {
+    "label": "lint-final",
+    "command": [
+      "node",
+      "node_modules/eslint/bin/eslint.js",
+      ".",
+      "--max-warnings=0"
+    ],
+    "cwd": "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108/build",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:46:21.266Z",
+    "exit": 0
+  },
+  {
+    "label": "build-final",
+    "command": [
+      "node",
+      "node_modules/next/dist/bin/next",
+      "build"
+    ],
+    "cwd": "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108/build",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:46:30.143Z",
+    "exit": 0
+  },
+  {
+    "label": "unit-final",
+    "command": [
+      "node",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=D:\\projects_js\\home-budget\\tmp\\hb0191-20261108\\finance-final/unit.json"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:46:27.689Z",
+    "exit": 1
+  },
+  {
+    "label": "typegen-final",
+    "command": [
+      "node",
+      "node_modules/next/dist/bin/next",
+      "typegen"
+    ],
+    "cwd": "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108/build",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:48:37.130Z",
+    "exit": 0
+  },
+  {
+    "label": "typecheck-final",
+    "command": [
+      "node",
+      "node_modules/typescript/bin/tsc",
+      "--noEmit",
+      "--incremental",
+      "false"
+    ],
+    "cwd": "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108/build",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:48:37.959Z",
+    "exit": 0
+  },
+  {
+    "label": "lint-final",
+    "command": [
+      "node",
+      "node_modules/eslint/bin/eslint.js",
+      ".",
+      "--max-warnings=0"
+    ],
+    "cwd": "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108/build",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:48:50.303Z",
+    "exit": 0
+  },
+  {
+    "label": "init-final",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "init",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108\\finance-final-r2"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:49:19.895Z",
+    "exit": 0
+  },
+  {
+    "label": "unit-final",
+    "command": [
+      "node",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "--maxWorkers=2",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=D:\\projects_js\\home-budget\\tmp\\hb0191-20261108\\finance-final-r2/unit.json"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:49:20.231Z",
+    "exit": 0
+  },
+  {
+    "label": "record-unit",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "record",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108\\finance-final-r2",
+      "unit"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:50:21.030Z",
+    "exit": 0
+  },
+  {
+    "label": "pg-final",
+    "command": [
+      "node",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "--config",
+      "vitest.integration.config.ts",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=D:\\projects_js\\home-budget\\tmp\\hb0191-20261108\\finance-final-r2/integration.json"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:50:21.431Z",
+    "exit": 1
+  },
+  {
+    "label": "typegen-final",
+    "command": [
+      "node",
+      "node_modules/next/dist/bin/next",
+      "typegen"
+    ],
+    "cwd": "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108/build",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:57:04.429Z",
+    "exit": 0
+  },
+  {
+    "label": "typecheck-final",
+    "command": [
+      "node",
+      "node_modules/typescript/bin/tsc",
+      "--noEmit",
+      "--incremental",
+      "false"
+    ],
+    "cwd": "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108/build",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:57:05.183Z",
+    "exit": 0
+  },
+  {
+    "label": "lint-final",
+    "command": [
+      "node",
+      "node_modules/eslint/bin/eslint.js",
+      ".",
+      "--max-warnings=0"
+    ],
+    "cwd": "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108/build",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:57:17.739Z",
+    "exit": 0
+  },
+  {
+    "label": "init-final",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "init",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108\\finance-final-r3"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:57:58.451Z",
+    "exit": 0
+  },
+  {
+    "label": "unit-final",
+    "command": [
+      "node",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "--maxWorkers=2",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=D:\\projects_js\\home-budget\\tmp\\hb0191-20261108\\finance-final-r3/unit.json"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:57:58.783Z",
+    "exit": 0
+  },
+  {
+    "label": "record-unit",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "record",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108\\finance-final-r3",
+      "unit"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:58:59.552Z",
+    "exit": 0
+  },
+  {
+    "label": "pg-final",
+    "command": [
+      "node",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "--config",
+      "vitest.integration.config.ts",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=D:\\projects_js\\home-budget\\tmp\\hb0191-20261108\\finance-final-r3/integration.json"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T21:58:59.892Z",
+    "exit": 0
+  },
+  {
+    "label": "record-pg",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "record",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108\\finance-final-r3",
+      "integration"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:04:30.764Z",
+    "exit": 0
+  },
+  {
+    "label": "timezone-final",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "timezone",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108\\finance-final-r3"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:04:31.090Z",
+    "exit": 0
+  },
+  {
+    "label": "record-timezone",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "record",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108\\finance-final-r3",
+      "timezone"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "America/Los_Angeles",
+    "start": "2026-11-08T22:04:37.766Z",
+    "exit": 0
+  },
+  {
+    "label": "db17-final",
+    "command": [
+      "node",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "--config",
+      "vitest.integration.config.ts",
+      "-t",
+      "DB17"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:04:38.106Z",
+    "exit": 0
+  },
+  {
+    "label": "finance-gate-final",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "check",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-20261108\\finance-final-r3"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:04:49.579Z",
+    "exit": 0
+  }
+]

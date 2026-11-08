@@ -401,14 +401,26 @@
       "FUNDING_TRANSFER": "Transfer funding"
     },
     "errors": {
-      "compound": "The same item cannot be changed and have its funding transferred in one update. Your draft is retained; nothing is partially saved.",
+      "compound": "The same item cannot be changed and have its funding transferred in one update. Your draft is retained; nothing is partially saved. First confirm the month transition without editing that item. Then make a separate, explicitly confirmed payment or savings change. Your draft is retained in memory; no automatic second save occurs.",
       "payment": "Check the payment amount, actual balance and required confirmations. Payment outside the card requires a confirmed unchanged balance and an explanation.",
       "policy": "Carrying several past source months together is not supported yet. Only you can choose another action.",
       "access": "Access could not be verified. Sign in again and check the outcome before saving again.",
       "conflict": "Confirmed data, ordering or the month has changed. Your input is retained: load the current base and review again.",
       "storage": "The operation could not be completed. Your input is retained; retry the original request or read the outcome.",
       "input": "Check amounts, dates, actions and confirmations. Monthly amounts must be nonnegative and sum exactly to the card balance."
-    }
+    },
+    "proposedState": "Proposed financial state",
+    "currentGuidance": "Current-month guidance",
+    "historicalSeparate": "This current estimate is separate from the historical check above.",
+    "stateUnavailable": "No confirmed balance at this historical basis",
+    "originPeriod": "Origin month",
+    "reportImpact": "Historical reports are affected. Their saved versions remain unchanged until a separate correction is reviewed and confirmed.",
+    "technicalReference": "Technical reference",
+    "chooseTransition": "Earlier-month money or funding needs your explicit decision. Review the complete distribution and all retained obligations and savings.",
+    "startFresh": "Start month with actual balance",
+    "sameMonthRoutine": "Ordinary balance update. No month transition is required unless earlier funding remains unresolved.",
+    "otherActions": "Other explicitly confirmed actions",
+    "transitionEntry": "Update budget or start month"
   },
   "auth": {
     "title": "Welcome home",
@@ -543,7 +555,11 @@
       "PROJECTION_LIMIT_EXCEEDED": "There is too much data to calculate the projection",
       "CALCULATION_ERROR": "Could not calculate the budget",
       "INVALID_PERIOD": "Invalid budget month"
-    }
+    },
+    "monthEndUnknown": "Month-end card balance unknown",
+    "monthEndObserved": "Card balance confirmed on the final day ({date}): {amount}",
+    "bankFinalDayBasis": "Actual check on the selected month's final day. This observation is not a versioned closing report.",
+    "futureCashUnknown": "Future card balance is unknown; this plan uses already confirmed money."
   },
   "periodNavigation": {
     "label": "Select a budget month",

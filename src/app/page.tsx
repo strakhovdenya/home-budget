@@ -7,5 +7,6 @@ export default async function HomePage({ searchParams }: { searchParams?: Promis
   await requirePageOwner();
   const view = await loadDashboard(await searchParams ?? {});
   if (view.kind === 'UNAUTHORIZED') redirect('/login');
+  if('period'in view&&view.period<view.asOfDate.slice(0,7))redirect('/months?period='+view.period);
   return <DashboardScreen view={view} />;
 }

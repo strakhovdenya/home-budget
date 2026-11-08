@@ -1,4 +1,4 @@
-import { parsePeriod, shiftPeriod, type Period } from '@/domain/periods/period';
+import { endOfMonth, parsePeriod, shiftPeriod, type Period } from '@/domain/periods/period';
 import { parseBerlinDate } from '@/shared/pure/calendar';
 import type { AccountProjection, PeriodProjection, PeriodBudget, Liquidity, Freshness } from '@/domain/forecast/contracts';
 import type { Wire } from '@/domain/forecast/serialization';
@@ -6,6 +6,15 @@ import type { Wire } from '@/domain/forecast/serialization';
 export type DashboardFailure = 'UNAUTHORIZED' | 'FORBIDDEN' | 'NO_ACCOUNT' | 'ACCOUNT_SELECTION_REQUIRED'
   | 'STORAGE_ERROR' | 'PROJECTION_LIMIT_EXCEEDED' | 'CALCULATION_ERROR' | 'INVALID_PERIOD';
 type BankView = Readonly<{ balance: string; observedDate: string }>;
+
+/** The reader has already selected the authoritative checkpoint at H/K.
+ * Only that actual final-day observation is sufficient here; never reconstruct
+ * an older checkpoint from today's allocation or a later bank observation. */
+export function confirmedMonthEndBank(view: DashboardView): BankView | null {
+  if (view.kind !== 'READY' || view.mode !== 'PAST') return null;
+  const period = parsePeriod(view.period);
+  return period.ok && view.bank.observedDate === endOfMonth(period.value) ? view.bank : null;
+}
 type BudgetView = Pick<Wire<PeriodBudget>, 'allocated' | 'reserved' | 'savings' | 'free' | 'deficit' | 'ordinary'> & Readonly<{ period: string }>;
 type SafeView = Pick<Wire<Liquidity>, 'safeAvailable' | 'safeDailyLimit' | 'days' | 'coverageGroups' | 'comparisonsAreNonAdditive' | 'budgetExplanation'>;
 export type DashboardView = Readonly<{ kind: DashboardFailure }>

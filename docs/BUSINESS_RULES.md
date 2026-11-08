@@ -2,6 +2,15 @@
 
 Owner correction D32..D35 (2026-11-01) fixes actual-money allocations:A>=0,sum(A)=B>=0;free may be negative from full obligations/savings. [ADR0001](adr/0001-checkpoints-and-allocations.md) and [ADR0002](adr/0002-month-closing-and-corrections.md) are re-Accepted after owner-reported repeated independent review and resolution of all four findings. Original acceptance history is retained. HB-003/Q-HB1-01 is resolved by Accepted ADR0003/D36..D39;multi-source CARRY remains open;no runtime implementation is implied.
 
+## Product principle and saved history — owner 2026-11-08
+
+Home Budget shows available money from the last confirmed financial state with
+its real bank-check date and lets the user reconstruct saved financial states.
+Unknown movements and balances remain unknown. Complete user-accessible current
+and past history is MVP scope, not inferred daily cash or a complete operation
+ledger. [D46–D49](DECISIONS.md#saved-financial-history-and-evidence-scope--2026-11-08) changes delivery/viewing scope, not D36 or
+Accepted ADR0001–0003 selection mathematics.
+
 ## Vocabulary
 - **Bank balance / checkpoint:** actual user-confirmed card balance on an observation date; recorded time is separate.
 - **Budget period:** named financial month YYYY-MM owning part of the confirmed card balance, independent of bank activity date.
@@ -54,7 +63,7 @@ Keep budget deficit=max(0,-F[current]),obligation shortage=max(0,sum(R)-B),earma
 - User confirms the whole new distribution, not the interval delta. A=80000 Nov becoming B=77000 with Nov=75000/Dec=2000 is valid without operations; -5000/+2000 month changes are not inferred expense/income.
 - Statistics must distinguish allocation-state changes from confirmed bank activity. Without operation evidence, never display a month's allocation delta as actual spending or confirmed income; show known operation totals with incomplete-detail provenance, not an invented total or a claim of zero spending.
 - Past/current/future periods may hold allocations. Optional operation financing may be split across months, but cannot be added again to an already confirmed state.
-- New calendar month opens automatically. On next open, PROPOSE transfer from completed month; one-button user confirmation (option A) is required before funds move or become part of new-month free. No automatic cash carryover.
+- New calendar month opens automatically. Per D41–D42, present explicit FRESH_START as the primary user route, with working secondary CARRY/DEFER. Nothing is preselected or executed on access. CARRY moves completed-month cash only after explicit reviewed confirmation; no automatic cash carryover.
 - Transfer is internal: total bank/allocation cash unchanged; existing new-month allocations count once; old active allocation becomes zero for the confirmed full transfer. Retain historical origin and before/after revisions.
 - Unpaid obligations persist with identity and full reserve, and voluntary savings persist; funding associations follow the confirmed transfer without duplication or release. Their continued existence is not conditional on a new obligation being created.
 - No final-day observation is required. With a changed balance, confirm the new full distribution and transfer together without inventing how net spending divides across months.
@@ -108,7 +117,7 @@ See [D40–D45](DECISIONS.md#hb-0191-budget-update-ux-and-hb-020-first-run-scope
 - Keep unpaid/paid/cancelled status, creation period, current funding period, optional due/bank dates, confirmation date and history.
 - Confirmation date is not a guessed bank debit date; optional later PDF evidence may refine the latter.
 - Amend outstanding with immutable history and full reserve adjustment, no bank movement. Cancellation releases reserve without payment; funding-period treatment in unusual cases must be explicit, not inferred from net cash.
-- Recurring templates only propose accept/edit/skip; prevent duplicate accepted template+period items. MVP membership is still Q-HB1-03, not decided by these semantics.
+- Recurring templates only propose accept/edit/skip; prevent duplicate accepted template+period items. D45 resolved Q-HB1-03: HB-020 is P0 in MVP; accept/edit/skip semantics are unchanged.
 
 ## BR-07: Savings
 - Savings are retained voluntary amounts deducted once from allocated cash to derive F;they are not additional cash/debits or a guarantee of funding. R+S can exceed A/B;preserve full S until an explicit savings decision.
@@ -121,6 +130,19 @@ See [D40–D45](DECISIONS.md#hb-0191-budget-update-ux-and-hb-020-first-run-scope
 - Snapshot retains last available historical checkpoint and its actual date, known historical allocation revision/effective date, historical obligation/savings states, completeness/uncertainty flags, recorded evidence cutoff and closure version. Do not relabel later observations as earlier ones or infer complete cash activity.
 - December transfer clears old active cash allocation but does not erase November's report/allocation history. Distinguish as-closed view from later lifecycle.
 - Later backdated observations, corrections or statement detail may create reviewed new report versions. Original versions remain accessible. HB-002 owns full ordering, cutoff and correction contract.
+
+### Saved history perspectives (D46–D48)
+
+All saved checks and financial states in current/past months must be reachable
+through HB-019.2, including retained original revisions. The three labelled bases
+are state(H,K) as known then, the same H with later corrections at a declared
+later K, and an immutable selected close version with its pinned H/K. Resolve
+corrections before historical selection per ADR0002; no new ordering algorithm.
+Keep actual observation/effective/recorded dates, full vectors and historical
+funding/lifecycle states. Navigation is read-only; no inferred spend/income,
+missing-date interpolation, latest-B substitution, live past forecast or automatic
+report v2. UNKNOWN and an actual observed zero remain different. Report versions
+and intra-month history are both required and never substitutes for each other.
 
 ## BR-09: Optional PDF reconciliation (later)
 - Everyday budget confirmation never depends on transaction completeness or K/U. Bank date, statement month, upload date and financing month are distinct.

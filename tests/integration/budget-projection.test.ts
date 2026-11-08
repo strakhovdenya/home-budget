@@ -10,7 +10,7 @@ import { writeBankCheckpoint } from '@/infrastructure/db/checkpoint-writer';
 import { writeObligations } from '@/infrastructure/db/obligation-writer';
 import { writeSavings } from '@/infrastructure/db/savings-writer';
 import { createProjectionRepository } from '@/infrastructure/db/projection-reader';
-import { projectAccount } from '@/domain/forecast/budget';
+import { projectAccount, projectPeriod } from '@/domain/forecast/budget';
 import { encodeProjection } from '@/domain/forecast/serialization';
 import { prepareCommand } from '@/domain/updates/validation';
 import type { AuthorizedScope } from '@/domain/updates/contracts';
@@ -25,6 +25,7 @@ import { identityRepository } from '@/infrastructure/auth/repository';
 import { createDashboardAccountResolver } from '@/app/dashboard-account-boundary';
 import { createDashboardLoader } from '@/app/dashboard-loader';
 import { createProjectionReader } from '@/features/budget-projection/read-account';
+import { confirmedMonthEndBank, dashboardPresentation } from '@/features/dashboard/presentation';
 vi.mock('@/infrastructure/auth/auth', () => ({ requireOwner: vi.fn(), requireOwnedAccount: vi.fn() }));
 
 function dashboard(f: AuthorizedScope) {
@@ -88,6 +89,42 @@ async function read(f: AuthorizedScope) {
   const projected = value(projectAccount(r.value.snapshot, r.value.asOfDate));
   value(encodeProjection(projected)); return projected;
 }
+it.each(['50000','0'])('HBUX-028 PG unclosed final-day %s is known, later check is not attributed backwards',async amount=>{
+  const f=await fixture();await bank(f,amount,[{period:calendar.past,amountCents:amount}],calendar.pastEnd);
+  const before=await baseline(f),load=dashboard(f),view=await load({period:calendar.past});
+  expect(confirmedMonthEndBank(view)).toEqual({balance:amount,observedDate:calendar.pastEnd});
+  expect(await baseline(f)).toEqual(before);
+  expect(before.rows.at(-2)).toEqual([]); // No closing report exists.
+  const oldCut=(await account(f)).recordedSeq;
+  await bank(f,'60000',[{period:calendar.target,amountCents:'60000'}],calendar.today);
+  const after=await baseline(f),later=await load({period:calendar.past});
+  expect(later.kind==='READY'&&later.bank).toEqual({balance:'60000',observedDate:calendar.today});
+  expect(confirmedMonthEndBank(later)).toBeNull();
+  const pinned=value(await createProjectionRepository(db).readAt(f,{through:calendar.pastEnd,knowledgeCut:oldCut}));
+  expect(pinned.snapshot.kind==='ACTIVE_COMPLETE'&&pinned.snapshot.checkpoint).toMatchObject({balance:BigInt(amount),observedDate:calendar.pastEnd});
+  expect(await baseline(f)).toEqual(after);
+});
+it('HBUX-028 PG earlier observation never becomes an unclosed month-end balance',async()=>{
+  const f=await fixture();await bank(f,'50000',[{period:calendar.past,amountCents:'50000'}],calendar.pastDay(20));
+  const before=await baseline(f),view=await dashboard(f)({period:calendar.past});
+  expect(view.kind==='READY'&&view.bank).toEqual({balance:'50000',observedDate:calendar.pastDay(20)});
+  expect(confirmedMonthEndBank(view)).toBeNull();expect(await baseline(f)).toEqual(before);
+});
+it('HBUX-028 PG final-day late correction respects K and preserves the original observation',async()=>{
+  const f=await fixture();await bank(f,'50000',[{period:calendar.past,amountCents:'50000'}],calendar.pastEnd);
+  const repo=createProjectionRepository(db),original=await account(f),old=value(await repo.readAt(f,{through:calendar.pastEnd,knowledgeCut:original.recordedSeq}));
+  if(old.snapshot.kind!=='ACTIVE_COMPLETE')throw Error('complete');
+  await batch(f,{observedDate:calendar.pastEnd,observedAt:null,balanceCents:'0',allocations:[],
+    correction:{checkpointId:old.snapshot.checkpoint.revisionId,allocationRevisionId:old.snapshot.allocationRevisionId,reposition:false},placement:null},calendar.pastEnd,writeBankCheckpoint);
+  const before=await baseline(f);
+  expect(confirmedMonthEndBank(await dashboard(f)({period:calendar.past}))).toEqual({balance:'0',observedDate:calendar.pastEnd});
+  const pinned=value(await repo.readAt(f,{through:calendar.pastEnd,knowledgeCut:original.recordedSeq}));
+  expect(pinned).toEqual({...old,snapshot:{...old.snapshot,provenance:{...old.snapshot.provenance,capturedAggregateRevision:(await account(f)).aggregateRevision}}});
+  const pinnedView=dashboardPresentation(value(encodeProjection(value(projectPeriod(pinned.snapshot,pinned.asOfDate,calendar.past)))));
+  // At H=month end this is CURRENT, not an inferred past end balance.
+  expect(pinnedView.kind==='READY'&&pinnedView.bank.balance).toBe('50000');
+  expect(await baseline(f)).toEqual(before);
+});
 it('HB14-018/044 PG persisted owner oracle, coherent provenance and repeated read has no writes', async () => {
   const f = await fixture(); await bank(f); await obligation(f);
   const r = await read(f); expect(r.kind).toBe('ACCOUNT_ESTIMATE');

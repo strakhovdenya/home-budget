@@ -1,5 +1,5 @@
 /* global process */
-import { readFileSync, writeFileSync, statSync, realpathSync, readdirSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, statSync, lstatSync, realpathSync, readdirSync, mkdirSync } from 'node:fs';
 import { resolve, relative, isAbsolute, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash, randomUUID } from 'node:crypto';
@@ -36,7 +36,8 @@ export const normativeContexts = [
   'docs/BUSINESS_RULES.md','docs/DECISIONS.md',
   'docs/adr/0001-checkpoints-and-allocations.md','docs/adr/0002-month-closing-and-corrections.md','docs/adr/0003-daily-forecast-and-liquidity.md',
   'docs/ARCHITECTURE.md','docs/architecture.json','docs/DATA_MODEL.md','docs/conventions.md',
-  'docs/PRD.md','docs/TASKS.md','docs/OPEN_QUESTIONS.md','docs/IMPLEMENTATION_PLAN.md',
+  'docs/PRD.md','docs/UX.md','docs/TASKS.md','docs/OPEN_QUESTIONS.md','docs/IMPLEMENTATION_PLAN.md',
+  'docs/planning/hb-019-1-budget-update-ux.md','docs/planning/finance-fingerprint-follow-up.md',
   'docs/planning/hb-008-money-dates.md','docs/planning/hb-009-audit-idempotency.md',
   'docs/planning/hb-010-bank-checkpoints.md','docs/planning/hb-011-obligations.md','docs/planning/hb-012-savings.md',
   'docs/planning/hb-013-period-allocations.md','docs/planning/hb-014-daily-forecast.md','docs/planning/hb-015-finance-tests-ci.md',
@@ -340,7 +341,12 @@ function readJson(path) {
   try { return JSON.parse(readFileSync(path,'utf8')); } catch { fail('INVALID_JSON'); }
 }
 function within(root,path) {
-  repoPath(path); const target=realpathSync(resolve(root,path));
+  repoPath(path);
+  // Reject aliases at every component, including internal symlinks/junctions.
+  // A linked directory must not silently hide newly added financial inputs.
+  let component=root;
+  for(const part of path.split('/')) { component=resolve(component,part); check(!lstatSync(component).isSymbolicLink(),'PATH_ALIAS'); }
+  const target=realpathSync(resolve(root,path));
   check(!relative(realpathSync(root),target).split(sep).includes('..'),'PATH_ESCAPE'); return target;
 }
 function loadSources(root) {
@@ -351,19 +357,41 @@ function loadSources(root) {
     return [path,readFileSync(file,'utf8')];
   }));
 }
-function fingerprint(root) {
+export const fingerprintRootFiles = ['package.json','pnpm-lock.yaml','vitest.config.ts','vitest.integration.config.ts',
+  'tsconfig.json','next.config.ts','eslint.config.mjs','drizzle.config.ts','.github/workflows/ci.yml'];
+// These contain reporting only, never acceptance rules, scenarios or policy.
+// Mixed TASKS/DECISIONS/plans intentionally remain protected whole-file contexts.
+export const administrativeReports = ['docs/planning/hb-019-1-verification.md','docs/planning/hb-019-1-finance-gate-verification.md'];
+export function fingerprintFiles(root) {
   const files=[];
   let visited=0;
-  function visit(dir) { for(const e of readdirSync(resolve(root,dir),{withFileTypes:true})) { check(++visited<=5000,'SOURCE_LIMIT'); const p=`${dir}/${e.name}`; if(e.isDirectory()) visit(p); else if(/\.(?:mjs|ts|tsx|json|md|yml)$/.test(p)) files.push(p); } }
+  function visit(dir) {
+    within(root,dir);
+    for(const e of readdirSync(resolve(root,dir),{withFileTypes:true})) {
+      check(++visited<=5000,'SOURCE_LIMIT'); const p=`${dir}/${e.name}`;
+      check(!e.isSymbolicLink(),'PATH_ALIAS');
+      if(e.isDirectory()) visit(p); else { check(e.isFile(),'INVALID_SOURCE'); files.push(p); }
+    }
+  }
+  // Every regular file is covered: SQL and unknown/new migration extensions too.
   for(const dir of ['src','tests','drizzle','scripts']) visit(dir);
-  files.push('package.json','pnpm-lock.yaml','vitest.config.ts','vitest.integration.config.ts','.github/workflows/ci.yml',...normativeContexts);
+  files.push(...fingerprintRootFiles,...normativeContexts);
   check(files.length<=3000,'SOURCE_LIMIT');
+  check(administrativeReports.every(p=>!files.includes(p)),'ADMINISTRATIVE_CONTEXT_CONFLICT');
+  return [...new Set(files)].sort();
+}
+export function fingerprint(root) {
+  const files=fingerprintFiles(root);
   let bytes=0;
-  return hash([...new Set(files)].sort().map(p=>{
+  return hash(files.map(p=>{
     const file=within(root,p),size=statSync(file).size; bytes+=size;
     check(size<=LIMIT && bytes<=4*LIMIT,'SOURCE_LIMIT');
     return `${p}:${hash(readFileSync(file))}`;
   }).join('\n'));
+}
+export function validateRun(context,root) {
+  check(plain(context) && context.root===realpathSync(root).replaceAll('\\','/') && context.fingerprint===fingerprint(root),'MISMATCHED_RUN');
+  check(context.job===(process.env.GITHUB_RUN_ID?`${process.env.GITHUB_RUN_ID}/${process.env.GITHUB_RUN_ATTEMPT}/${process.env.GITHUB_JOB}`:'local'),'MISMATCHED_JOB');
 }
 
 /** CLI returns an exit status; adversarial unit fixtures call pure validators instead of nested processes. */
@@ -381,11 +409,10 @@ export function cli(args, root=process.cwd()) {
       return 0;
     }
     const context=readJson(runFile);context.now=Date.now();
-    check(context.root===realpathSync(root).replaceAll('\\','/') && context.fingerprint===fingerprint(root),'MISMATCHED_RUN');
-    check(context.job===(process.env.GITHUB_RUN_ID?`${process.env.GITHUB_RUN_ID}/${process.env.GITHUB_RUN_ATTEMPT}/${process.env.GITHUB_JOB}`:'local'),'MISMATCHED_JOB');
+    validateRun(context,root);
     if(mode==='timezone') {
       const executable=resolve(root,'node_modules/vitest/vitest.mjs');
-      const result=spawnSync(process.execPath,[executable,'run',...manifest.timezoneFiles,'--reporter=default','--reporter=json',`--outputFile.json=${resolve(directory,'timezone.json')}`],{cwd:root,env:{...process.env,TZ:'America/Los_Angeles'},stdio:'inherit'});
+      const result=spawnSync(process.execPath,[executable,'run',...manifest.timezoneFiles,'--maxWorkers=2','--reporter=default','--reporter=json',`--outputFile.json=${resolve(directory,'timezone.json')}`],{cwd:root,env:{...process.env,TZ:'America/Los_Angeles'},stdio:'inherit'});
       return result.status??1;
     }
     if(mode==='record') {

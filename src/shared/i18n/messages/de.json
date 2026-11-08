@@ -401,14 +401,26 @@
       "FUNDING_TRANSFER": "Finanzierung übertragen"
     },
     "errors": {
-      "compound": "Derselbe Eintrag kann nicht gleichzeitig geändert und in seiner Finanzierung übertragen werden. Der Entwurf bleibt erhalten; es wird nichts teilweise gespeichert.",
+      "compound": "Derselbe Eintrag kann nicht gleichzeitig geändert und in seiner Finanzierung übertragen werden. Der Entwurf bleibt erhalten; es wird nichts teilweise gespeichert. Bestätigen Sie zuerst den Monatsübergang ohne Änderung dieses Eintrags. Bestätigen Sie danach die Zahlung oder Rücklagenänderung separat. Der Entwurf bleibt im Speicher; es erfolgt keine automatische zweite Speicherung.",
       "payment": "Prüfen Sie Zahlungsbetrag, tatsächlichen Kartenstand und Bestätigungen. Externe Zahlungen erfordern einen bestätigten unveränderten Kartenstand und eine Erläuterung.",
       "policy": "Eine gemeinsame Übertragung aus mehreren früheren Monaten wird noch nicht unterstützt. Nur Sie wählen eine andere Aktion.",
       "access": "Der Zugriff konnte nicht bestätigt werden. Melden Sie sich erneut an und prüfen Sie vor einem erneuten Speichern das Ergebnis.",
       "conflict": "Bestätigte Daten, Reihenfolge oder Monat haben sich geändert. Ihre Eingaben bleiben erhalten: Laden Sie die aktuelle Grundlage und prüfen Sie erneut.",
       "storage": "Der Vorgang konnte nicht abgeschlossen werden. Die Eingaben bleiben erhalten; wiederholen Sie die ursprüngliche Anfrage oder Ergebnisabfrage.",
       "input": "Prüfen Sie Beträge, Daten, Aktionen und Bestätigungen. Monatsbeträge müssen nichtnegativ sein und genau dem Kartenstand entsprechen."
-    }
+    },
+    "proposedState": "Vorgeschlagener Finanzstand",
+    "currentGuidance": "Orientierung für den aktuellen Monat",
+    "historicalSeparate": "Diese aktuelle Schätzung ist von der historischen Prüfung oben getrennt.",
+    "stateUnavailable": "Für diese historische Grundlage liegt kein bestätigter Kontostand vor",
+    "originPeriod": "Ursprungsmonat",
+    "reportImpact": "Historische Berichte sind betroffen. Gespeicherte Versionen bleiben bis zur gesonderten Prüfung und Bestätigung einer Korrektur unverändert.",
+    "technicalReference": "Technische Referenz",
+    "chooseTransition": "Geld oder Finanzierung früherer Monate erfordern Ihre ausdrückliche Entscheidung. Prüfen Sie die vollständige Verteilung und alle erhaltenen Verpflichtungen und Rücklagen.",
+    "startFresh": "Monat mit aktuellem Kontostand beginnen",
+    "sameMonthRoutine": "Normale Aktualisierung des Kontostands. Kein Monatsübergang erforderlich, solange keine frühere Finanzierung offen ist.",
+    "otherActions": "Weitere ausdrücklich bestätigte Aktionen",
+    "transitionEntry": "Budget aktualisieren oder Monat beginnen"
   },
   "auth": {
     "title": "Willkommen zu Hause",
@@ -543,7 +555,11 @@
       "PROJECTION_LIMIT_EXCEEDED": "Zu viele Daten für die Berechnung",
       "CALCULATION_ERROR": "Das Budget konnte nicht berechnet werden",
       "INVALID_PERIOD": "Ungültiger Budgetmonat"
-    }
+    },
+    "monthEndUnknown": "Kontostand am Monatsende unbekannt",
+    "monthEndObserved": "Bestätigter Kartenstand am letzten Tag ({date}): {amount}",
+    "bankFinalDayBasis": "Tatsächliche Prüfung am letzten Tag des ausgewählten Monats. Diese Beobachtung ist kein versionierter Abschlussbericht.",
+    "futureCashUnknown": "Der künftige Kontostand ist unbekannt; der Plan enthält nur bereits bestätigtes Geld."
   },
   "periodNavigation": {
     "label": "Budgetmonat auswählen",

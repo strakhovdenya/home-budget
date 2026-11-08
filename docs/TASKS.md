@@ -1,7 +1,7 @@
 # Home Budget — Task Backlog (Codex-ready)
 
 **Source:** [PRD](PRD.md) → [business rules](BUSINESS_RULES.md) → [implementation plan](IMPLEMENTATION_PLAN.md) → these tasks.
-**Status overview (2026-11-05):** HB-001..HB-019 Done; HB-019.1/HB-020/HB-021 Planned. HB-019 Owner Acceptance and independent APPROVED are recorded below. Accepted ADR0001..0003 remain normative. Per-task evidence and accepted exceptions are retained below.
+**Status overview (2026-11-08):** HB-001..HB-019 and HB-019.1 Done; HB-019.2/HB-020/HB-021 Planned. HB-019.1 independent repeat review APPROVED (0/0/0/0) and Owner Acceptance are recorded below. Accepted ADR0001..0003 remain normative. Per-task evidence and accepted exceptions are retained below.
 **Conventions:** `HB-NNN` stable ID; owner-approved scoped follow-ups may use `HB-NNN.n` (for example HB-019.1); `Ready` = can start after prerequisites, `Planned` = not yet ready, `Blocked` = needs decision, `In progress`, `Review`, `Done`.
 **Work policy:** one task / coherent PR at a time. Codex must not silently mark tasks complete. GitHub Issues optional later; add each issue URL beside the stable ID rather than duplicating tasks.
 
@@ -9,6 +9,12 @@
 P0 = indispensable for a correct first usable version; P1 = useful post-MVP; P2 = deferred functionality.
 
 MVP owner scope decision D45 (2026-11-04): P0 baseline includes new HB-019.1 and promoted HB-020 (recurring templates plus first-run owned-account onboarding) before HB-021. This is **planning approval**, not implementation or publication authorization. The HB-019 independent-review/Owner-Acceptance prerequisite was satisfied on 2026-11-05; M3/M4 remain later.
+
+Owner extension D46–D49 (2026-11-08): complete saved financial history is mandatory
+MVP scope. After HB-019.1, HB-019.2 and HB-020 are independent prerequisites of
+HB-021. The [finance-fingerprint technical stage](planning/finance-fingerprint-follow-up.md)
+is also required before final HB-021 evidence; its implementation is not authorized
+here and no extra HB ID is created. [Decisions](DECISIONS.md#saved-financial-history-and-evidence-scope--2026-11-08).
 
 ## M0 — Close domain gaps before implementation
 
@@ -196,7 +202,7 @@ reload/relogin/PG durability and render diagnosis remain unverified. This is
 documentation approval only; corrections require separate implementation authorization.
 
 ### HB-019.1 · Budget-update UX and month-transition clarity
-**Status:** Planned (documentation/independent plan review next) · **Priority:** P0 · **Dependencies:** HB-013, HB-017, HB-018, **HB-019 Owner Acceptance** · **Area:** product rules/UI/application
+**Status:** Done (independent repeat review APPROVED and Owner Acceptance 2026-11-08; retained verification limits below) · **Priority:** P0 · **Dependencies:** HB-013, HB-017, HB-018, **HB-019 Owner Acceptance** · **Area:** product rules/UI/application
 **Scope:** refine the primary update UX per owner D40–D45. Same-month routine
 needs no transition choice absent unresolved old-period funding. A user-chosen
 "Начать месяц с актуального остатка" maps to FRESH_START with explicit actual
@@ -234,8 +240,45 @@ records distinct Overview/Months, noncurrent cash attribution, historical previe
 versus current guidance and readable success/actions; HBUX-026–036 are planned
 proof alongside earlier cases. Broader HB-019.1 UX does not block HB-019 as a
 whole; closed-history presentation remains an HB-019 correction. Status Planned P0.
-**Authorization:** planning only; owner separately approves implementation,
+**2026-11-08 ownership clarification (D47):** HBUX-001–036 remain exclusively
+HB-019.1. Complete all-state browsing/pagination and the three history perspectives
+are HB-019.2 (HBH-001–007); no existing HBUX requirement is moved or waived.
+The owner reports independent audit-plan APPROVED; this alignment is documentation
+only and still needs independent review. HB-019 acceptance remains satisfied.
+**Authorization:** documentation alignment approved; owner separately approves implementation,
 review/acceptance, and every commit/push/PR/merge/deploy step.
+
+**Final acceptance and publication authorization — 2026-11-08:** the owner reports
+independent repeat ChatGPT review **APPROVED, Critical/High/Medium/Low 0/0/0/0**
+and accepts HB-019.1, including the final-day confirmed-balance correction and
+separately authorized finance-fingerprint work. This dated acceptance supersedes
+the earlier Planned/Review authorization snapshots above. The implementation and
+financial invariants are unchanged by finalization. See [UX verification](planning/hb-019-1-verification.md)
+and [finance verification](planning/hb-019-1-finance-gate-verification.md) for exact
+executed evidence and the fresh run required by these protected-document edits.
+Authenticated browser QA, real 320px, real 200% zoom and physical AT remain
+**NOT EXECUTED**; HB19-Q07 remains **OPEN / NOT REPRODUCED**. These limits are
+accepted and retained, not converted to PASS. HB-019.2 stays **Planned / P0**;
+HB-020/HB-021/HB-022 are not implemented here. The owner authorizes one logical
+feature-branch commit, push and PR to main, followed by CI. No merge, squash merge,
+deploy or production change is authorized.
+
+### HB-019.2 · Complete saved financial history
+**Status:** Planned · **Priority:** P0 (owner D46–D48, 2026-11-08) · **Dependencies:** HB-010, HB-013, HB-014, HB-017, HB-018, HB-019, HB-019.1 · **Area:** history/read/UI
+**Deliverables:** all saved checks and financial states across current/past months;
+complete bounded navigation, original/corrected states and separate immutable
+closing-version context. A latest-ten list is insufficient. HB-020 independently
+follows HB-019.1; HB-021 waits for both tasks.
+**Acceptance:**
+1. All saved checks/revisions/funding/lifecycle states are reachable without omissions or duplicates, including legacy transitions and more than ten updates.
+2. Distinguish as-known state(H,K), same H with later corrections/new K, and selected immutable report version; show real observed/effective/recorded provenance.
+3. Preserve full A/R/S/F, identities and historical funding; UNKNOWN differs from observed zero; no inferred bank flows, live past forecast or latest-B substitution.
+4. Owned, bounded, consistent read-only pages cannot mutate money, audits, receipts or reports; invalid/expired cursors refuse safely.
+5. RU/DE/EN, mobile/desktop/zoom and keyboard/AT evidence includes isolated PG and actual browser results, explicitly recording any NOT EXECUTED.
+**Cases:** HBH-001–007, solely owned here; HBUX-001–036 remain HB-019.1.
+**Non-goals:** new finance formulas/schema, correction/closing writes, transaction/PDF reconstruction, extended comparisons/charts (HB-022).
+**Plan:** [history plan](planning/hb-019-2-financial-history.md) · [scenarios](../tests/scenarios/phase-01/hb-019-2-financial-history.md).
+**Authorization:** documentation/product scope approved; technical plan review and separate implementation authorization still required. No runtime PASS claimed.
 
 ### HB-020 · First-run budget onboarding and recurring payment templates
 **Status:** Planned · **Priority:** P0 (owner D45) · **Dependencies:** HB-007, HB-009, HB-010, HB-011, HB-017, HB-019.1 · **Area:** auth/finance/UI
@@ -246,15 +289,15 @@ review/acceptance, and every commit/push/PR/merge/deploy step.
 **Scope decision (owner D45, 2026-11-04):** HB-020 is now P0 and included in the MVP after HB-019.1. Q-HB1-03 is resolved. Prior first-run requirements, durable idempotency/concurrency rules and scenario coverage above are retained unchanged. No onboarding implementation in HB-019; HB-020 remains Planned. Detailed command/receipt, name-bound and persistence design must be reviewed before implementation; this scope update approves no schema or auth-policy change.
 
 ### HB-021 · Core browser E2E, a11y and responsive QA
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-016..HB-020 (including HB-019.1) · **Area:** quality
-**Deliverables:** Playwright flows for mobile/desktop, multi-locale, auth boundaries, first-run onboarding, recurring bills, actual checkpoints, FRESH_START/CARRY/DEFER UX, savings, same-identity two-step payment and closing.
+**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-016..HB-020 (including HB-019.1 and HB-019.2), plus the separately reviewed finance-fingerprint stage before final evidence · **Area:** quality
+**Deliverables:** Playwright flows for mobile/desktop, multi-locale, auth boundaries, first-run onboarding, recurring bills, actual checkpoints, FRESH_START/CARRY/DEFER UX, savings, same-identity two-step payment and closing; complete HB-019.2 history in all three perspectives. Reuse HBUX/HBH/HB20 contracts without duplicating scenario ownership.
 **Acceptance:** tests actually execute and pass against isolated synthetic DB; reviewed fixes, no data/privacy exposure and no unverified browser PASS.
 
 ## M3 — Reporting and historical onboarding
 
 ### HB-022 · Bank-calendar versus financing-month reports
-**Status:** Planned · **Priority:** P1 · **Dependencies:** HB-019 · **Area:** reporting
-**Deliverables:** month comparison, funding origin and checkpoint trend, as-closed vs present lifecycle.
+**Status:** Planned · **Priority:** P1 · **Dependencies:** HB-019, HB-019.2 · **Area:** reporting
+**Deliverables:** extended month comparison, funding-origin analytics and checkpoint charts; deeper bank-calendar versus financing-month analysis. Basic full history and its three perspectives belong to HB-019.2 P0; HBUX presentation remains HB-019.1.
 **Acceptance:** does not count rolled-over free funds as new income; no fabricated daily balances.
 
 ### HB-023 · Safe historical October import

@@ -1,11 +1,31 @@
 import { describe, expect, it } from 'vitest';
 import { formatMoney } from '@/features/dashboard/format-money';
-import { dashboardPresentation, parseDashboardQuery, periodHref, formatCalendarDate } from '@/features/dashboard/presentation';
+import { confirmedMonthEndBank, dashboardPresentation, parseDashboardQuery, periodHref, formatCalendarDate } from '@/features/dashboard/presentation';
 import { projectAccount, projectPeriod } from '@/domain/forecast/budget';
 import { encodeProjection } from '@/domain/forecast/serialization';
 import { state, obligation, saving, value, day } from './fixtures/forecast';
 
 describe('HB-016 exact presentation', () => {
+  it.each([
+    ['2026-10-31','2026-11-04','2026-10',50000n,true],
+    ['2026-10-31','2026-11-04','2026-10',0n,true],
+    ['2026-10-30','2026-11-04','2026-10',50000n,false],
+    ['2026-11-01','2026-11-04','2026-10',50000n,false],
+    ['2026-02-28','2026-03-04','2026-02',1n,true],
+    ['2028-02-28','2028-03-04','2028-02',1n,false],
+    ['2028-02-29','2028-03-04','2028-02',1n,true],
+    ['2026-04-30','2026-05-04','2026-04',1n,true],
+    ['2026-12-31','2027-01-04','2026-12',1n,true],
+  ] as const)('HBUX-028 unclosed final-day fact %s at %s (%s, %s)',(observed,asOf,target,amount,known)=>{
+    const s=state(amount,{[target]:amount});
+    const input={...s,checkpoint:{...s.checkpoint,observedDate:day(observed)},allocationEffectiveDate:day(observed),provenance:{...s.provenance,historicalThroughDate:day(asOf)}};
+    const view=dashboardPresentation(value(encodeProjection(value(projectPeriod(input,asOf,target)))));
+    const before=structuredClone(view);
+    expect(confirmedMonthEndBank(view)).toEqual(known?{balance:amount.toString(),observedDate:observed}:null);
+    expect(view).toEqual(before);
+    expect(confirmedMonthEndBank({kind:'CALCULATION_ERROR'})).toBeNull();
+    if(view.kind==='READY')for(const mode of ['CURRENT','FUTURE'] as const)expect(confirmedMonthEndBank({...view,mode})).toBeNull();
+  });
   it.each(['ru','de','en'] as const)('HB16-B07 formats exact signed cents in %s', locale => {
     const expected = locale === 'en' ? ['€0.00','€0.01','-€0.01','€1.01','€90,071,992,547,409.93','€92,233,720,368,547,758.07','-€92,233,720,368,547,758.08']
       : locale === 'de' ? ['0,00 €','0,01 €','-0,01 €','1,01 €','90.071.992.547.409,93 €','92.233.720.368.547.758,07 €','-92.233.720.368.547.758,08 €']

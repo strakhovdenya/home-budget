@@ -1,5 +1,26 @@
 # Data model — checkpoint-first
 
+## Saved-state history mapping — 2026-11-08
+
+Owner [D46–D49](DECISIONS.md#saved-financial-history-and-evidence-scope--2026-11-08)
+adds complete user-visible history as HB-019.2 P0, not a new storage model.
+
+| View | Existing source contract | Preserved basis |
+|---|---|---|
+| Saved checks and complete allocations | balance_checkpoints, allocation_revisions/period_allocations, historical_positions/ordering_revisions | Real observation and effective coordinates, original/corrected revisions, exact checkpoint anchor |
+| Full financial/funding changes | obligation/savings full-state events, transition decisions/funding evidence, original audits | Historical identity/origin/funding/status/amounts at one H/K, never delta replay through current state |
+| Confirmed update/result | HB-017 BUDGET_UPDATE_REVIEW and verified receipt | Original copied review/effective and recorded dates; current latest-ten reader is not a complete index |
+| As closed | HB-019 month_closings snapshot/source/order contract | Immutable version and pinned H/K; end UNKNOWN unless actual final-day observation, observed zero retained |
+
+As-known and later-corrected views share H but declare different captured K;
+report versions keep their own cuts. Current pointers and latest titles cannot
+replace historical evidence. HB-019.2 must cover legacy facts without inventing
+missing aggregate reviews. Index/paging design remains reviewed implementation
+work; no entity, migration, cursor storage or new selector algorithm is approved.
+Full A>=0/sum(A)=B, full R/S and F=A-R-S remain unchanged. All reads are scoped,
+bounded and side-effect-free. Older no-runtime/SQL statements below describe
+historical design stages, not present delivery status; see TASKS for completion.
+
 ## HB-018 management read DTOs
 
 No storage entities or migration. Management list/history/proposal derives from

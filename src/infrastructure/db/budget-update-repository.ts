@@ -23,6 +23,7 @@ import { loadBudgetContext } from './budget-update-reader';
 import { persistBudgetPlan } from './budget-update-writer';
 import { commitBatch, BatchFailure, rejectBatch, type Transaction } from './commit';
 import * as s from './schema';
+import { budgetPresentation } from './budget-update-presentation';
 
 function wire(value:unknown){const doc=jsonDocument(value);if(Buffer.byteLength(JSON.stringify(doc),'utf8')>1024*1024)return rejectBatch('STORAGE_ERROR');return doc;}
 function hash(v:unknown){return createHash('sha256').update(encodeCanonical(normalizeValue(v))).digest('hex');}
@@ -41,7 +42,7 @@ async function planned(tx:Transaction,scope:AuthorizedScope,command:PreparedComm
   const p=result.value;
   const reports=await transitionReportImpact(tx,scope,{...context.history,events:context.obligations},{...p.history,events:[...context.obligations,...p.obligations]},
     {...context.history,savings:context.savings},{...p.history,savings:[...context.savings,...p.savings]},false);
-  return {...p,review:wire({financial:p.review,reportImpact:reports})};
+  return {...p,review:wire({financial:p.review,reportImpact:reports,presentation:budgetPresentation(context,draft,p)})};
 }
 function isTransition(d:BudgetDraft){return !!d.allocationChange&&d.allocationChange.mode!=='REDISTRIBUTE';}
 async function ownedAccount(tx:Transaction,scope:AuthorizedScope){const [a]=await tx.select().from(s.accounts).where(and(eq(s.accounts.ownerUserId,scope.ownerUserId),eq(s.accounts.id,scope.accountId))).for('update');if(!a)return rejectBatch('FORBIDDEN');return a;}
@@ -60,7 +61,7 @@ async function originalEvidence(tx:Transaction,scope:AuthorizedScope,update:type
   const original=prepareCommand({requestId:update.requestId,...doc.after.command as object});if(!original.ok)return rejectBatch('STORAGE_ERROR');
   const p=parsed(original.value);
   if(!sameDocument(p.payload.review,doc.after.review)||p.payload.proposalId!==doc.after.proposalId)return rejectBatch('STORAGE_ERROR');
-  const review=doc.after.review as {financial?:{asOfDate?:unknown}};
+  const review=doc.after.review as {financial?:{asOfDate?:unknown};presentation?:unknown};
   const day=parseBerlinDate(review.financial?.asOfDate);if(!day.ok)return rejectBatch('STORAGE_ERROR');
   const [account]=await tx.select().from(s.accounts).where(and(eq(s.accounts.ownerUserId,scope.ownerUserId),eq(s.accounts.id,scope.accountId)));
   if(!account)return rejectBatch('FORBIDDEN');
@@ -71,6 +72,9 @@ async function originalEvidence(tx:Transaction,scope:AuthorizedScope,update:type
     history:baseSource.history,obligations:baseSource.obligationHistory.events,savings:baseSource.savingHistory.savings,periods:baseSource.periods};
   const rebuilt=planBudgetUpdate(context,p.draft,coordinates(scope,update.requestId,update.recordedSeq,update.id,time.rows[0].now));
   if(!rebuilt.ok||!sameDocument(rebuilt.value.review,review.financial))return rejectBatch('STORAGE_ERROR');
+  // Older accepted receipts have no presentation copy. New copies must prove
+  // the same original H/K facts, never join today's state into a saved result.
+  if(review.presentation!==undefined&&!sameDocument(wire(budgetPresentation(context,p.draft,rebuilt.value)),review.presentation))return rejectBatch('STORAGE_ERROR');
   const plan=rebuilt.value,active=selectState(plan.history,day.value);if(!active.ok)return rejectBatch('STORAGE_ERROR');
   const actual=await readProjectionContext(tx,scope,{...account,recordedSeq:update.recordedSeq,aggregateRevision:update.expectedRevision+1n,activeAllocationRevisionId:active.value.vector?.id??null},day.value,update.recordedSeq);
   const storedVector=actual.history.vectors.find(v=>v.id===plan.vectorId),expectedVector=plan.history.vectors.find(v=>v.id===plan.vectorId);

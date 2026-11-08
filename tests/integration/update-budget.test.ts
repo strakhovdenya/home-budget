@@ -166,6 +166,57 @@ async function transitionCommand(f:Awaited<ReturnType<typeof fixture>>,mode:'CAR
     expectedAllocationRevisionId:seed.baseVectorId,effectiveDate:seed.today,checkpoint:actual?cp:null,placement:null,
     consent:{completeVectorConfirmed:true,fundingUnchangedAcknowledged:true,transitionConfirmed:true,fundingConfirmed:true,nonCarryConfirmed:true}}}}));
 }
+it('HBUX-001/002/003/005/006/007 exact fresh80000 reserve20000 savings15000+15000 then paid60000',async()=>{
+  const f=await fixture(),first=await command(f,checkpoint(calendar.pastDay(20),'100000',{[calendar.past]:'100000'}),[createObligation('20000',calendar.past)]);
+  value(await f.repo.confirm(f.scope,value(prepareCommand(value(await f.repo.preview(f.scope,first))))));
+  const raw=await transitionCommand(f,'FRESH_START','80000',{[calendar.past]:'0',[calendar.target]:'80000'},{s:[createSaving('15000',calendar.target),createSaving('15000',calendar.target)]});
+  const reviewed=value(await f.repo.preview(f.scope,raw));
+  expect(reviewed).toMatchObject({payload:{review:{presentation:{before:{bank:{balanceCents:'100000'}},after:{bank:{balanceCents:'80000'},periods:expect.arrayContaining([{period:calendar.target,allocated:'80000',reserved:'20000',savings:'30000',free:'30000',deficit:'0'}])}}}}});
+  const committed=value(prepareCommand(reviewed)),receipt=value(await f.repo.confirm(f.scope,committed)),pinned=await baseline(f.scope);
+  expect(value(await f.repo.confirm(f.scope,committed))).toEqual(receipt);expect(await baseline(f.scope)).toEqual(pinned);
+  const seed=value(await f.repo.load(f.scope)) as unknown as Seed,o=seed.obligations[0];
+  expect(o.fundingPeriod).toBe(calendar.target);expect(seed.savings).toHaveLength(2);
+  // These are distinct real checks after the confirmed transition on the same
+  // server day. Explicitly affirm their placement; never bypass ordering guards.
+  const placement=(value(await f.repo.load(f.scope)) as unknown as {placement:{id:string;afterPositionId:string}}).placement;
+  async function actual(bank:string,obligations:unknown[]=[],savings:unknown[]=[]){
+    const cp=checkpoint(seed.today,bank,{[calendar.target]:bank}),raw=await command(f,cp,obligations,savings);
+    return value(prepareCommand({...raw,payload:{...raw.payload as object,checkpoint:{...cp,placement:{expectedOrderingRevisionId:placement.id,afterPositionId:placement.afterPositionId,beforePositionId:null}}}}));
+  }
+  const beforeAlternatives=await baseline(f.scope);
+  const unpaid=value(await f.repo.preview(f.scope,await actual('60000')));
+  expect(unpaid).toMatchObject({payload:{review:{presentation:{after:{periods:expect.arrayContaining([{period:calendar.target,allocated:'60000',reserved:'20000',savings:'30000',free:'10000',deficit:'0'}])}}}}});
+  const voluntary=value(await f.repo.preview(f.scope,await actual('80000',[],[createSaving('10000',calendar.target)])));
+  expect(voluntary).toMatchObject({payload:{review:{presentation:{after:{periods:expect.arrayContaining([{period:calendar.target,allocated:'80000',reserved:'20000',savings:'40000',free:'20000',deficit:'0'}])}}}}});
+  expect(await baseline(f.scope)).toEqual(beforeAlternatives);
+  const next=await actual('60000',[{action:'PAID',identityId:o.obligationId,expectedRevisionId:o.id,data:{amountCents:'20000'},bankDate:null,payment:{source:'TRACKED_CARD',bankStateAffirmed:true,unchangedBalanceAcknowledged:false}}]);
+  const paid=value(await f.repo.preview(f.scope,next));expect(paid).toMatchObject({payload:{review:{presentation:{after:{periods:expect.arrayContaining([{period:calendar.target,allocated:'60000',reserved:'0',savings:'30000',free:'30000',deficit:'0'}])}}}}});
+  const paidReceipt=value(await f.repo.confirm(f.scope,value(prepareCommand(paid))));
+  expect(value(await f.repo.history(f.scope,paidReceipt.updateId))).toMatchObject([{review:{financial:{bank:{balanceCents:'60000'}}}}]);
+  expect((await db.db.select().from(s.balanceCheckpoints).where(eq(s.balanceCheckpoints.accountId,f.scope.accountId)))).toHaveLength(3);
+});
+it('HBUX-021 exact full migrated earmarks remain above cash with signed deficit',async()=>{
+  const f=await fixture(),first=await command(f,checkpoint(calendar.pastDay(20),'100000',{[calendar.past]:'100000'}),[createObligation('100000',calendar.past)],[createSaving('10000',calendar.past)]);
+  value(await f.repo.confirm(f.scope,value(prepareCommand(value(await f.repo.preview(f.scope,first))))));
+  const seed=value(await f.repo.load(f.scope)) as unknown as Seed,oldSaving=seed.savings[0],before=await baseline(f.scope);
+  const compound=await transitionCommand(f,'FRESH_START','80000',{[calendar.target]:'80000'},{s:[{action:'PARTIAL_RELEASE',identityId:oldSaving.savingsId,expectedRevisionId:oldSaving.id,data:{amountCents:'1000'}}]});
+  expect(await f.repo.preview(f.scope,compound)).toMatchObject({ok:false,code:'SAME_IDENTITY_COMPOUND_NOT_SUPPORTED'});expect(await baseline(f.scope)).toEqual(before);
+  const raw=await transitionCommand(f,'FRESH_START','80000',{[calendar.target]:'80000'}),review=value(await f.repo.preview(f.scope,raw));
+  expect(review).toMatchObject({payload:{review:{financial:{projection:{safe:{safeAvailable:'0'}}},presentation:{after:{periods:expect.arrayContaining([{period:calendar.target,allocated:'80000',reserved:'100000',savings:'10000',free:'-30000',deficit:'30000'}])}}}}});
+  value(await f.repo.confirm(f.scope,value(prepareCommand(review))));
+});
+it('HBUX-034/035 historical copied presentation keeps current anchor and rejects tampering',async()=>{
+  const f=await fixture(),first=await command(f,checkpoint(calendar.today,'100000',{[calendar.target]:'100000'}));
+  value(await f.repo.confirm(f.scope,value(prepareCommand(value(await f.repo.preview(f.scope,first))))));
+  const seed=value(await f.repo.load(f.scope)) as unknown as Seed;
+  const old=await command(f,checkpoint(calendar.pastDay(28),'90000',{[calendar.past]:'90000'})),review=value(await f.repo.preview(f.scope,old));
+  expect(review).toMatchObject({payload:{review:{financial:{bank:{balanceCents:'90000'},projection:{bank:{balance:'100000'}}},presentation:{after:{bank:{balanceCents:'90000'},periods:expect.arrayContaining([{period:calendar.past,allocated:'90000',reserved:'0',savings:'0',free:'90000',deficit:'0'}])}}}}});
+  const changed=JSON.parse(JSON.stringify(review));changed.payload.review.presentation.after.bank.balanceCents='100000';
+  const before=await baseline(f.scope);expect(await f.repo.confirm(f.scope,value(prepareCommand(changed)))).toMatchObject({ok:false,code:'STALE_PROPOSAL'});expect(await baseline(f.scope)).toEqual(before);
+  const cmd=value(prepareCommand(review)),receipt=value(await f.repo.confirm(f.scope,cmd));
+  expect(value(await f.repo.load(f.scope))).toMatchObject({baseCheckpointId:seed.baseCheckpointId,baseVectorId:seed.baseVectorId});
+  expect(value(await f.repo.history(f.scope,receipt.updateId))).toMatchObject([{effectiveDate:calendar.pastDay(28),review:{presentation:{after:{bank:{balanceCents:'90000'}}}}}]);
+});
 it('HB17-U16 fresh start and disjoint release persist one position and exact immutable evidence',async()=>{
   const f=await fixture(),first=await command(f,checkpoint(calendar.olderDay(20),'10000',{[calendar.older]:'4000',[calendar.past]:'4000',[calendar.future]:'2000'}),
     [createObligation('3000',calendar.older),createObligation('1000',calendar.past),createObligation('500',calendar.target)],

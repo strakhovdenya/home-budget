@@ -1,5 +1,87 @@
 # Product decision log — current correction and archived chronology
 
+## HB-019.1 implementation acceptance and publication authorization — 2026-11-08
+
+The owner reports independent repeat ChatGPT review **APPROVED**, with
+Critical/High/Medium/Low **0/0/0/0**, and accepts the HB-019.1 implementation on
+2026-11-08. The previous Medium finding about an actual final-day observation
+versus unconditional UNKNOWN is corrected. This records the owner's supplied
+review outcome, not an additional review performed by the implementing agent.
+HB-019.1 is Done; HB-019.2 remains Planned P0. D46–D49, accepted ADR0001–0003,
+H/K, observed zero, real dates and immutable closing versions are unchanged.
+
+Authenticated browser QA, real 320px, real 200% zoom and physical AT remain
+NOT EXECUTED. HB19-Q07 remains OPEN / NOT REPRODUCED; these limits are explicitly
+retained in acceptance. Prior verdicts, receipts and authorization stages below
+remain historical. Current evidence is linked in the
+[UX report](planning/hb-019-1-verification.md) and
+[finance report](planning/hb-019-1-finance-gate-verification.md).
+
+The owner authorizes documentation finalization, one logical commit in
+feat/hb-019-1-budget-update-ux, push to origin, a PR to main and CI follow-up
+within this approved scope. Merge (including squash), deploy, production changes
+and scope expansion require separate owner authorization.
+
+## HB-019.1 documentation acceptance and implementation authorization — 2026-11-08
+
+The owner reports independent ChatGPT review of the20 local documentation files:
+**APPROVED, Critical/High/Medium/Low 0/0/0/0**, and accepts the documentation stage
+on2026-11-08. D46–D49 remain binding; this is not an implementation-review verdict.
+The owner explicitly authorizes the separate finance-fingerprint correction with
+FPG regressions and the remaining HB-019.1 UX implementation/verification, through
+Review only. No commit/push/PR/merge/deploy, production, schema or financial-policy
+change is authorized. HB-019.2 remains Planned P0 and is not implemented here.
+Baseline20 documents and their SHA-256 were preserved locally before implementation.
+Implementation must be independently reviewed and separately accepted by the owner.
+
+## Saved financial history and evidence scope — 2026-11-08
+
+**Owner decisions D46–D49 — approved for documentation and product scope.**
+The owner reports independent ChatGPT review of the documentation-audit plan:
+**APPROVED**, and approves all four proposed decisions on 2026-11-08. This records
+that report, not an additional independent review, runtime proof or implementation
+approval. HB-019.1 remains Planned; HB-019.2 is added as Planned P0.
+
+- **D46 — product principle and complete MVP history.** Home Budget shows available
+  money from the last confirmed financial state with its real bank-check date and
+  lets the user reconstruct all saved checks and financial states in current/past
+  months. Unknown movements and balances remain unknown. D37 dated old-state
+  estimates survive; this promises neither today's unobserved bank cash nor a
+  reconstructed transaction ledger between checks. A latest-ten list is insufficient.
+- **D47 — delivery split.** HB-019.1 owns current-budget/update/transition UX,
+  historical input preview/saved result and correct presentation of existing
+  selected-month/report data (HBUX-001–036). Add HB-019.2 P0 for complete historical
+  browsing (HBH-001–007), after HB-019.1 and the existing history foundations.
+  HB-020 independently follows HB-019.1; HB-021 waits for both HB-019.2 and HB-020.
+  HB-022 remains post-MVP extended analytics, not the basic history viewer.
+- **D48 — three historical perspectives.** Distinguish state(H,K) as known at a
+  pinned original knowledge cut, state at the same H with later corrections at a
+  clearly identified later K, and a selected immutable closing version with its
+  own H/K/source contract. Preserve observed/effective/recorded dates and confirmed
+  same-day order. UNKNOWN differs from observed zero. A corrected-state view cannot
+  publish a report version, change the active financial head or overwrite v1.
+- **D49 — separate finance-fingerprint technical stage.** Plan inclusion of SQL
+  migration contents, safe separation of pure administrative files from protected
+  financial contracts, and regression tests of evidence freshness before HB-021
+  final evidence. The current checker/manifest/receipts remain unchanged here.
+  Significant edits require a fresh run; archived HB-019 PASS cannot become current
+  evidence. See [technical plan](planning/finance-fingerprint-follow-up.md).
+
+**Applicability without rewriting decisions:** D32–D35 supersede earlier signed-A
+interpretations in D29–D31; D41–D42 and the existing ADR0001/0002 addenda establish
+FRESH_START as the primary deliberately selected new-month action, with working
+secondary CARRY/DEFER. Primary placement never means preselection or automatic
+execution. D44/Q-HB17-01 still requires separate confirmed updates for funding
+transfer plus lifecycle edit of the same identity. D36–D39, H/K algorithms, full
+R/S, actual-money conservation, unknown month-end cash and immutable versions
+remain intact. Earlier decisions, Accepted ADR text and original evidence are
+retained as chronology. D45's delivery order is extended by D47, not erased.
+
+References: [PRD](PRD.md), [task register](TASKS.md),
+[HB-019.1 plan](planning/hb-019-1-budget-update-ux.md),
+[HB-019.2 plan](planning/hb-019-2-financial-history.md),
+[history scenarios](../tests/scenarios/phase-01/hb-019-2-financial-history.md).
+
 ## HB-019.1 budget-update UX and HB-020 first-run scope — 2026-11-04
 
 **Owner product decision — accepted for planning; implementation NOT authorized by this record.**

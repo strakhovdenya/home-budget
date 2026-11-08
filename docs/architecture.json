@@ -14,6 +14,17 @@
     "layer_directions_changed": false
   },
   "project": "home-budget",
+  "hb0192_history_planning": {
+    "status": "Planned_owner_D46_D48_2026_11_08_not_implemented",
+    "scope": "all_saved_checks_and_financial_states_current_and_past_MVP",
+    "perspectives": ["as_known_H_K", "later_corrected_same_H_new_K", "immutable_closing_version_pinned_H_K"],
+    "read_design": "owned_bounded_complete_index_consistent_paging_requires_review",
+    "existing_latest_ten_history_is_complete": false,
+    "navigation_financial_writes": false,
+    "storage_changes_selected": false,
+    "layer_directions_changed": false,
+    "new_public_endpoint_selected": false
+  },
   "hb017_atomic_update": {
     "public_route": "/update-budget",
     "actions": [

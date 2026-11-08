@@ -1,0 +1,312 @@
+[
+  {
+    "label": "init-final",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "init",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108\\finance-final"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:44:03.180Z",
+    "exit": 0
+  },
+  {
+    "label": "typegen-final",
+    "command": [
+      "node",
+      "node_modules/next/dist/bin/next",
+      "typegen"
+    ],
+    "cwd": "D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108/build",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:44:30.368Z",
+    "exit": 0
+  },
+  {
+    "label": "typecheck-final",
+    "command": [
+      "node",
+      "node_modules/typescript/bin/tsc",
+      "--noEmit",
+      "--incremental",
+      "false"
+    ],
+    "cwd": "D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108/build",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:44:33.514Z",
+    "exit": 0
+  },
+  {
+    "label": "lint-final",
+    "command": [
+      "node",
+      "node_modules/eslint/bin/eslint.js",
+      ".",
+      "--max-warnings=0"
+    ],
+    "cwd": "D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108/build",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:44:52.063Z",
+    "exit": 0
+  },
+  {
+    "label": "unit-final",
+    "command": [
+      "node",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "--maxWorkers=2",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108\\finance-final/unit.json"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:44:03.563Z",
+    "exit": 0
+  },
+  {
+    "label": "record-unit",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "record",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108\\finance-final",
+      "unit"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:45:25.361Z",
+    "exit": 0
+  },
+  {
+    "label": "build-final",
+    "command": [
+      "node",
+      "node_modules/next/dist/bin/next",
+      "build"
+    ],
+    "cwd": "D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108/build",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:45:01.802Z",
+    "exit": 0
+  },
+  {
+    "label": "pg-final",
+    "command": [
+      "node",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "--config",
+      "vitest.integration.config.ts",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108\\finance-final/integration.json"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:45:25.818Z",
+    "exit": 0
+  },
+  {
+    "label": "record-pg",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "record",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108\\finance-final",
+      "integration"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:51:01.291Z",
+    "exit": 1
+  },
+  {
+    "label": "init-final",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "init",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108\\finance-final-r2"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:51:07.852Z",
+    "exit": 0
+  },
+  {
+    "label": "unit-final",
+    "command": [
+      "node",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "--maxWorkers=2",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108\\finance-final-r2/unit.json"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:51:08.197Z",
+    "exit": 0
+  },
+  {
+    "label": "record-unit",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "record",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108\\finance-final-r2",
+      "unit"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:52:13.286Z",
+    "exit": 0
+  },
+  {
+    "label": "pg-final",
+    "command": [
+      "node",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "--config",
+      "vitest.integration.config.ts",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108\\finance-final-r2/integration.json"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:52:13.633Z",
+    "exit": 0
+  },
+  {
+    "label": "record-pg",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "record",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108\\finance-final-r2",
+      "integration"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:57:43.905Z",
+    "exit": 0
+  },
+  {
+    "label": "timezone-final",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "timezone",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108\\finance-final-r2"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:57:44.236Z",
+    "exit": 0
+  },
+  {
+    "label": "record-timezone",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "record",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108\\finance-final-r2",
+      "timezone"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "America/Los_Angeles",
+    "start": "2026-11-08T22:57:51.301Z",
+    "exit": 0
+  },
+  {
+    "label": "db17-final",
+    "command": [
+      "node",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "--config",
+      "vitest.integration.config.ts",
+      "-t",
+      "DB17"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:57:51.644Z",
+    "exit": 0
+  },
+  {
+    "label": "finance-gate-final",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "check",
+      "D:\\projects_js\\home-budget\\tmp\\hb0191-publication-20261108\\finance-final-r2"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "TZ": "UTC",
+    "start": "2026-11-08T22:58:03.296Z",
+    "exit": 0
+  },
+  {
+    "label": "final-link-scope-audit",
+    "command": [
+      "node",
+      "tmp/hb0191-publication-20261108/final-audit.mjs"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "start": "2026-11-08T22:58:35.301Z",
+    "exit": 0
+  },
+  {
+    "label": "publication-secret-scope-scan",
+    "command": [
+      "node",
+      "tmp/hb0191-publication-20261108/scan-publication.cjs"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "start": "2026-11-08T22:58:35.770Z",
+    "exit": 0
+  },
+  {
+    "label": "final-diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "start": "2026-11-08T22:58:36.046Z",
+    "exit": 0
+  },
+  {
+    "label": "final-finance-check",
+    "command": [
+      "node",
+      "scripts/check-finance-coverage.mjs",
+      "check",
+      "tmp/hb0191-publication-20261108/finance-final-r2"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "start": "2026-11-08T22:58:36.145Z",
+    "exit": 0
+  },
+  {
+    "label": "staged-diff-check-initial",
+    "command": [
+      "git",
+      "diff",
+      "--cached",
+      "--check"
+    ],
+    "cwd": "D:\\projects_js\\home-budget",
+    "exit": 2,
+    "reason": "Administrative DB17 transcript had an extra blank line at EOF; only terminal blank whitespace normalized, original log preserved"
+  }
+]

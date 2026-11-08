@@ -20,6 +20,27 @@ function fixture() {
 type Fixture = ReturnType<typeof fixture>;
 const run=(f:Fixture)=>validateGate(f.manifest,f.contents,f.reports,f.context,specs,[]);
 
+it('FPG-010 rejects forged missing or changed report receipts',()=>{
+  const context={runId:'new-run'},digest='a'.repeat(64);
+  for(const receipt of [{},{runId:'old-run',digest},{runId:'new-run',digest:'b'.repeat(64)}])
+    expect(()=>validateReceipt(context,receipt,digest)).toThrow('MISMATCHED_REPORT_EVIDENCE');
+});
+it('FPG-011 rejects missing duplicate and extra normative context',()=>{
+  for(const mode of ['missing','duplicate','extra']){const f=fixture();
+    if(mode==='missing')f.manifest.contexts=[];
+    else f.manifest.contexts.push(mode==='duplicate'?f.manifest.contexts[0]:{path:'docs/unreviewed.md',sha256:'a'.repeat(64)});
+    expect(()=>run(f)).toThrow();}
+});
+it('FPG-012 rejects absent failed skipped and pending executions',()=>{
+  for(const status of ['absent','failed','skipped','pending']){const f=fixture();
+    if(status==='absent')f.reports.unit.testResults=[];else f.reports.unit.testResults[0].assertionResults[0].status=status;
+    expect(()=>run(f)).toThrow();}
+});
+it('FPG-013 UTC and LA identities cannot be substituted by equal counts',()=>{
+  const f=fixture();const a=f.reports.timezone.testResults[0].assertionResults[0];a.fullName='different passed';a.title=a.fullName;
+  expect(()=>run(f)).toThrow('TIMEZONE_IDENTITY_MISMATCH');
+});
+
 describe('HB15-G01 exact current-run execution coverage',()=>{
   it('accepts the real schema shape with all obligations and timezone identities passed',()=>{
     expect(run(fixture())).toMatchObject({scenarios:1,references:2,unit:14,integration:1,timezone:14});

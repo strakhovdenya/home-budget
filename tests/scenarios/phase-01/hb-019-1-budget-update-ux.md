@@ -3,6 +3,15 @@
 **Status:** Planned; no execution, no evidence of passing tests. Synthetic cents;
 Berlin calendar. [Owner D40–D45](../../../docs/DECISIONS.md#hb-0191-budget-update-ux-and-hb-020-first-run-scope--2026-11-04),
 [plan](../../../docs/planning/hb-019-1-budget-update-ux.md), Accepted D36.
+**Ownership clarification — 2026-11-08 (D47):** HBUX-001–036 belong solely to
+HB-019.1: update/transition UX, historical input preview/saved result and existing
+selected-month/report presentation. None is reassigned or duplicated. Complete
+all-state browsing and three-perspective history are solely HB-019.2,
+[HBH-001–007](hb-019-2-financial-history.md). HB-021 reuses contracts for integrated
+browser verification. Primary explicit FRESH_START and secondary working
+CARRY/DEFER retain all existing oracles, consent and no-default semantics.
+This documentation adds no execution claim, test binding or receipt.
+
 Use real isolated local PostgreSQL for integration, and user-event/browser for UI.
 
 | ID | Scenario and action | Required oracle |
@@ -58,6 +67,26 @@ checks assert visible hierarchy and responsive layout. Existing isolated-PG
 history fixtures must prove end-date evidence, H/K/version selection and no
 financial writes; mocked UI data alone cannot establish historical correctness.
 No new financial computation or selection policy is approved by these cases.
+
+### HBUX-028 correction regression — 2026-11-08
+
+Unclosed-month branch, owned by HB-019.1: Oct31 actual C B=50000,
+V={Oct:50000}, R=S=0; asOf Nov04, no later check, selected October.
+The existing authoritative reader's selected checkpoint at H/K is sufficient
+final-day evidence: show 50000 with its real Oct31 date, neither UNKNOWN nor a
+disclaimer denying that observation. Repeat with B=0,V={Oct:0}: observed zero
+remains known. This is a final-day observation, not proof of midnight or a closing
+report. Active allocation remains labelled as such; no past daily guidance.
+
+With only Oct20/Oct30 evidence, or with the reader selecting a later Nov01/Nov04
+checkpoint, show UNKNOWN for October; no backwards attribution or historical
+reconstruction from active A/F. Late corrections and same-day ordering use the
+existing H/K selector, never array/recorded-order guesses. Pinning an earlier K
+preserves its old result. Closed v1/v2 continue to use their immutable report
+evidence regardless of the current checkpoint. Navigation causes no writes.
+Unit/component proof covers RU/DE/EN, zero, February/leap day, 30/31-day months
+and year rollover; isolated PG proves authoritative selection, H/K and no writes.
+Full historical browsing remains solely HB-019.2.
 
 **Evidence requirements:** Every integration fixture must name exact before/after
 C/V/O/S/funding, H/K, audit/receipt and rollback assertions; test retention of

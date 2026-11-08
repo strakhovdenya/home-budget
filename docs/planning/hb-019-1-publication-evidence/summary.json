@@ -1,0 +1,88 @@
+{
+  "fingerprint": "93508e70fb34f6f40f6ec4b509c1ee089370fedb252c9fc8c98c921805b1f322",
+  "runId": "0bb59b1f-4585-40bf-b03c-fe198e76f618",
+  "target": {
+    "container": "hb0191-20261108-isolated",
+    "id": "8c97b37be84f0b66f3b4f3c4af11a5447b77a93927224600778493f261878f8b",
+    "host": "127.0.0.1",
+    "port": 50744,
+    "database": "hb0191"
+  },
+  "summaries": {
+    "unit": {
+      "passed": 1012,
+      "files": 48,
+      "reportedSuites": 66
+    },
+    "integration": {
+      "passed": 443,
+      "files": 11,
+      "reportedSuites": 11
+    },
+    "timezone": {
+      "passed": 552,
+      "files": 16,
+      "reportedSuites": 24
+    }
+  },
+  "gate": {
+    "scenarios": 596,
+    "dispositions": {
+      "required": 552,
+      "partial": 31,
+      "deferred": 2,
+      "verification": 11
+    },
+    "pendingVerifications": [
+      {
+        "id": "HB19-E08",
+        "status": "NOT_EXECUTED"
+      },
+      {
+        "id": "HB19-E09",
+        "status": "NOT_EXECUTED"
+      },
+      {
+        "id": "HB19-E10",
+        "status": "NOT_EXECUTED"
+      },
+      {
+        "id": "HB19-E11",
+        "status": "NOT_EXECUTED"
+      },
+      {
+        "id": "HB19-E12",
+        "status": "NOT_EXECUTED"
+      },
+      {
+        "id": "HB19-E13",
+        "status": "NOT_EXECUTED"
+      },
+      {
+        "id": "HB19-E14",
+        "status": "NOT_EXECUTED"
+      },
+      {
+        "id": "HB19-F05",
+        "status": "OUTSIDE_RUNTIME_GATE"
+      },
+      {
+        "id": "HB19-F06",
+        "status": "PENDING_INDEPENDENT_REVIEW"
+      },
+      {
+        "id": "HB19-F07",
+        "status": "HISTORICAL_PLANNING_ONLY"
+      },
+      {
+        "id": "HB19-Q07",
+        "status": "NOT_EXECUTED"
+      }
+    ],
+    "obligations": 803,
+    "references": 1171,
+    "unit": 1012,
+    "integration": 443,
+    "timezone": 552
+  }
+}
