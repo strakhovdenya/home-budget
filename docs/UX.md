@@ -1,5 +1,12 @@
 # UX specification — bank-like responsive web app
 
+## Current product contract — 2026-11-08
+
+Home Budget shows available money from the last confirmed state with the real
+bank-check date and makes all saved financial states accessible. Unknown balances
+and movements remain unknown. [D46–D49](DECISIONS.md#saved-financial-history-and-evidence-scope--2026-11-08); HB-019.1 owns HBUX-001–036,
+HB-019.2 owns complete history HBH-001–007; HB-022 adds analytics after MVP.
+
 ## Look & feel
 Modern European bank aesthetic rather than dense admin dashboard. MUI custom theme, accessible typography (Geist/Inter candidate), subtle surfaces, warm neutral backgrounds, emerald 'free', amber reserved, red deficit; colors always paired with labels/icons. Light/dark/system. RU default, full DE/EN. Not PWA.
 
@@ -8,7 +15,8 @@ Header: financial period switcher (e.g. November / December), optional 'period p
 Hero: **safe available discretionary funds** and **main daily limit** under owner D36,with actual bank observation date. Show ordinary current-month budget free/guideline secondarily;it cannot replace the safe main limit. Exact max-based formula is Accepted in ADR0003.
 Summary: obligations total, optional savings total, future-month allocations, deficit state, next obligations.
 Primary action: **Update budget** pinned access, separate add item affordance.
-Bottom: balance/checkpoint trend with dots for actual observations, never implied daily bank balances; budget history and upcoming recurring suggestions.
+History entry: all saved checks/states are reachable through HB-019.2, not only recent entries; recurring suggestions remain explicit. Extended checkpoint charts belong to HB-022. Never imply daily bank observations.
+For a selected PAST/FUTURE month, prioritize that month’s labelled A/R/S/F and basis; dated latest-card cash is secondary with a visible non-attribution explanation. Closed months lead with the selected accepted report (latest by default, explicit old selection respected); active old allocation is separate. Future A is already confirmed cash, not expected income or future bank balance.
 
 ## Update budget flow (central interaction)
 Step 1: manually enter actual card balance and **observation date** (today default, earlier allowed); display last known point, require explicit confirmation.
@@ -17,7 +25,12 @@ Step 3: distribute the WHOLE entered card balance among financial months. Show e
 Step 4: review card, full allocation vector, reserves, savings, free/deficit and ordinary forecast; warning/affirmation for paid with unchanged balance. Unknown optional bank detail is not a blocking warning. Closed-period corrections require explicit version review. D36 chooses an explicit safe main limit with all-period protection;the formula/specification is Accepted after owner-reported final independent review;D37..D39 fixes data-age/warning behavior.
 Save all atomically, show actual observation and allocation history. Redistribution alone may reuse an already confirmed unchanged bank observation; create only a new allocation revision. Same-day sequencing is specified by HB-002. Optional operation detail belongs in a separate later path, never a prerequisite to save.
 
-For an ordinary visit after a month boundary, include an explicit choice in this same flow: actual bank check/input → choose A **Carry old budget balances** or B **Start fresh** (neither preselected) → review complete distribution and all obligation/savings funding → one primary confirmation. Do not require a preliminary old-balance confirmation or separate carry procedure. A real new check at the same amount creates a new observation with its actual date; only an explicit redistribution-only mode reuses the old check. Showing/editing the proposal without saving changes no financial data.
+Within the current Berlin month, ordinary actual-check updates need no transition
+selection unless old allocations/funding remain unresolved. After a month boundary,
+the primary named **Start month with actual balance** action deliberately chooses
+FRESH_START: real bank check/input → full vector and past non-carry/funding/future-edit
+review → explicit confirmation. CARRY and DEFER remain separate working secondary
+actions; neither primary placement nor page opening preselects a mode. Do not require a preliminary old-balance confirmation or separate carry procedure. A real new check at the same amount creates a new observation with its actual date; only an explicit redistribution-only mode reuses the old check. Showing/editing the proposal without saving changes no financial data.
 
 ## Obligations
 Cards with label,full outstanding,origin/funding month,optional due date,status unpaid/paid/cancelled and history. Possible claims have a badge and explicit full-reservation selection (reserveFull),not a partial-reserve slider or automatic inclusion. Changes retain identity and historical selection. Actions edit/pay/cancel;payment needs fresh balance and never changes bank automatically. Recurring templates propose acceptance,not automatic reserve creation.
@@ -28,13 +41,33 @@ Named earmarks, amounts, history; increase/release/delete with audit. Suggestion
 ## Months and reports
 Month selection with Current / Awaiting close / Closed / Needs reconciliation.
 Show as-of close snapshot vs today's lifecycle. Distinguish actual bank activity (calendar) from financing allocations (budget month). Do not merge or overcount previous free rollover.
-On website open, detect the current Europe/Berlin month and make the period available. Offer **Update budget** with explicit A/B choice and fresh observed balance/date;neither transition is preselected. Example when A CARRY is chosen:Nov28 bank900 EUR,Nov400/Dec500,Nov reserve300;on Dec2 enter actual840 and confirm Nov0/Dec840,same reserve300 fundedDec,free540. One action saves checkpoint,full vector,consent and funding history. No intermediate vector or bank movement;-60 is not attributed to either month's expenses. No background checkpoint,carry or automatic report closing is scheduled.
+On website open, detect the current Europe/Berlin month and make the period available. Offer **Update budget** and the primary explicitly chosen FRESH_START route with actual balance/date/full funding review; working CARRY/DEFER are secondary explicit alternatives. No transition is preselected. Example when A CARRY is chosen:Nov28 bank900 EUR,Nov400/Dec500,Nov reserve300;on Dec2 enter actual840 and confirm Nov0/Dec840,same reserve300 fundedDec,free540. One action saves checkpoint,full vector,consent and funding history. No intermediate vector or bank movement;-60 is not attributed to either month's expenses. No background checkpoint,carry or automatic report closing is scheduled.
 For B **Start fresh**, list the past months and nonnegative cash allocations the user explicitly chooses not to carry. Example last Nov20 2026 check100 EUR,Nov40/Dec60,no December visit;on Jan5 2027 enter80 and confirm Nov0/Dec0/Jan80 once. Keep old allocations and any historical free deficit in history;do not debit that deficit again. Keep December's last-known allocation/date and unknown Dec31 bank balance; create no intervening checks. Enumerate all existing unpaid obligations/savings, their unchanged amounts and proposed current funding; show full reserves and any resulting deficit. B clears planning balances only; it cannot silently mark debts paid/cancelled or release savings. Explicit separate changes require their own visible review/events. Future allocations are preserved unless explicitly edited in the complete vector.
 B remains available across several missed months regardless of historical negative free/count of missed months, without one carry per month or closing each month first. A's detailed multi-source carry proposal remains a separate review question; do not block B on that policy or silently switch A to B. Explicit **Defer transition** remains available for an ordinary update without either choice;it preserves funding and requires a complete vector summing to the checked B. Unconfirmed drafts leave all financial state unchanged. No option is selected automatically, including when the user returns after a long absence.
 Explicit transfer-only remains a technical alternative: after a Dec1 carry without a bank check, "last checked" stays Nov28 and there is no new bank dot. In the primary actual-check flow, even a repeated 900 EUR creates a real Dec2 check/date. Show internal carry separately in the budget timeline. Allocation changes are budget history, never actual spending/confirmed income without operation evidence. Missing detail is labelled incomplete, not zero spending.
 Manual close works without a final-day observation or PDF. Preview historical allocations/reserves/savings, real last-observed date and report version. If end balance unknown, label it unknown and bank data incomplete; never copy Nov20/Dec2 bank amount to Nov30 or demand a missing point. Current zero old-month allocation after transfer does not erase historical report state. Optional unexplained net is informational, not a close blocker. Late corrections require explicit review and versioning (HB-002).
 
 [Accepted ADR0002](adr/0002-month-closing-and-corrections.md) preserves the month/history contract. Simultaneous multi-source CARRY rejects OWNER_POLICY_REQUIRED until Q-HB2-02 is decided;explicit FRESH_START remains available and is never auto-selected. Negative new A rejects validation everywhere;negative F from full reserves does not block ordinary single-source CARRY.
+
+## Complete saved-state history (HB-019.2, required MVP)
+
+All saved checks, full financial states and retained original/corrected revisions
+are reachable in current/past months without closing first. Label three bases:
+**as known then** (H/pinned original K), **with later corrections** (same H/declared
+later K), and **as closed** (selected immutable version and its own H/K). Captions
+explain observed/effective/recorded dates and confirmed ordering; a budget funding
+month is not a bank date. No live past daily forecast or invented movements.
+UNKNOWN differs from a real observed zero. Changing a perspective does not create
+a report, update money or silently refresh a pinned cut. Complete bounded paging
+must not truncate older states or combine pages from different K. Safe expiry
+requires explicit refresh. Show current card context separately with its date.
+RU/DE/EN, keyboard/AT,320px/desktop/200% zoom and no-write proof are mandatory;
+[HBH scenarios](../tests/scenarios/phase-01/hb-019-2-financial-history.md) own these
+requirements. HBUX remains presentation/update proof, not full-history coverage.
+
+D44/Q-HB17-01 still rejects funding transfer plus lifecycle edit of the same
+identity. Explain transition first, separate later confirmed lifecycle update;
+never execute two hidden commits or fabricate a check/position to bypass refusal.
 
 ## Analytics & future PDF
 Optional category, 'Uncategorized' acceptable; bank statement upload to month, candidate matching/approval; explain how checkpoint movements have already been counted. No automatic double subtraction.

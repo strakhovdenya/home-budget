@@ -1,8 +1,47 @@
 # HB-019.1 — Budget update UX and month-transition clarity
 
-**Status:** Planned — owner-approved product direction D40–D45, **independent plan review and separate implementation authorization pending**.
+**Status:** Done — independent repeat ChatGPT review APPROVED 0/0/0/0 and Owner Acceptance 2026-11-08, with retained verification limits below.
 **Owner direction:** 2026-11-04. **Depends on:** HB-013, HB-017, HB-018; implementation only after HB-019 reviewed, accepted and documentation finalized.
 **Sources:** [BR-01/02/03/04/05/06/07/08](../BUSINESS_RULES.md), [D29–D45](../DECISIONS.md), Accepted [ADR0001](../adr/0001-checkpoints-and-allocations.md), [ADR0002](../adr/0002-month-closing-and-corrections.md), [ADR0003](../adr/0003-daily-forecast-and-liquidity.md), [HB-013](hb-013-period-allocations.md), [HB-017](hb-017-update-budget.md), [HB-019](hb-019-month-closing-versions-rollover.md), [task](../TASKS.md#hb-0191--budget-update-ux-and-month-transition-clarity), [scenarios](../../tests/scenarios/phase-01/hb-019-1-budget-update-ux.md).
+
+## Final acceptance — 2026-11-08
+
+The owner accepts the implementation after independent repeat review APPROVED
+(0 Critical / 0 High / 0 Medium / 0 Low), including the unclosed-month final-day
+balance correction and finance-fingerprint stage. Authenticated browser QA,
+real 320px, real 200% zoom and physical AT remain NOT EXECUTED; HB19-Q07 remains
+OPEN / NOT REPRODUCED. No historical PASS is promoted into current evidence.
+HB-019.2 remains Planned P0. One commit, feature-branch push and PR/CI are now
+authorized; merge/deploy/production remain outside authorization. Earlier dated
+stages below are retained as history. Exact final evidence is in the two linked
+verification reports; protected-document finalization requires a new finance run.
+
+## Implementation candidate — 2026-11-08 (historical authorization stage)
+
+The owner accepted the20-document stage after independent APPROVED 0/0/0/0 and
+explicitly authorized the finance-fingerprint correction and remaining UX work.
+The implementation is in Review, not Done; separate independent implementation
+review and Owner Acceptance remain required. Exact executed results/limitations:
+[UX verification](hb-019-1-verification.md) and [gate verification](hb-019-1-finance-gate-verification.md).
+No publication or HB-019.2 implementation. The earlier planning-only statements
+below describe their dated authorization stage, superseded by this explicit grant.
+
+## Current scope and ownership — 2026-11-08
+
+[D46–D49](../DECISIONS.md#saved-financial-history-and-evidence-scope--2026-11-08) requires full MVP history through
+[HB-019.2](hb-019-2-financial-history.md). This task exclusively owns all existing
+HBUX-001–036: current update/FRESH_START/secondary CARRY-DEFER, historical input
+preview/saved result and presentation of existing selected-month/report sources.
+No HBUX case moves to HB-019.2 or becomes waived. HB-019.2 exclusively owns
+HBH-001–007 complete browsing and three-perspective history, not duplicate HBUX
+acceptance. After this task, HB-019.2 and HB-020 proceed independently; HB-021 waits
+for both and the separately authorized fingerprint stage. HB-022 is extended
+analytics. HB-019 Owner Acceptance was satisfied 2026-11-05; its old defect/status
+references below describe the original plan/QA stage, not a reopened task.
+
+Product principle: money from the last confirmed state with its real check date;
+all saved states reproducible; unknown movements/balances remain unknown. No new
+finance formula, H/K algorithm, schema or mode is introduced.
 
 ## 1. Objective and accepted user experience
 
@@ -271,7 +310,20 @@ immutable history, complete reserves/future allocations and no presumed cash-flo
 remain intact. Reuse HBUX-001–025 in their existing independent slices; new
 HBUX-036 checks screen/action clarity, not a second finance engine.
 
-## 8. Documentation review boundaries and open questions
+## 8. Current documentation review boundaries — 2026-11-08
+
+This section supersedes the former planning-only instruction not to create another
+task: the owner explicitly authorized HB-019.2 and D46–D49 documentation alignment.
+HBUX cases remain Planned / NOT EXECUTED; no code/manifest/receipt changes occur.
+HB-019 OPEN-01/04 presentation direction was resolved by its 2026-11-05 owner
+instructions/acceptance; historical proof and limits remain in the findings register.
+OPEN-02 permits omitting unavailable acceptance dates without API/schema expansion.
+HB19-Q07 / OPEN-03 stays OPEN / NOT REPRODUCED; no React fix is claimed.
+HB-019.2 indexing/H/K presentation design questions are Q-HB192-01/02.
+Any proven shared domain/storage/read-contract gap still needs reviewed separate
+implementation scope. D44, D36–D39 and Accepted ADRs remain binding.
+
+## Archived documentation boundaries — 2026-11-04
 
 All Q01–Q07 / HBUX-033–036 additions are Planned / NOT EXECUTED. Existing scenario
 results, finance mapping/required guard and verification receipts are untouched.

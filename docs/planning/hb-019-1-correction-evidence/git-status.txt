@@ -1,0 +1,46 @@
+ M AGENTS.md
+ M docs/ARCHITECTURE.md
+ M docs/BUSINESS_RULES.md
+ M docs/DATA_MODEL.md
+ M docs/DECISIONS.md
+ M docs/IMPLEMENTATION_PLAN.md
+ M docs/OPEN_QUESTIONS.md
+ M docs/PRD.md
+ M docs/PRODUCT.md
+ M docs/ROADMAP.md
+ M docs/TASKS.md
+ M docs/UX.md
+ M docs/architecture.json
+ M docs/planning/hb-019-1-budget-update-ux.md
+ M scripts/check-finance-coverage.mjs
+ M src/app/months/page.tsx
+ M src/app/page.tsx
+ M src/features/budget-updates/update-budget-screen.tsx
+ M src/features/dashboard/dashboard-screen.tsx
+ M src/features/dashboard/presentation.ts
+ M src/features/month-closing/closed-month-context.tsx
+ M src/infrastructure/db/budget-update-repository.ts
+ M src/shared/i18n/messages/de.json
+ M src/shared/i18n/messages/en.json
+ M src/shared/i18n/messages/ru.json
+ M tests/dashboard-presentation.test.ts
+ M tests/dashboard.test.tsx
+ M tests/finance-coverage.test.ts
+ M tests/finance/coverage.json
+ M tests/integration/budget-projection.test.ts
+ M tests/integration/update-budget.test.ts
+ M tests/scenarios/phase-01/hb-019-1-budget-update-ux.md
+ M tests/scenarios/phase-01/hb-020-first-run-and-recurring-templates.md
+ M tests/update-budget.test.tsx
+?? docs/planning/finance-fingerprint-follow-up.md
+?? docs/planning/hb-019-1-correction-evidence/
+?? docs/planning/hb-019-1-documentation-alignment-verification.md
+?? docs/planning/hb-019-1-evidence/
+?? docs/planning/hb-019-1-finance-gate-verification.md
+?? docs/planning/hb-019-1-verification.md
+?? docs/planning/hb-019-2-financial-history.md
+?? src/features/budget-updates/budget-review.tsx
+?? src/infrastructure/db/budget-update-presentation.ts
+?? tests/finance-fingerprint.test.ts
+?? tests/hb0191-ui.test.tsx
+?? tests/scenarios/phase-01/hb-019-2-financial-history.md

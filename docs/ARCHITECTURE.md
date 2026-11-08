@@ -1,5 +1,33 @@
 # Architecture — specification-first, Codex execution, Dark Factory-inspired
 
+## Saved-history scope — owner 2026-11-08 (planned, not implemented)
+
+[D46–D49](DECISIONS.md#saved-financial-history-and-evidence-scope--2026-11-08)
+requires user access to all saved current/past checks and financial states.
+HB-019.1 owns presentation/update orchestration and existing report context;
+[HB-019.2](planning/hb-019-2-financial-history.md) owns complete historical browsing.
+As-known state(H,K), later-corrected same H/new K, and a selected immutable report
+version are distinct read perspectives; use Accepted ADR0002 selectors, real dates,
+full identity/funding evidence and UNKNOWN versus observed zero. No inferred bank
+cash, live past forecast, new finance formula or read-triggered financial mutation.
+
+Current HB-017 history is bounded to ten updates and some legacy transitions lack
+an aggregate review. Private infrastructure readAt and immutable closing readers
+are reuse candidates, not an implemented complete public history service.
+Review an owned bounded index/read port, one captured cut and consistent paging
+before implementation; app authorization, feature orchestration, pure domain
+selection and infrastructure scoped coherent reads retain their dependency direction.
+No new public endpoint, cursor mechanism, schema or library is selected here.
+The machine-readable planned scope in architecture.json changes no layer/import
+allowlist. D41–D42 already makes explicit FRESH_START the primary UI route while
+CARRY/DEFER remain working secondary routes with no domain default; older carry-first
+paragraphs below describe contract chronology, not current UI priority.
+
+HB-019 is Done; older delivery-state labels below describe their dated phases.
+Current status/evidence comes from TASKS. The separately authorized
+[fingerprint stage](planning/finance-fingerprint-follow-up.md) changes no runtime
+architecture in this documentation turn; no old receipts become current evidence.
+
 ## HB-018 management interface — local implementation, Review
 
 `/obligations` and `/savings` compose narrow `domain/management` read ports through
@@ -248,3 +276,15 @@ multi-card model, new authorization path or automatic real-bank integration.
 
 [Decision](DECISIONS.md#hb-0191-budget-update-ux-and-hb-020-first-run-scope--2026-11-04) ·
 [HB-019.1 plan](planning/hb-019-1-budget-update-ux.md).
+
+## HB-019.1 review presentation candidate — 2026-11-08
+
+Infrastructure budgetPresentation composes existing assembleSnapshot/projectAccount
+selectors for before/after state through the effective date, with original knowledge
+and candidate cuts. It copies display facts into the existing reviewed envelope.
+The account-locked confirm compares the whole review; originalEvidence validates
+new presentation copies at original H/K and permits older receipts without this
+optional copy. No domain formula, writer transaction/schema or historical endpoint
+changes. Historical result and current D36 are separate UI sections; saved amounts
+come only from verified history. Full history remains HB-019.2. See
+[verification](planning/hb-019-1-verification.md).

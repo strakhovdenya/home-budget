@@ -1,6 +1,8 @@
 # Home Budget — Implementation Plan
 
-**Status:** HB-001..HB-004 Done, as confirmed by the owner in the HB-005 request. ADRs0001/0002/0003 Accepted; D32..D39 and earlier acceptance history retained. HB-005 UI shell is Done; financial features are not implemented.
+**Current status (2026-11-08):** HB-001..HB-019 and HB-019.1 Done; HB-019.2/HB-020/HB-021 Planned. HB-019.1 has owner-reported independent repeat APPROVED 0/0/0/0 and Owner Acceptance, with the retained browser/AT limits and HB19-Q07 OPEN / NOT REPRODUCED in [TASKS](TASKS.md#hb-0191--budget-update-ux-and-month-transition-clarity). [D46–D49](DECISIONS.md#saved-financial-history-and-evidence-scope--2026-11-08) adds full saved history to MVP; future task implementation is not authorized. Current publication permits one HB-019.1 feature commit/push/PR and CI, without merge/deploy/production changes.
+
+**Historical HB-005-stage status:** HB-001..HB-004 Done, as confirmed by the owner in the HB-005 request. ADRs0001/0002/0003 Accepted; D32..D39 and earlier acceptance history retained. HB-005 UI shell is Done; financial features are not implemented.
 **Execution:** Codex in VS Code, small feature branches and reviewable PRs  
 **Scope policy:** PRD defines WHAT, business rules define finance semantics, this plan defines WHEN/HOW TO SHIP.
 
@@ -49,7 +51,8 @@ Deliver in small PRs:
 6. Complete period allocation state: sum equals checkpoint; user confirms suggested/current/past/future amounts, with each share nonnegative and expected income excluded, without suspense. State deltas are not inferred income/expenses; optional physical operation details stay separate.
 7. Monthly open/close:detect current month on access;actual balance/full distribution and explicit CARRY or FRESH_START confirm atomically,neither mode auto-selected. After HB-019 acceptance, HB-019.1 makes user-chosen FRESH_START the primary new-month UX; CARRY and DEFER remain secondary explicit actions. Preserve full reserves/savings and historical versions;FRESH_START supports missed months without compulsory per-month transfers. Complex multi-source CARRY remains excluded under Q-HB2-02. Manual close supports unknown end balance without a final-day checkpoint;re-accepted corrected ADR0002 defines historical/correction contracts. D36 requires the same safe main current limit protecting all selected reserves/savings across periods and other-month allocations;D37..D39 retain dated old-state estimates,nonblocking informational warnings and Berlin calendar-age>=7 reminder. No formulas, historical semantics, or pending HB-019 acceptance are changed by this UX planning decision.
 8. HB-020 recurring templates (retained; now approved P0 scope in D45): suggestions requiring explicit accept/edit/skip, one obligation per accepted template+period, old debt separate from the new month bill; no automatic acceptance/debit. Q-HB1-03 is resolved. The first-run onboarding scope in item 1 remains unchanged.
-9. Responsive, multilingual, accessibility and e2e budget paths. HB-019.1 precedes HB-020 and improves routine updating and the explicit new-month choice without changing financial math. HB-020 must include PostgreSQL/auth/browser first-run proofs from its [scenario contract](../tests/scenarios/phase-01/hb-020-first-run-and-recurring-templates.md); HB-021 supplies broader QA and does not substitute for those acceptance checks.
+9. HB-019.2 complete current/past saved-state history: all retained checks/states, stable bounded navigation, as-known H/K versus later-corrected H/new K and selected immutable closing versions; UNKNOWN and observed zero remain distinct. Basic history is mandatory MVP; extended analytics stays HB-022.
+10. Responsive, multilingual, accessibility and e2e budget paths. HB-019.1 precedes HB-020 and improves routine updating and the explicit new-month choice without changing financial math. HB-020 must include PostgreSQL/auth/browser first-run proofs from its [scenario contract](../tests/scenarios/phase-01/hb-020-first-run-and-recurring-templates.md); HB-021 supplies broader QA and does not substitute for those acceptance checks.
 
 **HB-019.1 sequencing/constraint (owner D40–D45):** when a new-month
 transition transfers the funding of an existing obligation or savings identity,
@@ -71,14 +74,24 @@ this documentation work does not amend HB-019 code, tests or its frozen report.
 
 **Exit gate:** user acceptance for the real routine: open once per week, enter new card balance, close paid liabilities, get accurate daily forecast; close last month without losing historical outcome.
 
-**Shared MVP definition (owner D45, 2026-11-04):** P0 includes HB-019.1 and HB-020 before HB-021. HB-020 combines previously agreed first-run owned-account onboarding and now-approved recurring templates. Sequence: finish/review/accept HB-019; independently review and separately authorize HB-019.1; independently review and authorize HB-020; then full HB-021 browser E2E/a11y. M3/M4 are outside MVP; a proposed HB-027 Vercel/deployment task has not been created. This is scope/documentation approval, not authorization for implementation, commit, push, PR, merge or deploy.
+**Historical MVP definition (owner D45, 2026-11-04; extended by D47 below):** P0 includes HB-019.1 and HB-020 before HB-021. HB-020 combines previously agreed first-run owned-account onboarding and now-approved recurring templates. Sequence: finish/review/accept HB-019; independently review and separately authorize HB-019.1; independently review and authorize HB-020; then full HB-021 browser E2E/a11y. M3/M4 are outside MVP; a proposed HB-027 Vercel/deployment task has not been created. This is scope/documentation approval, not authorization for implementation, commit, push, PR, merge or deploy.
+
+**Current MVP extension (owner D46–D49, 2026-11-08):** HB-019 Done → HB-019.1 →
+independent HB-019.2 and HB-020 → HB-021. HBUX-001–036 remain HB-019.1;
+HBH-001–007 belong to HB-019.2; HB20 cases remain HB-020. HB-021 integrates their
+proof, not a second set of financial requirements. The separate
+[fingerprint stage](planning/finance-fingerprint-follow-up.md) must close the SQL
+input/evidence-freshness gap before final HB-021 evidence. No mechanism or receipt
+changes now; prior implementation PASS remains historical. Basic versions,
+corrections and all-state history are M2; only additional analytics/import/export
+remain M3. Technical design review and implementation permission remain separate.
 
 ## Milestone M3 — History, reports and safe onboarding
 
 **Goal:** meaningful retrospection and safe import of older Markdown history.
 
 1. Bank-date vs financing-period reporting and cross-period origins, trends based on actual checkpoints.
-2. Closed snapshot versions, correction diffs, a timeline per savings goal and obligation.
+2. Extended cross-period comparison and analytical views of lifecycle/funding. Closing versions, correction integrity and basic complete history are M2, not deferred here.
 3. Optional category tagging and cash movements; no forced per-purchase entry.
 4. Guided historical October import from locally supplied private Markdown data; provenance and unresolved differences, no fake income.
 5. Export to private JSON/CSV, import validation and backup restore design.

@@ -1,5 +1,9 @@
 # Roadmap — milestones and evidence gates
 
+**Current scope — 2026-11-08:** [D46–D49](DECISIONS.md#saved-financial-history-and-evidence-scope--2026-11-08) makes full saved
+financial history mandatory MVP scope. Phase0/1 prose below describes the original
+sequence; actual completion/evidence is in [TASKS](TASKS.md).
+
 ## Phase 0 — Product contracts (this commit)
 - Normative rules, architecture, data model, UX, privacy policy, scenario specs, Codex workflow and agent skills.
 - Exit: review unresolved items and prioritize finance invariants; no product implementation yet.
@@ -11,15 +15,20 @@
 - Detailed spec: docs/planning/phase-01-foundation.md.
 
 ## Phase 2 — Usable personal budgeting
-- Bank-like responsive dashboard, update-budget wizard, obligation and savings management. Regular-payment proposals have pending MVP membership (HB-020, Q-HB1-03); their behavior remains agreed.
-- Auto-open month with next-open cash transfer proposal requiring one-button confirmation; full earmarks persist once. Manual close supports incomplete bank data without a final-day checkpoint; immutable versions retain old allocations after transfer. Audit timeline and stale balance reminder.
+- Bank-like responsive dashboard, update-budget wizard, obligation and savings management. HB-020 onboarding and recurring proposals are P0 MVP scope under D45.
+- Auto-open calendar month; primary explicitly confirmed FRESH_START, secondary working CARRY/DEFER, no automatic mode; full earmarks persist once. Manual close supports incomplete bank data without a final-day checkpoint; immutable versions retain old allocations after transfer. Audit timeline and stale balance reminder.
 - End-to-end tests on mobile and desktop; scenario signoff.
 
-MVP common baseline: P0 tasks through HB-021; HB-020 inclusion awaits [Q-HB1-03](OPEN_QUESTIONS.md#hb-001-approval-register--unresolved-no-business-rule-changed). Phase 3/4 remain outside MVP. This pending decision is shared with PRD, Implementation Plan and task register.
+MVP common baseline: HB-019 Done → HB-019.1 Done (Owner Accepted 2026-11-08) → independent HB-019.2 and HB-020 →
+HB-021. HB-019.2 provides all saved current/past checks and financial states,
+separating as-known H/K, later corrections and immutable closing versions.
+The [fingerprint technical stage](planning/finance-fingerprint-follow-up.md)
+is required before final HB-021 evidence. All future implementation needs separate
+permission. Phase3/4 extended analytics/import/PDF remain outside MVP.
 
 ## Phase 3 — Historical reports & import
 - Calendar vs financial-month views, comparisons, category optional, CSV/JSON export, optional October history import (local authorized process, never commit raw bank data).
-- Robust past-dated corrections, origin/carryover report, versioned closure migration tests.
+- Extended origin/carryover analytics and historical import tooling; existing corrections, closing versions and basic history remain M2 requirements.
 
 ## Phase 4 — Optional documents
 - Private PDF storage, parse text/OCR, draft matching, user approval, categorization, checkpoint interval reconciliation.

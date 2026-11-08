@@ -1,0 +1,1 @@
+HB015_GATE_REJECTED (manifest, current-run evidence or executed assertions invalid)

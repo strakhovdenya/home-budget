@@ -59,7 +59,7 @@ it('HB17-X11 unknown commit status retains original command and never silently r
   expect(f.actions.status).toHaveBeenCalledWith(original.requestId);expect(f.actions.confirm).toHaveBeenCalledTimes(1);
 });
 it('HB17-X05 transitions and their consent are never preselected',async()=>{
-  const f=setup();render(f.tree);expect((screen.getByRole('combobox',{name:'Choose action'}) as HTMLElement).textContent).toContain('Choose explicitly');
+  const f=setup();render(f.tree);expect(screen.queryByRole('combobox',{name:'Choose action'})).toBeNull();await userEvent.click(screen.getByText('Other explicitly confirmed actions'));expect((screen.getByRole('combobox',{name:'Choose action'}) as HTMLElement).textContent).toContain('Choose explicitly');
   await userEvent.click(screen.getByRole('combobox',{name:'Choose action'}));await userEvent.click(screen.getByRole('option',{name:'Start fresh while retaining obligations and savings'}));
   expect((screen.getByRole('checkbox',{name:/I confirm clearing past active allocations/}) as HTMLInputElement).checked).toBe(false);
   expect((screen.getByRole('checkbox',{name:/I confirm the full transfer/}) as HTMLInputElement).checked).toBe(false);

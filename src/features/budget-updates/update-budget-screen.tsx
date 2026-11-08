@@ -12,48 +12,7 @@ import { formatCalendarDate } from '@/features/dashboard/presentation';
 import { initialForm, makeBudgetCommand, FormInputError, type BudgetActions, type DraftEdit, type UpdateForm, type UpdateSeed } from './presentation';
 import { parseBudgetDraft,cashVectorGap } from '@/domain/budget-update/validation';
 
-type ReviewState={title:string;fundingPeriodId:string;originalCents?:string;outstandingCents?:string;amountCents?:string;status:string;reserveFull?:boolean};
-type FinancialReview={effectiveDate:string;bank:{balanceCents:string;observedDate:string};allocations:{period:string;amountCents:string}[];fundingPeriods:{id:string;period:string}[];
-  projection:{bank?:{balance:string;observedDate:string};periods?:{period:string;allocated:string;reserved:string;savings:string;free:string;deficit:string}[];
-    safe?:{safeAvailable:string;safeDailyLimit:string;coverageGroups:{amount:string;meanings:string[]}[]};freshness?:{showReminder:boolean;ageDays:number}};
-  obligations:{action:string;before:ReviewState|null;after:ReviewState;payment:{amountCents:string;source:string;unchangedBalanceAcknowledged:boolean}|null}[];
-  savings:{action:string;before:ReviewState|null;after:ReviewState;confirmedIncreaseAmount:string|null;confirmedReleasedAmount:string|null}[]};
-function Review({review}:{review:{financial:FinancialReview}}){
-  const t=useTranslations('budgetUpdate'),d=useTranslations('dashboard'),locale=useLocale(),f=review.financial,m=(c:string)=>formatMoney(c,locale);
-  return <Stack spacing={2}>
-    <Typography>{t('bank')}: {m(f.bank.balanceCents)} · {formatCalendarDate(f.bank.observedDate,locale)}</Typography>
-    <Typography>{t('effectiveDate')}: {formatCalendarDate(f.effectiveDate,locale)}</Typography>
-    {f.projection.safe?<><Typography component="h3" variant="h4">{t('safeDaily')}: {m(f.projection.safe.safeDailyLimit)}</Typography>
-      <Typography>{t('safeAvailable')}: {m(f.projection.safe.safeAvailable)}</Typography></>:null}
-    {f.projection.bank?<Typography>{t('currentBasis',{amount:m(f.projection.bank.balance),date:formatCalendarDate(f.projection.bank.observedDate,locale)})}</Typography>:null}
-    {f.projection.safe?.coverageGroups.map(g=><Alert key={g.amount} severity="warning"><Typography>{d('shortage',{amount:m(g.amount)})}</Typography>
-      {g.meanings.map(meaning=><Typography key={meaning}>{d(`meaning.${meaning}`)}</Typography>)}</Alert>)}
-    {f.projection.safe&&f.projection.safe.coverageGroups.length>1?<Typography>{d('nonAdditive')}</Typography>:null}
-    {f.projection.freshness?.ageDays?<Alert severity="info">{t('oldData')}{f.projection.freshness.showReminder?' '+t('reminder'):''}</Alert>:null}
-    {f.projection.periods?.map(p=><Box key={p.period} component="dl" sx={{m:0,p:2,border:1,borderColor:'divider',borderRadius:1,minWidth:0}}>
-      <Typography component="dt" sx={{fontWeight:700}}>{p.period}</Typography>
-      {(['allocated','reserved','savings','free','deficit'] as const).map(k=><Box key={k} sx={{display:'flex',gap:2,justifyContent:'space-between',flexWrap:'wrap'}}>
-        <Typography component="dt">{t(k)}</Typography><Typography component="dd" sx={{m:0,fontVariantNumeric:'tabular-nums',overflowWrap:'anywhere'}}>{m(p[k])}</Typography>
-      </Box>)}
-    </Box>)}
-    {[...f.obligations,...f.savings].map((e,i)=><Box key={i} sx={{p:2,border:1,borderColor:'divider',borderRadius:1,overflowWrap:'anywhere'}}>
-      <Typography sx={{fontWeight:700}}>{e.after.title}: {t(`action.${e.action}`)}</Typography>
-      {(['before','after'] as const).map(key=>{const state=e[key];return <Box key={key} sx={{mt:1}}><Typography sx={{fontWeight:600}}>{t(key)}</Typography>
-        {state?<><Typography>{t('name')}: {state.title}</Typography><Typography>{t('fundingPeriod')}: {f.fundingPeriods.find(p=>p.id===state.fundingPeriodId)?.period??'—'}</Typography>
-          <Typography>{t('itemStatus')}: {t(`status.${state.status}`)}</Typography>
-          {state.originalCents!==undefined?<Typography>{t('originalAmount')}: {m(state.originalCents)}</Typography>:null}
-          {state.outstandingCents!==undefined?<Typography>{t('outstandingAmount')}: {m(state.outstandingCents)}</Typography>:null}
-          {state.amountCents!==undefined?<Typography>{t('amount')}: {m(state.amountCents)}</Typography>:null}
-          {state.reserveFull!==undefined?<Typography>{t('reserveFull')}: {t(state.reserveFull?'yes':'no')}</Typography>:null}
-        </>:<Typography>—</Typography>}</Box>;})}
-      {'payment' in e&&e.payment?<><Typography>{t('paymentAmount')}: {m(e.payment.amountCents)}</Typography><Typography>{t('paymentSource')}: {t(e.payment.source==='TRACKED_CARD'?'trackedCard':'outsideCard')}</Typography>
-        <Typography>{t('unchangedConsent')}: {t(e.payment.unchangedBalanceAcknowledged?'yes':'no')}</Typography></>:null}
-      {'confirmedReleasedAmount' in e&&e.confirmedReleasedAmount!==null?<Typography>{t('releasedAmount')}: {m(e.confirmedReleasedAmount)}</Typography>:null}
-      {'confirmedIncreaseAmount' in e&&e.confirmedIncreaseAmount!==null?<Typography>{t('increasedAmount')}: {m(e.confirmedIncreaseAmount)}</Typography>:null}
-    </Box>)}
-    <Typography variant="body2">{t('nonPosting')}</Typography>
-  </Stack>;
-}
+import { BudgetReview as Review, type BudgetReviewData } from './budget-review';
 const box={p:{xs:2,sm:3},minWidth:0} as const;
 export function UpdateBudgetScreen({initialSeed,actions,scopeKey='standalone'}:{initialSeed:UpdateSeed;actions:BudgetActions;scopeKey?:string}){
   const store=useBudgetWorkspace(scopeKey);
@@ -68,9 +27,10 @@ function UpdateBudgetForm({initialSeed,actions}:{initialSeed:UpdateSeed;actions:
   const [reviewed,setReviewed]=useBudgetState<CanonicalValue|null>('reviewed',null),[pending,setPending]=useBudgetState('pending',false),[dirty,setDirty]=useBudgetState('dirty',false);
   const [error,setError]=useBudgetState('error',''),[unknown,setUnknown]=useBudgetState('unknown',false),[receipt,setReceipt]=useBudgetState<CommitReceipt|null>('receipt',null),[readFailed,setReadFailed]=useBudgetState('readFailed',false);
   const [accessLost,setAccessLost]=useBudgetState('accessLost',false);
+  const [alternatives,setAlternatives]=useBudgetState('alternatives',false);
   const [entryError]=useBudgetState('entryError',false);
   const [fieldError,setFieldError]=useBudgetState('fieldError','');const formRef=useRef<HTMLFormElement>(null),resultRef=useRef<HTMLDivElement>(null);
-  const [history,setHistory]=useBudgetState<{receipt:CommitReceipt;recordedAt:string;review:{financial:FinancialReview}}[]>('history',[]);
+  const [history,setHistory]=useBudgetState<{receipt:CommitReceipt;recordedAt:string;review:BudgetReviewData}[]>('history',[]);
   const generation=useBudgetRef('generation',0),original=useBudgetRef<CanonicalValue|null>('original',null),busy=useBudgetRef('busy',false),errorRef=useRef<HTMLDivElement>(null);
   useEffect(()=>{if(error){const input=fieldError?formRef.current?.elements.namedItem(fieldError):null;
     if(input instanceof HTMLElement)input.focus();else errorRef.current?.focus();}},[error,fieldError]);
@@ -86,11 +46,14 @@ function UpdateBudgetForm({initialSeed,actions}:{initialSeed:UpdateSeed;actions:
   function edit(key:string,patch:Partial<DraftEdit>){change({edits:form.edits.map(e=>e.key===key?{...e,...patch}:e)});}
   function add(kind:DraftEdit['kind']){change({edits:[...form.edits,{key:crypto.randomUUID(),kind,identityId:'',action:'CREATE',title:'',amount:'',period:seed.today.slice(0,7),dueDate:'',bankDate:'',isPossible:false,reserveFull:true,source:'TRACKED_CARD'}]});}
   const paid=form.edits.some(e=>e.kind==='OBLIGATION'&&['PAID','PARTIAL_SETTLEMENT'].includes(e.action));
-  const review=reviewed?(reviewed as unknown as {payload:{review:{financial:FinancialReview}}}).payload.review:null;
+  const review=reviewed?(reviewed as unknown as {payload:{review:BudgetReviewData}}).payload.review:null;
   const disabled=pending||unknown;
+  const current=seed.today.slice(0,7),unresolved=seed.allocations.some(a=>a.period<current&&a.amountCents!=='0')||seed.obligations.some(o=>o.status==='UNPAID'&&o.fundingPeriod<current)||seed.savings.some(s=>s.status==='ACTIVE'&&s.fundingPeriod<current);
+  const saved=history.find(h=>h.receipt.updateId===receipt?.updateId);
   const message=(code:string)=>{
     if(code==='SAME_IDENTITY_COMPOUND_NOT_SUPPORTED')return t('errors.compound');
     if(code==='PAYMENT_CONFIRMATION_REQUIRED')return t('errors.payment');
+    if(code==='TRANSITION_CONFIRMATION_REQUIRED')return t('chooseTransition');
     if(code==='OWNER_POLICY_REQUIRED')return t('errors.policy');
     if(code==='UNAUTHORIZED'||code==='FORBIDDEN'){setAccessLost(true);original.current=null;setReviewed(null);return t('errors.access');}
     if(/STALE|CONFLICT|ORDERING|REPORT_IMPACT|TARGET_PERIOD/.test(code))return t('errors.conflict');
@@ -121,7 +84,10 @@ function UpdateBudgetForm({initialSeed,actions}:{initialSeed:UpdateSeed;actions:
     <Button component={Link} href="/" prefetch={false} sx={{alignSelf:'flex-start'}}>{t('back')}</Button>
     {entryError?<Alert severity="warning">{t('errors.conflict')}</Alert>:null}
     {error?<Alert id="budget-update-error" severity="error" ref={errorRef} tabIndex={-1} role="alert">{error}</Alert>:null}
-    {receipt?<Alert severity="success" ref={resultRef} tabIndex={-1} role="status">{t('saved')} <Typography component="span" sx={{overflowWrap:'anywhere'}}>{receipt.updateId}</Typography></Alert>:null}
+    {receipt?<Alert severity="success" ref={resultRef} tabIndex={-1} role="status">{t('saved')}
+      {saved?<><Typography>{t('bank')}: {formatMoney(saved.review.financial.bank.balanceCents,locale)} · {formatCalendarDate(saved.review.financial.bank.observedDate,locale)}</Typography>
+        {saved.review.financial.allocations.map(a=><Typography key={a.period}>{a.period}: {formatMoney(a.amountCents,locale)}</Typography>)}</>:null}
+      <Box component="details"><Box component="summary">{t('technicalReference')}</Box>{receipt.updateId}</Box></Alert>:null}
     {readFailed?<Alert severity="warning">{t('savedReadFailed')}<Button onClick={()=>readHistory(receipt?.updateId)}>{t('retryRead')}</Button></Alert>:null}
     {unknown?<Alert severity="warning"><Typography>{t('unknown')}</Typography><Button onClick={status} disabled={pending}>{t('checkResult')}</Button>
       <Button onClick={()=>confirm(true)} disabled={pending}>{t('retrySame')}</Button></Alert>:null}
@@ -153,14 +119,17 @@ function UpdateBudgetForm({initialSeed,actions}:{initialSeed:UpdateSeed;actions:
           <TextField label={t('reason')} value={form.reason} disabled={disabled} onChange={e=>change({reason:e.target.value})}/>
         </Stack></Paper>
         {seed.bank?<Paper variant="outlined" sx={box}><Stack spacing={2}>
+          {unresolved?<><Typography>{t('chooseTransition')}</Typography><Button variant="contained" disabled={disabled} aria-pressed={form.mode==='FRESH_START'} onClick={()=>change({mode:'FRESH_START',reuse:false,fundingConfirmed:false,nonCarryConfirmed:false,futureConfirmed:false})}>{t('startFresh')}</Button></>:<Typography>{t('sameMonthRoutine')}</Typography>}
+          <Button disabled={disabled} aria-expanded={alternatives} onClick={()=>setAlternatives(!alternatives)}>{t('otherActions')}</Button>
+          {alternatives||!!form.mode||form.reuse?<Box>
           <Typography component="h2" variant="h3">{t('transition')}</Typography>
-          <TextField select label={t('mode')} value={form.mode} disabled={disabled} slotProps={{select:{displayEmpty:true},inputLabel:{shrink:true}}} onChange={e=>change({mode:e.target.value as UpdateForm['mode'],fundingConfirmed:false,nonCarryConfirmed:false,futureConfirmed:false})}>
+          <TextField fullWidth select label={t('mode')} value={form.mode} disabled={disabled} slotProps={{select:{displayEmpty:true},inputLabel:{shrink:true}}} onChange={e=>change({mode:e.target.value as UpdateForm['mode'],...(e.target.value==='FRESH_START'?{reuse:false}:{}),fundingConfirmed:false,nonCarryConfirmed:false,futureConfirmed:false})}>
             <MenuItem value="">{t('noTransition')}</MenuItem>{['CARRY','FRESH_START','DEFER'].map(m=><MenuItem key={m} value={m}>{t(`modeLabel.${m}`)}</MenuItem>)}
           </TextField>
           {form.mode==='CARRY'?<TextField label={t('source')} type="month" value={form.source} disabled={disabled} onChange={e=>change({source:e.target.value})} slotProps={{inputLabel:{shrink:true}}}/>:null}
           {form.mode==='CARRY'||form.mode==='FRESH_START'?consent('fundingConfirmed','fundingConsent'):null}
           {form.mode==='FRESH_START'?<>{consent('nonCarryConfirmed','nonCarryConsent')}{consent('futureConfirmed','futureConsent')}</>:null}
-          {form.reuse&&!form.mode?consent('unchangedFunding','unchangedFundingConsent'):null}
+          {form.reuse&&!form.mode?consent('unchangedFunding','unchangedFundingConsent'):null}</Box>:null}
         </Stack></Paper>:null}
       </Stack>
       <Stack spacing={3} sx={{minWidth:0,alignSelf:'start'}}>
@@ -173,7 +142,7 @@ function UpdateBudgetForm({initialSeed,actions}:{initialSeed:UpdateSeed;actions:
         </Stack></Paper>
         <Button disabled={pending||unknown} onClick={reload}>{t('reloadBase')}</Button>
         <Button disabled={pending} onClick={()=>readHistory()}>{t('history')}</Button>
-        {history.map(h=><Paper key={h.receipt.updateId} variant="outlined" sx={box}><Typography sx={{overflowWrap:'anywhere'}}>{h.receipt.updateId}</Typography>
+        {history.filter(h=>h.receipt.updateId!==receipt?.updateId).map(h=><Paper key={h.receipt.updateId} variant="outlined" sx={box}><Box component="details"><Box component="summary">{t('technicalReference')}</Box>{h.receipt.updateId}</Box>
           <Typography>{t('recordedAt')}: {new Intl.DateTimeFormat(locale,{dateStyle:'long',timeStyle:'short',timeZone:'Europe/Berlin'}).format(new Date(h.recordedAt))}</Typography><Review review={h.review}/></Paper>)}
       </Stack>
     </Box>

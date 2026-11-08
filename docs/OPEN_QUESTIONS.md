@@ -1,5 +1,25 @@
 # Remaining implementation-level questions
 
+## History implementation questions — 2026-11-08
+
+All four product choices are **resolved by owner D46–D49**: complete MVP history,
+HB-019.2 P0, three H/K/report perspectives, and a separate fingerprint stage.
+[Decision](DECISIONS.md#saved-financial-history-and-evidence-scope--2026-11-08); [history plan](planning/hb-019-2-financial-history.md).
+No implementation, schema or new financial algorithm is approved here.
+
+| ID | Remaining technical design | Gate |
+|---|---|---|
+| Q-HB192-01 | Complete index of all saved C/V/lifecycle/funding facts, including legacy transitions; bounded consistent pagination/cursor expiry and resource admission | Reviewed HB-019.2 read contract before implementation; never silently truncate to latest ten |
+| Q-HB192-02 | Accessible selection and display of valid original/later knowledge cuts and confirmed same-day positions under existing state(H,K) semantics | HB-019.2 screen/read-contract review; no invented dates/order or new selector policy |
+
+D41–D42 makes intentional FRESH_START primary; no mode has an automatic domain
+default. CARRY/DEFER remain additional explicit actions. D44 remains binding.
+The dated HB-017 and earlier stages below retain their historical statuses;
+[TASKS](TASKS.md) is the current delivery register. Their old no-runtime statements
+are not current implementation claims. Multi-source CARRY/overdraft/historical
+overspend remain outside approval. [Fingerprint plan](planning/finance-fingerprint-follow-up.md)
+tracks D49; no context-hash refresh or receipt reuse is authorized in this stage.
+
 ## HB-017 planning review — 2026-11-03
 
 **Resolved by owner on 2026-11-03.** The original questions are retained as history;

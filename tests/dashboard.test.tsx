@@ -6,7 +6,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { renderToString } from 'react-dom/server';
 import { hydrateRoot } from 'react-dom/client';
 import { DashboardScreen, DashboardLoading } from '@/features/dashboard/dashboard-screen';
-import { dashboardPresentation, type DashboardView } from '@/features/dashboard/presentation';
+import { dashboardPresentation, formatCalendarDate, type DashboardView } from '@/features/dashboard/presentation';
 import { formatMoney } from '@/features/dashboard/format-money';
 import { AppThemeProvider } from '@/shared/ui/app-theme-provider';
 import { catalogs } from '@/shared/i18n/catalogs';
@@ -19,6 +19,23 @@ afterEach(cleanup);
 beforeEach(()=>{vi.clearAllMocks();localStorage.clear();window.matchMedia=vi.fn((query:string)=>({media:query,onchange:null,matches:false,addListener:vi.fn(),removeListener:vi.fn(),addEventListener:vi.fn(),removeEventListener:vi.fn(),dispatchEvent:vi.fn()}));});
 const ready=()=>dashboardPresentation(value(encodeProjection(value(projectAccount(state(10000n,undefined,[obligation(20000n,'2026-12')]),'2026-11-28')))));
 function tree(view:DashboardView,locale:keyof typeof catalogs='en',base:'/'|'/months'='/') {return <NextIntlClientProvider locale={locale} messages={catalogs[locale]} timeZone="Europe/Berlin"><AppThemeProvider><DashboardScreen view={view} base={base}/></AppThemeProvider></NextIntlClientProvider>;}
+it.each(['ru','de','en'] as const)('HBUX-028 unclosed final-day known, zero and UNKNOWN copy in %s',locale=>{
+  for(const [observed,amount,known] of [['2026-10-31',50000n,true],['2026-10-31',0n,true],['2026-10-30',50000n,false],['2026-11-01',60000n,false]] as const){
+    const s=state(amount,{'2026-10':amount}),asOf=day('2026-11-04');
+    const input={...s,checkpoint:{...s.checkpoint,observedDate:day(observed)},allocationEffectiveDate:day(observed),provenance:{...s.provenance,historicalThroughDate:asOf}};
+    const view=dashboardPresentation(value(encodeProjection(value(projectPeriod(input,asOf,'2026-10')))));
+    const r=render(tree(view,locale,'/months')),copy=catalogs[locale].dashboard;
+    expect(screen.queryByText(copy.monthEndUnknown)!==null).toBe(!known);
+    expect(screen.queryByText(copy.bankNoncurrent)!==null).toBe(!known);
+    expect(screen.queryByText(copy.bankFinalDayBasis)!==null).toBe(known);
+    if(known){
+      const text=copy.monthEndObserved.replace('{date}',formatCalendarDate(observed,locale)).replace('{amount}',formatMoney(amount.toString(),locale));
+      expect(screen.getByText(text.replaceAll('\u00a0',' '))).toBeTruthy();
+    }
+    expect(screen.queryByText(copy.safeDaily)).toBeNull();
+    expect(screen.getByText(copy.pastBasis)).toBeTruthy();r.unmount();
+  }
+});
 it('HB16-B01/D07 renders safe main versus ordinary and a single grouped shortage with all meanings, without financial actions',()=>{
   render(tree(ready()));
   expect(screen.getByText('Safe daily limit')).toBeTruthy();expect(screen.getByText('€33.33')).toBeTruthy();

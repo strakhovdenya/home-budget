@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { Box, Button, Chip, Paper, Skeleton, Stack, Typography } from '@mui/material';
 import type { DashboardView } from './presentation';
-import { formatCalendarDate, formatMonth } from './presentation';
+import { confirmedMonthEndBank, formatCalendarDate, formatMonth } from './presentation';
 import { formatMoney } from './format-money';
 import { PeriodNavigation } from './period-navigation';
 
@@ -22,9 +22,15 @@ export function DashboardScreen({ view, base = '/' }: { view: DashboardView; bas
   const update = useTranslations('budgetUpdate');
   const money = (c: string) => formatMoney(c, locale), date = (d: string) => formatCalendarDate(d, locale);
   const hasPeriod = view.kind === 'READY' || view.kind === 'UNAVAILABLE';
+  const monthEndBank = confirmedMonthEndBank(view);
+  const bank=(hasPeriod && view.bank ? <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3 }, minWidth: 0 }}>
+      <Box component="dl" sx={{ m: 0 }}><Metric label={t('bank')} value={money(view.bank.balance)} prominent={view.kind==='READY'&&view.mode==='CURRENT'} /></Box>
+      <Typography sx={{ mt: 1 }}>{t('observed', { date: date(view.bank.observedDate) })}</Typography>
+      <Typography color="text.secondary" variant="body2">{t(view.kind === 'READY' && view.mode === 'CURRENT' ? 'bankBasis' : monthEndBank !== null ? 'bankFinalDayBasis' : 'bankNoncurrent')}</Typography>
+    </Paper> : null);
   return <Stack spacing={3} sx={{ minWidth: 0 }}>
     <Box><Typography variant="overline" color="text.secondary">{t('eyebrow')}</Typography><Typography component="h1" variant="h1">{nav(base === '/' ? 'overview' : 'months')}</Typography></Box>
-    {view.kind==='READY'||view.kind==='UNAVAILABLE'?<Button component={Link} prefetch={false} href="/update-budget" variant="contained" sx={{alignSelf:'flex-start'}}>{update('title')}</Button>:null}
+    {view.kind==='READY'||view.kind==='UNAVAILABLE'?<Button component={Link} prefetch={false} href="/update-budget" variant="contained" sx={{alignSelf:'flex-start'}}>{base==='/'?update('title'):update('transitionEntry')}</Button>:null}
     {hasPeriod ? <>
       <Stack spacing={1}>
         <Box role="status" aria-live="polite" aria-atomic="true"><Typography component="h2" variant="h2">{formatMonth(view.period, locale)}</Typography></Box>
@@ -33,11 +39,7 @@ export function DashboardScreen({ view, base = '/' }: { view: DashboardView; bas
       <PeriodNavigation key={view.period} period={view.period} base={base} />
       <Typography variant="body2" color="text.secondary">{t('asOf', { date: date(view.asOfDate) })}</Typography>
     </> : null}
-    {hasPeriod && view.bank ? <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3 }, minWidth: 0 }}>
-      <Box component="dl" sx={{ m: 0 }}><Metric label={t('bank')} value={money(view.bank.balance)} prominent /></Box>
-      <Typography sx={{ mt: 1 }}>{t('observed', { date: date(view.bank.observedDate) })}</Typography>
-      <Typography color="text.secondary" variant="body2">{t(view.kind === 'READY' && view.mode === 'CURRENT' ? 'bankBasis' : 'bankNoncurrent')}</Typography>
-    </Paper> : null}
+    {view.kind!=='READY'||view.mode==='CURRENT'?bank:null}
     {view.kind === 'READY' ? <>
       {view.safe ? <Paper component="section" aria-labelledby="safe-heading" variant="outlined" sx={{ p: { xs: 2, sm: 3 }, borderColor: 'primary.main', borderWidth: 2, minWidth: 0 }}>
         <Typography id="safe-heading" component="h2" variant="h3">{t('safeTitle', { date: date(view.bank.observedDate) })}</Typography>
@@ -48,11 +50,13 @@ export function DashboardScreen({ view, base = '/' }: { view: DashboardView; bas
       <Paper component="section" aria-labelledby="budget-heading" variant="outlined" sx={{ p: { xs: 2, sm: 3 }, minWidth: 0 }}>
         <Typography id="budget-heading" component="h2" variant="h3">{t('budgetTitle')}</Typography>
         <Box component="dl" sx={{ m: 0, mt: 2, display: 'grid', gap: 3, gridTemplateColumns: { xs: 'minmax(0,1fr)', sm: 'repeat(2,minmax(0,1fr))', lg: 'repeat(3,minmax(0,1fr))' } }}>
-          {(['allocated', 'free', 'reserved', 'savings', 'deficit'] as const).map(k => <Metric key={k} label={t(k)} value={money(view.budget[k])} />)}
+          {(['allocated', 'free', 'reserved', 'savings', 'deficit'] as const).map(k => <Metric prominent={view.mode!=='CURRENT'&&(k==='allocated'||k==='free')} key={k} label={t(k)} value={money(view.budget[k])} />)}
           {view.budget.ordinary.kind === 'BUDGET_ESTIMATE' ? <Metric label={t(view.mode === 'FUTURE' ? 'futureGuideline' : 'ordinary')} value={money(view.budget.ordinary.ordinaryGuideline)} /> : null}
         </Box>
         <Typography color="text.secondary" sx={{ mt: 2 }}>{t(view.mode === 'CURRENT' ? 'ordinaryBasis' : view.mode === 'FUTURE' ? 'futureBasis' : 'pastBasis')}</Typography>
       </Paper>
+      {view.mode!=='CURRENT'?bank:null}
+      {view.mode==='PAST'?<Typography>{monthEndBank !== null ? t('monthEndObserved', { amount: money(monthEndBank.balance), date: date(monthEndBank.observedDate) }) : t('monthEndUnknown')}</Typography>:view.mode==='FUTURE'?<Typography>{t('futureCashUnknown')}</Typography>:null}
       <Stack component="section" aria-label={t('noticesTitle')} spacing={2}>
         {view.freshness.notices.map(n => <Paper key={n} variant="outlined" sx={{ p: 2 }}><Typography>{t(`notice.${n}`)}</Typography></Paper>)}
         {view.safe?.coverageGroups.map(g => <Paper key={g.amount} variant="outlined" sx={{ p: 2, borderColor: 'warning.main' }}>

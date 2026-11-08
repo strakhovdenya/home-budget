@@ -44225,11 +44225,11 @@
     },
     {
       "path": "docs/BUSINESS_RULES.md",
-      "sha256": "05b6821df1f25067f77eb691712124636f1be71635d28e80b8ed9d1c2c698557"
+      "sha256": "0fa6fe5cbaa3b9f86967cad70f24fda188ddee20ea18ed27acccf2d365c8bafc"
     },
     {
       "path": "docs/DECISIONS.md",
-      "sha256": "5607b75be8954da61b9f96769c8a61c32c38969c7a92755fa3e8f895a2a565cc"
+      "sha256": "ce3a60157ce4b118fc23bf08ecdf0f19d894ac8847c10806921847459bf55221"
     },
     {
       "path": "docs/adr/0001-checkpoints-and-allocations.md",
@@ -44245,15 +44245,15 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "sha256": "fe519ce9c3f07736f0edf433db4c87b33abb8957ed3f2463b8814c9a70b31695"
+      "sha256": "b5dc7f1046a142fbc6f19a983f93bb5be269da4076ac525946ec0d74d06c6c69"
     },
     {
       "path": "docs/architecture.json",
-      "sha256": "eacc757d4ee1e41db7dff68c22b163d3983af3776e36cebbae29b63980199a1b"
+      "sha256": "de32658319ff23a2fbd73ee399d7279e651e857a50b26c99ebe78046231dd181"
     },
     {
       "path": "docs/DATA_MODEL.md",
-      "sha256": "56906e6c56c5e176d672201639572c62e87d56e911ac1f6bb42c85c4816c780d"
+      "sha256": "20bce576f8edc77981afd338eeeb805187ccb2c870a79b8bd2b41f9abcba1f3e"
     },
     {
       "path": "docs/conventions.md",
@@ -44261,19 +44261,31 @@
     },
     {
       "path": "docs/PRD.md",
-      "sha256": "9f1dcf63f005b02605430e03c6fec2d79a81be4c9bef74455b51b055ebaf3bb6"
+      "sha256": "49af6d189b96363ec749c638504307aaa9f8164a2a6aee9643020e1b61a20f93"
+    },
+    {
+      "path": "docs/UX.md",
+      "sha256": "20ad92addef49791487acc7c6c366e6cf53e252e475bf7855f840f85de4f9087"
     },
     {
       "path": "docs/TASKS.md",
-      "sha256": "21cb128a12430ab773407b864d6f546a64e0edc3299b69946a9f8d1439abd06e"
+      "sha256": "b59a76540af129c998f7e7ea720123fa75be2e42ee3bbb2df8241cd3923c3d1d"
     },
     {
       "path": "docs/OPEN_QUESTIONS.md",
-      "sha256": "6cf5bb7eb0b8161009d00755bbf92852989d9948cecdca164c0b15af8568c3ab"
+      "sha256": "f386b9888eaacc82d3f454f60bf2a2e56976b5457aab10f6915b7d936f7fb850"
     },
     {
       "path": "docs/IMPLEMENTATION_PLAN.md",
-      "sha256": "e86f416cbaca8b4b041b32ce2cfb8e7355175c7a72e0970f2105d9cbc975573c"
+      "sha256": "981d90b2bee845407809cf4fa17aecaf4ca56d0f3a8f7619b609e05e3d0fe503"
+    },
+    {
+      "path": "docs/planning/hb-019-1-budget-update-ux.md",
+      "sha256": "d47923fb0e83ae93ef01e08896af148dd0b8008f8857735aba84eab0e0d632b2"
+    },
+    {
+      "path": "docs/planning/finance-fingerprint-follow-up.md",
+      "sha256": "944405707bbadcbf16d432d635a561cae22e76f675ee5081b8bd8f89cae2a570"
     },
     {
       "path": "docs/planning/hb-008-money-dates.md",

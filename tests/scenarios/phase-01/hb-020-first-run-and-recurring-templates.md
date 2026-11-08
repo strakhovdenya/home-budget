@@ -3,7 +3,10 @@
 Status: **Planned; documentation / scope update only**. Every scenario below is
 **NOT EXECUTED**. No onboarding implementation or executable test is authorized
 in HB-019 by this document. HB-020 retains its existing recurring-template scope,
-P1 priority and unresolved recurring-template MVP membership under Q-HB1-03.
+P0 MVP priority under owner D45 (2026-11-04); Q-HB1-03 is resolved.
+D47 (2026-11-08): HB-020 and HB-019.2 independently follow HB-019.1;
+HB-021 requires both. These HB20 cases belong solely to HB-020; HB-019.2 owns
+complete saved-state browsing. Existing A/B/T oracles remain unchanged.
 
 Owner-approved addition: the admitted Google user can explicitly create their
 first named budget, then confirm actual balance and complete allocations through

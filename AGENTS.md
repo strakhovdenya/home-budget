@@ -2,9 +2,11 @@
 
 You are working on a **specification-first financial product**. This file is the Codex counterpart of a compact CLAUDE.md; do **not** create a Claude runtime.
 
+**Product principle:** Home Budget shows available money from the last confirmed financial state with the real bank-check date, and lets the user reconstruct saved financial states. Unknown movements and balances remain unknown. See [PRD](docs/PRD.md) and [current owner decisions](docs/DECISIONS.md#saved-financial-history-and-evidence-scope--2026-11-08). Complete user-accessible history is MVP scope (HB-019.2), separate from extended analytics (HB-022).
+
 **Read before work:** docs/PRD.md (WHAT), docs/BUSINESS_RULES.md (normative domain behavior), docs/IMPLEMENTATION_PLAN.md (phases), docs/TASKS.md (stable HB-* issue IDs), docs/ARCHITECTURE.md, docs/DATA_MODEL.md, docs/conventions.md, docs/AGENT_FACTORY.md.
 
-**Execution order:** Choose **one Ready HB-* task** from docs/TASKS.md, read its BR and scenario links, propose scoped changes and proof before coding. Begin with **HB-001**, a domain ADR + test-scenario task. Do not implement all milestones in one PR. Only mark task Done after reviewed changes and *actual* test evidence. Linked GitHub Issues are optional; docs/TASKS.md is the initial task register.
+**Execution order:** Choose **one Ready HB-* task** from docs/TASKS.md, read its BR and scenario links, propose scoped changes and proof before coding. The original bootstrap began with **HB-001**; follow the current task register and the owner-authorized scope now. Do not implement all milestones in one PR. Only mark task Done after reviewed changes and *actual* test evidence. Linked GitHub Issues are optional; docs/TASKS.md is the initial task register.
 
 Rules:
 1. Keep user-entered balance checkpoints authoritative. Closing a bill releases its reserve; **never automatically debit the bank balance**. The user confirms a fresh balance in the same budget update.

@@ -1,0 +1,7 @@
+{
+  "status": "STALE_INPUT_RECEIPT_REJECTED",
+  "unitPassed": 1012,
+  "integrationPassed": 443,
+  "finalEvidence": false,
+  "reason": "Protected implementation-plan status finalized after run initialization; record integration exited 1; all final suites repeated under a new run"
+}
