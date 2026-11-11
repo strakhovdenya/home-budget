@@ -44225,11 +44225,11 @@
     },
     {
       "path": "docs/BUSINESS_RULES.md",
-      "sha256": "0fa6fe5cbaa3b9f86967cad70f24fda188ddee20ea18ed27acccf2d365c8bafc"
+      "sha256": "7b22cfbf3aa14f7f62acfe6afddf03985c2ea85d42fcb72f2560f39230d18538"
     },
     {
       "path": "docs/DECISIONS.md",
-      "sha256": "ce3a60157ce4b118fc23bf08ecdf0f19d894ac8847c10806921847459bf55221"
+      "sha256": "21004a5b37b46cb2b5a4267dd4bc41863a43ed246bc13cc609e23ac69f2dfcfc"
     },
     {
       "path": "docs/adr/0001-checkpoints-and-allocations.md",
@@ -44245,11 +44245,11 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "sha256": "b5dc7f1046a142fbc6f19a983f93bb5be269da4076ac525946ec0d74d06c6c69"
+      "sha256": "94cb18cdc58ccfca0171c72a4f6b4c335d36c217dc69cee389dacfc11f317403"
     },
     {
       "path": "docs/architecture.json",
-      "sha256": "de32658319ff23a2fbd73ee399d7279e651e857a50b26c99ebe78046231dd181"
+      "sha256": "fd9349aa8c1ded613a886d04440f02609b50a15b9a3d73c0081c3e6aa3879225"
     },
     {
       "path": "docs/DATA_MODEL.md",
@@ -44261,19 +44261,19 @@
     },
     {
       "path": "docs/PRD.md",
-      "sha256": "49af6d189b96363ec749c638504307aaa9f8164a2a6aee9643020e1b61a20f93"
+      "sha256": "e4f72d7a496878e962b7532eabdb80240970170020a7c67e6fc9e5490cdd6ebb"
     },
     {
       "path": "docs/UX.md",
-      "sha256": "20ad92addef49791487acc7c6c366e6cf53e252e475bf7855f840f85de4f9087"
+      "sha256": "e77a3b0e10ff10db8525fc5b5723db122cbecbea0cd7dfa57722cd95443e29d9"
     },
     {
       "path": "docs/TASKS.md",
-      "sha256": "b59a76540af129c998f7e7ea720123fa75be2e42ee3bbb2df8241cd3923c3d1d"
+      "sha256": "83da10f332fad99ec485fe64503f94c7c8f03d955678ecd580bd2bd629f76bbf"
     },
     {
       "path": "docs/OPEN_QUESTIONS.md",
-      "sha256": "f386b9888eaacc82d3f454f60bf2a2e56976b5457aab10f6915b7d936f7fb850"
+      "sha256": "421ff88b96c8e56c56cfe7b2da526531cafd2d63146c982267637d4430ab24ce"
     },
     {
       "path": "docs/IMPLEMENTATION_PLAN.md",

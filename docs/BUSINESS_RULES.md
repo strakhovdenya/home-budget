@@ -144,6 +144,19 @@ missing-date interpolation, latest-B substitution, live past forecast or automat
 report v2. UNKNOWN and an actual observed zero remain different. Report versions
 and intra-month history are both required and never substitutes for each other.
 
+**Dated MVP precision clarification — owner2026-11-09, D50–D53:** complete retained
+evidence includes all same-day source IDs/timestamps and confirmed ordering.
+New HB-019.2 state selection uses the existing **day H / proven original or later
+K**, alongside the existing immutable-report reader; it does not promise a new
+exact before/after state at every same-day position. UI must label this precision,
+never substitute day state for “after this event”. Exact intra-day reconstruction
+is HB-027 after release and does not block HB-021/MVP. No financial selector,
+formula, existing ordering behavior or selectionContractVersion change.
+See [dated owner clarification](DECISIONS.md#hb-0192-mvp-boundary--owner-2026-11-09)
+and [HBH scope/test mapping](../tests/scenarios/phase-01/hb-019-2-financial-history.md).
+All financial invariants above remain mandatory; unprovable required daily state
+is an explicit blocker for owner decision, not an accepted partial result.
+
 ## BR-09: Optional PDF reconciliation (later)
 - Everyday budget confirmation never depends on transaction completeness or K/U. Bank date, statement month, upload date and financing month are distinct.
 - Extracted rows are proposals; approval matches existing optional operations before creating distinct explanatory records, using account/reference/amount/date/description with review for ambiguity.

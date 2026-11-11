@@ -1,7 +1,7 @@
 # Home Budget — Task Backlog (Codex-ready)
 
 **Source:** [PRD](PRD.md) → [business rules](BUSINESS_RULES.md) → [implementation plan](IMPLEMENTATION_PLAN.md) → these tasks.
-**Status overview (2026-11-08):** HB-001..HB-019 and HB-019.1 Done; HB-019.2/HB-020/HB-021 Planned. HB-019.1 independent repeat review APPROVED (0/0/0/0) and Owner Acceptance are recorded below. Accepted ADR0001..0003 remain normative. Per-task evidence and accepted exceptions are retained below.
+**Status overview (2026-11-11):** HB-001..HB-019 and HB-019.1 Done; HB-019.2 Review / awaiting Owner Acceptance; HB-020/HB-021 Planned. HB-019.1 independent repeat review APPROVED (0/0/0/0) and Owner Acceptance are recorded below. Accepted ADR0001..0003 remain normative. Per-task evidence and accepted exceptions are retained below.
 **Conventions:** `HB-NNN` stable ID; owner-approved scoped follow-ups may use `HB-NNN.n` (for example HB-019.1); `Ready` = can start after prerequisites, `Planned` = not yet ready, `Blocked` = needs decision, `In progress`, `Review`, `Done`.
 **Work policy:** one task / coherent PR at a time. Codex must not silently mark tasks complete. GitHub Issues optional later; add each issue URL beside the stable ID rather than duplicating tasks.
 
@@ -264,21 +264,31 @@ feature-branch commit, push and PR to main, followed by CI. No merge, squash mer
 deploy or production change is authorized.
 
 ### HB-019.2 · Complete saved financial history
-**Status:** Planned · **Priority:** P0 (owner D46–D48, 2026-11-08) · **Dependencies:** HB-010, HB-013, HB-014, HB-017, HB-018, HB-019, HB-019.1 · **Area:** history/read/UI
+**Status:** Review / awaiting Owner Acceptance · **Priority:** P0 (owner D46–D48, 2026-11-08) · **Dependencies:** HB-010, HB-013, HB-014, HB-017, HB-018, HB-019, HB-019.1 · **Area:** history/read/UI
 **Deliverables:** all saved checks and financial states across current/past months;
 complete bounded navigation, original/corrected states and separate immutable
 closing-version context. A latest-ten list is insufficient. HB-020 independently
 follows HB-019.1; HB-021 waits for both tasks.
 **Acceptance:**
 1. All saved checks/revisions/funding/lifecycle states are reachable without omissions or duplicates, including legacy transitions and more than ten updates.
-2. Distinguish as-known state(H,K), same H with later corrections/new K, and selected immutable report version; show real observed/effective/recorded provenance.
+2. Distinguish existing daily as-known state(H,K), same day H with later corrections/new K, and selected immutable report version; show real observed/effective/recorded provenance and retained confirmed same-day order. Do not claim exact reconstructed state after each same-day event (HB-027).
 3. Preserve full A/R/S/F, identities and historical funding; UNKNOWN differs from observed zero; no inferred bank flows, live past forecast or latest-B substitution.
-4. Owned, bounded, consistent read-only pages cannot mutate money, audits, receipts or reports; invalid/expired cursors refuse safely.
-5. RU/DE/EN, mobile/desktop/zoom and keyboard/AT evidence includes isolated PG and actual browser results, explicitly recording any NOT EXECUTED.
-**Cases:** HBH-001–007, solely owned here; HBUX-001–036 remain HB-019.1.
+4. Owned, bounded, consistent read-only20-row pages over budget_updates use captured K_index/lastSeq; validate each private request and reject invalid/foreign/inconsistent parameters. No cursor encryption/signing/TTL/sessions; re-entry/explicit refresh starts a fresh cut. No money/audit/receipt/head/report writes.
+5. Required financial/unit/component/isolated-PG proof remains HB-019.2. Per D54, actual browser/auth/navigation, RU/DE/EN, 320px/desktop/native 200% zoom, keyboard and physical AT execution belongs to HB-021 and remains NOT EXECUTED until run there before HB-021 acceptance.
+**Cases:** HBH-001–007 specification and financial/U/C/P proof owned here; real-browser/AT execution inherited by HB-021 under D54, without new IDs/oracles. HBUX-001–036 remain HB-019.1.
 **Non-goals:** new finance formulas/schema, correction/closing writes, transaction/PDF reconstruction, extended comparisons/charts (HB-022).
 **Plan:** [history plan](planning/hb-019-2-financial-history.md) · [scenarios](../tests/scenarios/phase-01/hb-019-2-financial-history.md).
-**Authorization:** documentation/product scope approved; technical plan review and separate implementation authorization still required. No runtime PASS claimed.
+**Authorization (owner 2026-11-11):** R1 implementation and context maintenance independently APPROVED (0/0/0/0 each); documentation finalization, fresh checks, feature commit/push/PR authorized. No Owner Acceptance, Done, merge or deploy. See [D54](DECISIONS.md#hb-0192-browser-verification-handoff--owner-2026-11-11) and [execution report](planning/hb-019-2-verification.md).
+**Owner clarification2026-11-09:** [D50–D53](DECISIONS.md#hb-0192-mvp-boundary--owner-2026-11-09)
+selects daily precision, ordinary server paging, existing resource guards and
+no finance-gate expansion before MVP. All retained batches/sources remain reachable;
+missing mandatory source is visible error, not an omitted batch. Full A/R/S/F,
+identity/funding/UNKNOWN rules stay. Applicable HBH tests require actual U/C/PG/
+browser results mapped in one report; existing gate PASS does not enforce HBH.
+Exact intra-day reconstruction is HB-027, not an MVP prerequisite. Preserve the
+41 conditional cleanup candidates and B0 start from fresh squash-merged origin/main.
+Protected context changes require separately authorized freshness maintenance and
+a fresh run before publication; no manifest/checker/CI changes in this stage.
 
 ### HB-020 · First-run budget onboarding and recurring payment templates
 **Status:** Planned · **Priority:** P0 (owner D45) · **Dependencies:** HB-007, HB-009, HB-010, HB-011, HB-017, HB-019.1 · **Area:** auth/finance/UI
@@ -292,6 +302,12 @@ follows HB-019.1; HB-021 waits for both tasks.
 **Status:** Planned · **Priority:** P0 · **Dependencies:** HB-016..HB-020 (including HB-019.1 and HB-019.2), plus the separately reviewed finance-fingerprint stage before final evidence · **Area:** quality
 **Deliverables:** Playwright flows for mobile/desktop, multi-locale, auth boundaries, first-run onboarding, recurring bills, actual checkpoints, FRESH_START/CARRY/DEFER UX, savings, same-identity two-step payment and closing; complete HB-019.2 history in all three perspectives. Reuse HBUX/HBH/HB20 contracts without duplicating scenario ownership.
 **Acceptance:** tests actually execute and pass against isolated synthetic DB; reviewed fixes, no data/privacy exposure and no unverified browser PASS.
+**Inherited execution — owner D54, 2026-11-11:** HB-021 owns all still-unexecuted real-browser/AT portions of HBH-001–007: authenticated history access/navigation, original/later/immutable-v1/v2 views and reload, all-history pagination/filter/refresh/error/basis/privacy/no-write flows; RU/DE/EN; 320px/desktop; native 200% zoom; keyboard/focus/announcements and physical screen-reader output. Every item is **NOT EXECUTED**. HB-021 must execute and record these assertions before its own Owner Acceptance; it must not redefine financial oracles or relabel U/C/P proof as browser evidence. See [D54](DECISIONS.md#hb-0192-browser-verification-handoff--owner-2026-11-11). This transfer does not grant HB-019.2 Owner Acceptance.
+**D50–D53 boundary2026-11-09:** HB-021 verifies all applicable HBH daily H/K,
+source completeness and immutable-report behavior; exact intra-day reconstruction
+(HB-027) does **not** block HB-021/MVP/release. The existing fingerprint stage is
+already accepted in HB-019.1; fresh protected-context/run maintenance remains
+required before publication. No HBH gate-binding or CI expansion is an MVP gate.
 
 ## M3 — Reporting and historical onboarding
 
@@ -322,6 +338,29 @@ follows HB-019.1; HB-021 waits for both tasks.
 **Deliverables:** parser candidates, match/approve/ignore workflow, category suggestions.
 **Acceptance:** imported proposal not automatically posted; matched details explain checkpoint differences without debiting card again; closed report changes only through new version.
 **Cases:** F-012/F-014.
+
+## Post-MVP — separately gated precision
+
+### HB-027 · Exact intra-day historical state reconstruction
+**Status:** Planned · **Priority:** Post-MVP · **Dependencies:** released MVP, HB-019.2, separate technical plan/independent review/direct owner decision · **Area:** history/read
+**Owner title:** «Точное восстановление исторических состояний внутри дня».
+**Deliverable:** exact historical financial reconstruction at a confirmed position
+inside a day, preserving source completeness, corrections-at-K-before-H, account
+isolation and current financial behavior. Daily history and retained raw same-day
+ordering remain HB-019.2; HB-027 does not block HB-021, MVP or release.
+**Mandatory preliminary choice — neither selected nor authorized:**
+
+- A: narrowly extend the existing read-only H/K/through-position path. Shared
+  financial logic; risk of regression in working screens.
+- B: separate historical assembler reusing existing selectors/validators.
+  Isolated history path; risk of duplicated validation and semantic drift.
+
+**Acceptance gates:** separate technical plan; independent review of alternatives
+and regression proof; explicit owner choice/implementation authorization; actual
+financial/auth/history tests before acceptance. No code, new plan/ADR or scenario
+IDs are created now. Earlier “HB-027 deployment” was an unapproved idea, not this
+task; HB-022–026 remain assigned, no HB-019.3 is added.
+**Authority:** [D50](DECISIONS.md#hb-0192-mvp-boundary--owner-2026-11-09).
 
 ## Backlog review workflow
 

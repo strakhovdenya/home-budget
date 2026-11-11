@@ -63,7 +63,7 @@ describe('HB-005 shell', () => {
     const messages = catalogs[locale];
     expect(screen.getByRole('heading', { level: 1, name: messages.navigation.overview })).toBeTruthy();
     const nav = screen.getByRole('navigation', { name: messages.shell.navigation });
-    expect(within(nav).getAllByRole('link')).toHaveLength(5);
+    expect(within(nav).getAllByRole('link')).toHaveLength(6);
     expect(within(nav).getByRole('link', { name: messages.navigation.overview }).getAttribute('aria-current')).toBe('page');
     expect(screen.getByText(messages.screens.overview.description)).toBeTruthy();
     expect(screen.getByRole('combobox', { name: messages.preferences.language })).toBeTruthy();
@@ -132,7 +132,7 @@ describe('HB-005 shell', () => {
     const trigger = screen.getByRole('button', { name: catalogs.ru.shell.openMenu });
     await userEvent.click(trigger);
     const dialog = screen.getByRole('dialog', { name: catalogs.ru.shell.navigation });
-    expect(within(dialog).getAllByRole('link')).toHaveLength(5);
+    expect(within(dialog).getAllByRole('link')).toHaveLength(6);
     expect(within(dialog).getByRole('button', { name: catalogs.ru.shell.closeMenu })).toBeTruthy();
     await userEvent.keyboard('{Escape}');
     expect(trigger.getAttribute('aria-expanded')).toBe('false');

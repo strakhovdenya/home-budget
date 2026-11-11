@@ -17,7 +17,19 @@ are reuse candidates, not an implemented complete public history service.
 Review an owned bounded index/read port, one captured cut and consistent paging
 before implementation; app authorization, feature orchestration, pure domain
 selection and infrastructure scoped coherent reads retain their dependency direction.
-No new public endpoint, cursor mechanism, schema or library is selected here.
+No new public endpoint, schema or library is selected here.
+Dated owner [D50–D53,2026-11-09](DECISIONS.md#hb-0192-mvp-boundary--owner-2026-11-09)
+selects budget_updates20-row server keyset paging (K_index/lastSeq), private action
+parameters validated against owned retained anchors on every read, and existing
+daily H/proven-K selection/report readers only. Echo/compare the basis to prevent
+cross-cut page mixing. No signatures/encrypted cursors/secrets/TTL/history sessions,
+new through-position in readAt/assembleSnapshot, separate intra-day assembler or
+change of formulas/selectors/selectionContractVersion. Same-day order remains
+retained source evidence; exact reconstructed position-state selection belongs to
+Planned/Post-MVP HB-027 with A/B still unselected. No proactive read models/cache/
+background work/materialization/index/migration or gate/CI expansion for HBH.
+Current resource guards and layer directions remain. HB-027 does not block HB-021/
+MVP/release; demonstrated failure of required daily precision returns to owner.
 The machine-readable planned scope in architecture.json changes no layer/import
 allowlist. D41–D42 already makes explicit FRESH_START the primary UI route while
 CARRY/DEFER remain working secondary routes with no domain default; older carry-first

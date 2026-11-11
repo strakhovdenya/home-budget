@@ -59,8 +59,17 @@ explain observed/effective/recorded dates and confirmed ordering; a budget fundi
 month is not a bank date. No live past daily forecast or invented movements.
 UNKNOWN differs from a real observed zero. Changing a perspective does not create
 a report, update money or silently refresh a pinned cut. Complete bounded paging
-must not truncate older states or combine pages from different K. Safe expiry
-requires explicit refresh. Show current card context separately with its date.
+must not truncate older states or combine pages from different K. Per owner
+[D50–D53,2026-11-09](DECISIONS.md#hb-0192-mvp-boundary--owner-2026-11-09), use20-row
+server Previous/Next with pinned K_index/lastSeq and an in-memory page stack.
+Re-entry/explicit refresh starts a new cut; no signed/encrypted cursors, TTL or
+server history sessions. Each read re-authorizes/validates its full basis and
+the UI rejects a different-basis response before combining pages.
+Label state “Through [day], as known at [cut]”, separately from original event
+facts/confirmed same-day order and immutable report versions. No new position-state
+picker or “after this event” claim for a day view. Exact intra-day reconstruction
+is post-MVP HB-027, not a condition for this accessible MVP viewer. Show current
+card context separately with its date.
 RU/DE/EN, keyboard/AT,320px/desktop/200% zoom and no-write proof are mandatory;
 [HBH scenarios](../tests/scenarios/phase-01/hb-019-2-financial-history.md) own these
 requirements. HBUX remains presentation/update proof, not full-history coverage.

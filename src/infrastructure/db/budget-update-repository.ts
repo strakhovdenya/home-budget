@@ -46,7 +46,7 @@ async function planned(tx:Transaction,scope:AuthorizedScope,command:PreparedComm
 }
 function isTransition(d:BudgetDraft){return !!d.allocationChange&&d.allocationChange.mode!=='REDISTRIBUTE';}
 async function ownedAccount(tx:Transaction,scope:AuthorizedScope){const [a]=await tx.select().from(s.accounts).where(and(eq(s.accounts.ownerUserId,scope.ownerUserId),eq(s.accounts.id,scope.accountId))).for('update');if(!a)return rejectBatch('FORBIDDEN');return a;}
-async function originalEvidence(tx:Transaction,scope:AuthorizedScope,update:typeof s.budgetUpdates.$inferSelect){
+export async function originalEvidence(tx:Transaction,scope:AuthorizedScope,update:typeof s.budgetUpdates.$inferSelect){
   const audits=await tx.select().from(s.auditEvents).where(and(eq(s.auditEvents.ownerUserId,scope.ownerUserId),eq(s.auditEvents.accountId,scope.accountId),eq(s.auditEvents.budgetUpdateId,update.id))).limit(5001);
   if(audits.length>5000)return rejectBatch('STORAGE_ERROR');
   const matches=audits.filter(a=>{const d=a.beforeAfter as {entity?:{type?:string;id?:string}};return d?.entity?.type==='BUDGET_UPDATE_REVIEW'&&d.entity.id===update.id;});
