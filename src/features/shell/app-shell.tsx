@@ -17,7 +17,7 @@ export function AppShell({ children, sessionControl }: { children: ReactNode; se
   function navigation() {
     return <Box component="nav" aria-label={t('navigation')}>
       <List disablePadding>{sections.map((section) => <ListItemButton
-        component={Link} href={sectionPaths[section]} key={section}
+        component={Link} href={sectionPaths[section]} prefetch={section==='history'?false:undefined} key={section}
         selected={path === sectionPaths[section]} aria-current={path === sectionPaths[section] ? 'page' : undefined}
         onClick={() => setOpen(false)}>
         <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}><SectionIcon section={section} /></ListItemIcon>

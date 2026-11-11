@@ -449,7 +449,8 @@
     "obligations": "Verpflichtungen",
     "savings": "Rücklagen",
     "months": "Monate",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "history": "Verlauf"
   },
   "preferences": {
     "language": "Sprache",
@@ -492,6 +493,10 @@
     "settings": {
       "title": "Ganz nach Ihren Wünschen",
       "description": "Wählen Sie Sprache und Darstellung. Diese Einstellungen funktionieren bereits und bleiben in diesem Browser gespeichert."
+    },
+    "history": {
+      "title": "Gespeicherter Finanzverlauf",
+      "description": "Gespeicherte Aktualisierungen und ihre Nachweise. Tagesansichten verwenden einen bestätigten Wissensstand."
     }
   },
   "dashboard": {
@@ -625,5 +630,93 @@
     "returnDraft": "Zum Entwurf",
     "replaceDraft": "Entwurf verwerfen und Aktion starten",
     "loading": "Wird geladen…"
+  },
+  "financialHistory": {
+    "title": "Gespeicherter Finanzverlauf",
+    "intro": "Gespeicherte Aktualisierungen und ihre Nachweise. Tagesansichten verwenden einen bestätigten Wissensstand.",
+    "month": "Wirksamer Monat (leer: gesamter Verlauf)",
+    "refresh": "Verlauf aktualisieren",
+    "loading": "Verlauf wird geladen…",
+    "progress": "Seite {page}: {count} gespeicherte Aktualisierungen",
+    "error": "Verlauf nicht verfügbar",
+    "indexCut": "Gespeicherte Aktualisierungen bis Wissensstand {cut}",
+    "invalidSources": "Bei einigen Einträgen fehlen Nachweise oder werden nicht unterstützt. Die Registereinträge bleiben sichtbar.",
+    "empty": "Keine gespeicherten Aktualisierungen in dieser Ansicht. Ein leerer Verlauf bedeutet keinen beobachteten Nullsaldo.",
+    "recorded": "Erfasst am",
+    "open": "Gespeicherte Aktualisierung öffnen",
+    "sourceReferences": "Gespeicherte Quellenverweise",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "selected": "Ausgewählte gespeicherte Aktualisierung",
+    "day": "Bis einschließlich Tag",
+    "original": "Damals bekannter Stand",
+    "later": "Mit späteren Korrekturen",
+    "report": "Ausgewählte Abschlussversion",
+    "dailyCaption": "Bis einschließlich {day}, mit Wissensstand {cut} (Tagesgenauigkeit)",
+    "reportCaption": "Unveränderliche Abschlussversion mit eigenem Tag und Wissensstand",
+    "bank": "Zuletzt bestätigter Kartensaldo im ausgewählten Stand",
+    "observed": "Tatsächliches Prüfdatum der Karte",
+    "end": "Beobachteter Saldo am ausgewählten letzten Tag",
+    "noInference": "Unbekannte Bewegungen bleiben unbekannt. Saldodifferenzen und Zahlungen buchen keine zusätzlichen Einnahmen oder Ausgaben.",
+    "allocated": "Bestätigte Zuteilung A",
+    "reserved": "Vollständige offene Reserve R",
+    "savings": "Beibehaltene Rücklagen S",
+    "free": "Freier Betrag F",
+    "deficit": "Fehlbetrag",
+    "unknown": "Unbekannt — keine Beobachtung",
+    "origin": "Ursprungsmonat",
+    "funding": "Finanzierungsmonat",
+    "effective": "Wirksamkeitsdatum",
+    "evidence": "Vollständige gespeicherte Nachweise und Verweise",
+    "moreEvidence": "Nächste Nachweisseite",
+    "status": {
+      "VALID": "Erforderliche Quelldaten vorhanden; Bestätigung wird beim Öffnen geprüft",
+      "INVALID": "Ungültige Quelle",
+      "UNSUPPORTED": "Nicht unterstützte Quelle"
+    },
+    "errors": {
+      "FORBIDDEN": "Der eigene Verlauf ist nicht verfügbar.",
+      "INVALID_INPUT": "Ungültiger Wissensstand oder Anfrage. Aktualisieren oder erneut versuchen.",
+      "HISTORY_SOURCE_INVALID": "Erforderliche Quellennachweise können nicht geprüft werden.",
+      "HISTORY_LIMIT_EXCEEDED": "Der ausgewählte Verlauf überschreitet die bestehenden Lesegrenzen.",
+      "RETRYABLE_STORAGE_ERROR": "Ein anderer Lesevorgang läuft. Erneut versuchen.",
+      "STORAGE_ERROR": "Der Verlaufsspeicher ist vorübergehend nicht verfügbar."
+    },
+    "sourceKinds": {
+      "OBLIGATION_IDENTITY": "Verpflichtungsidentität",
+      "SAVING_IDENTITY": "Rücklagenidentität",
+      "PERIOD_ALLOCATION": "Monatszuteilungszeile",
+      "BANK_CHECKPOINT": "Kartenprüfung",
+      "ALLOCATION_REVISION": "Vollständige Zuteilungsrevision",
+      "OBLIGATION_STATE": "Verpflichtungsrevision",
+      "SAVINGS_STATE": "Rücklagenrevision",
+      "TRANSITION_DECISION": "Monatsübergang",
+      "BUDGET_TRANSFER": "Finanzierungsübertragung",
+      "DAY_ORDERING": "Bestätigte Tagesreihenfolge",
+      "POSITION": "Historische Position",
+      "MONTH_CLOSING": "Abschlussversion",
+      "AUDIT": "Prüfnachweis"
+    },
+    "sourceFacts": "Gespeicherte Quellfakten",
+    "sourceCaption": "Gespeicherte Fakten und bestätigte Reihenfolge. Für Finanzsummen eine separate Tagesansicht auswählen.",
+    "reportBasis": "Version {version}: bis einschließlich {day}, mit Wissensstand {cut}",
+    "knowledgeRecorded": "Letzte im Wissensstand enthaltene Erfassung",
+    "outstanding": "Offener Betrag",
+    "savingAmount": "Beibehaltener Rücklagenbetrag",
+    "originalAmount": "Ursprünglicher Verpflichtungsbetrag",
+    "possible": "Mögliche Forderung",
+    "fullReserve": "Vollständig in der Reserve enthalten",
+    "excludedReserve": "Nicht in der Reserve enthalten",
+    "identityStatus": {
+      "UNPAID": "Offen",
+      "PAID": "Bezahlt",
+      "CANCELLED": "Storniert",
+      "ACTIVE": "Zurückgelegt",
+      "RELEASED": "Freigegeben"
+    },
+    "reportReason": "Gespeicherter Grund für diese Version",
+    "reportPredecessor": "ID der vorherigen Version",
+    "initialVersion": "Erste Version (kein Vorgänger)",
+    "reportCreated": "Version erstellt am"
   }
 }

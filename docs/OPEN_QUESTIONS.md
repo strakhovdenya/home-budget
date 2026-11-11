@@ -9,8 +9,16 @@ No implementation, schema or new financial algorithm is approved here.
 
 | ID | Remaining technical design | Gate |
 |---|---|---|
-| Q-HB192-01 | Complete index of all saved C/V/lifecycle/funding facts, including legacy transitions; bounded consistent pagination/cursor expiry and resource admission | Reviewed HB-019.2 read contract before implementation; never silently truncate to latest ten |
-| Q-HB192-02 | Accessible selection and display of valid original/later knowledge cuts and confirmed same-day positions under existing state(H,K) semantics | HB-019.2 screen/read-contract review; no invented dates/order or new selector policy |
+| Q-HB192-01 | Owner D51/D52 selects budget_updates registry,20-row K_index/lastSeq keyset, private re-authorized/validated parameters and existing bounds; no signed tokens/TTL/sessions or proactive scale infrastructure | Policy resolved2026-11-09; amended read contract and parameter/basis tests still require repeat independent review before implementation. No latest-ten/age cap, hidden invalid-source batch or free numeric K authority. |
+| Q-HB192-02 | Owner D50 selects existing daily H/K and immutable-report precision; all source/ordering evidence remains reachable, exact same-day position reconstruction deferred to HB-027 | MVP boundary resolved2026-11-09; review daily numerical oracles and honest UI labels. No through-position extension/new assembler. Any demonstrated inability to meet daily H/K must return to owner, not silently reduce correctness. |
+
+[D50–D53](DECISIONS.md#hb-0192-mvp-boundary--owner-2026-11-09) is a dated
+clarification, not a rewrite of D46–D49. HB-027's A(existing-path extension) versus
+B(separate assembler) is **unselected** pending its own plan/review/direct owner
+decision after MVP; it is not a HB-021/release prerequisite. HBH gate expansion
+is deferred for post-MVP discussion. Existing protected-context freshness still
+needs separately authorized maintenance and a fresh finance run before publication;
+checker/bindings/CI and receipts are unchanged in this documentation stage.
 
 D41–D42 makes intentional FRESH_START primary; no mode has an automatic domain
 default. CARRY/DEFER remain additional explicit actions. D44 remains binding.

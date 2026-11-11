@@ -449,7 +449,8 @@
     "obligations": "Obligations",
     "savings": "Savings",
     "months": "Months",
-    "settings": "Settings"
+    "settings": "Settings",
+    "history": "History"
   },
   "preferences": {
     "language": "Language",
@@ -492,6 +493,10 @@
     "settings": {
       "title": "Make yourself at home",
       "description": "Choose your language and appearance. These preferences work now and stay with this browser."
+    },
+    "history": {
+      "title": "Saved financial history",
+      "description": "Saved updates and their source evidence. Day views use a confirmed knowledge cut."
     }
   },
   "dashboard": {
@@ -625,5 +630,93 @@
     "returnDraft": "Return to draft",
     "replaceDraft": "Discard draft and start this action",
     "loading": "Loading…"
+  },
+  "financialHistory": {
+    "title": "Saved financial history",
+    "intro": "Saved updates and their source evidence. Day views use a confirmed knowledge cut.",
+    "month": "Effective month (empty: all history)",
+    "refresh": "Refresh history",
+    "loading": "Loading history...",
+    "progress": "Page {page}: {count} saved updates",
+    "error": "History unavailable",
+    "indexCut": "Saved updates through knowledge cut {cut}",
+    "invalidSources": "Some saved updates have missing or unsupported evidence. Their registry entries remain visible.",
+    "empty": "No saved updates in this view. An empty history is not an observed zero balance.",
+    "recorded": "Recorded at",
+    "open": "Open saved update",
+    "sourceReferences": "Retained source references",
+    "previous": "Previous",
+    "next": "Next",
+    "selected": "Selected saved update",
+    "day": "Through day",
+    "original": "As known then",
+    "later": "With later corrections",
+    "report": "Selected closing version",
+    "dailyCaption": "Through {day}, as known at {cut} (day precision)",
+    "reportCaption": "Immutable closing version with its own day and knowledge cut",
+    "bank": "Last confirmed card balance in the selected state",
+    "observed": "Actual card check date",
+    "end": "Observed balance on the selected final day",
+    "noInference": "Unknown movements remain unknown. Balance differences and payments do not post additional income or expenses.",
+    "allocated": "Confirmed allocation A",
+    "reserved": "Full unpaid reserve R",
+    "savings": "Retained savings S",
+    "free": "Free amount F",
+    "deficit": "Deficit",
+    "unknown": "Unknown (no observation)",
+    "origin": "Origin month",
+    "funding": "Funding month",
+    "effective": "Effective date",
+    "evidence": "Complete retained evidence and references",
+    "moreEvidence": "Next evidence page",
+    "status": {
+      "VALID": "Required source metadata present; confirmation verified on opening",
+      "INVALID": "Invalid source",
+      "UNSUPPORTED": "Unsupported source"
+    },
+    "errors": {
+      "FORBIDDEN": "Owned history is unavailable.",
+      "INVALID_INPUT": "Invalid history basis or request. Refresh or retry the selected view.",
+      "HISTORY_SOURCE_INVALID": "Required source evidence cannot be verified.",
+      "HISTORY_LIMIT_EXCEEDED": "The selected history exceeds the existing read limits.",
+      "RETRYABLE_STORAGE_ERROR": "Another read is in progress. Retry.",
+      "STORAGE_ERROR": "History storage is temporarily unavailable."
+    },
+    "sourceKinds": {
+      "OBLIGATION_IDENTITY": "Obligation identity",
+      "SAVING_IDENTITY": "Savings identity",
+      "PERIOD_ALLOCATION": "Month allocation row",
+      "BANK_CHECKPOINT": "Bank check",
+      "ALLOCATION_REVISION": "Full allocation revision",
+      "OBLIGATION_STATE": "Obligation revision",
+      "SAVINGS_STATE": "Savings revision",
+      "TRANSITION_DECISION": "Month transition",
+      "BUDGET_TRANSFER": "Funding transfer",
+      "DAY_ORDERING": "Confirmed day order",
+      "POSITION": "Historical position",
+      "MONTH_CLOSING": "Closing version",
+      "AUDIT": "Audit evidence"
+    },
+    "sourceFacts": "Saved source facts",
+    "sourceCaption": "Retained source facts and confirmed ordering. Select a separate day view for financial totals.",
+    "reportBasis": "Version {version}: through {day}, as known at {cut}",
+    "knowledgeRecorded": "Last recording included in this knowledge cut",
+    "outstanding": "Outstanding amount",
+    "savingAmount": "Retained savings amount",
+    "originalAmount": "Original obligation amount",
+    "possible": "Possible claim",
+    "fullReserve": "Included in the reserve in full",
+    "excludedReserve": "Not included in the reserve",
+    "identityStatus": {
+      "UNPAID": "Unpaid",
+      "PAID": "Paid",
+      "CANCELLED": "Cancelled",
+      "ACTIVE": "Retained",
+      "RELEASED": "Released"
+    },
+    "reportReason": "Saved reason for this version",
+    "reportPredecessor": "Previous version ID",
+    "initialVersion": "Initial version (no predecessor)",
+    "reportCreated": "Version created at"
   }
 }

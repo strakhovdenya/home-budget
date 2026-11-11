@@ -1,5 +1,96 @@
 # Product decision log — current correction and archived chronology
 
+## HB-019.2 browser verification handoff — owner 2026-11-11
+
+- **D54 — HB-021 owns the outstanding real-browser and physical-AT execution.**
+  The owner reports independent approval of HB-019.2 R1 and the separate Finance
+  Gate context maintenance (both APPROVED, 0 Critical / 0 High / 0 Medium / 0 Low).
+  HB-019.2 is **Review / awaiting separate Owner Acceptance**, not Done.
+  All unexecuted real-browser/assistive-technology portions of HBH-001–007 move
+  to **HB-021**, which must execute and record them before its own acceptance:
+  authenticated access/navigation, current/past history and all three perspectives,
+  explicit v1/v2 reload, complete pagination/filter/refresh/error/basis behavior,
+  privacy and read-only browser flows; RU/DE/EN; 320px and desktop layouts; native
+  200% zoom; keyboard/focus/announcements; physical screen-reader output.
+  Their current status remains **NOT EXECUTED**, never PASS. Scenario IDs,
+  financial oracles and required unit/component/isolated-PostgreSQL evidence stay
+  with HB-019.2; HB-021 inherits the browser/AT assertions without redefining them.
+  This transfer neither waives those requirements nor turns component tests into
+  browser evidence. HB-021 acceptance must include their actual execution results.
+  D46–D53 and Accepted ADR0001–0003 retain their history and financial meaning;
+  D50–D53 daily H/K, 20-row paging, existing resource bounds and no gate expansion
+  remain binding. HB-027 remains Post-MVP, A/B unselected, not an MVP blocker.
+  The owner authorizes scoped documentation finalization, necessary context-only
+  SHA maintenance, fresh checks, feature-branch commit/push and a PR to main.
+  No merge/auto-merge/squash, main update, deploy, Owner Acceptance or Done is
+  authorized. See [HB-021](TASKS.md#hb-021--core-browser-e2e-a11y-and-responsive-qa)
+  and the [HBH execution boundary](../tests/scenarios/phase-01/hb-019-2-financial-history.md).
+
+## HB-019.2 MVP boundary — owner 2026-11-09
+
+The owner reports the preceding HB-019.2 technical plan independently APPROVED
+and authorizes this documentation/planning amendment only. The four decisions
+below supersede conflicting proposed implementation details, not the historical
+text of D46–D49 or Accepted ADR0001–0003. The amended documents require **repeat
+independent review**. No code, test code, SQL, migration, evidence deletion,
+commit/push/PR/merge/deploy, acceptance or Done is authorized.
+
+- **D50 — daily historical selection for MVP (option C).** HB-019.2 retains all
+  committed batches and typed sources, original revisions/IDs/timestamps, confirmed
+  same-day ordering evidence, full vectors/funding/lifecycle provenance and all
+  immutable closing versions. Its three perspectives use the existing provable
+  **day H / original or later K** path and the existing report reader. Do not add
+  through-position to readAt/assembleSnapshot, build a new intra-day assembler,
+  change formulas/selectors/selectionContractVersion or damage existing ordering
+  support elsewhere. Complete evidence access is not a promise of reconstructed
+  before/after state at every same-day position. Label daily state “Through [day],
+  as known at [recorded cut]”, never “after this event” when only day precision is
+  proved. Unknown is not zero or today's balance; missing proof is an explicit
+  limitation/error, not guessed state or PASS. Existing numerical HBH oracles stay.
+  Add **HB-027**, Planned/Post-MVP, for exact intra-day reconstruction; it does not
+  block HB-021/MVP/release. HB-022–026 are occupied; no HB-019.3 or deployment task.
+  HB-027 must separately plan/review and obtain a direct owner choice between
+  **A**, narrow existing read-only H/K/through-position extension (shared logic,
+  regression risk), and **B**, separate history assembler reusing current selectors/
+  validators (isolation, duplication/drift risk). Neither option is selected or
+  authorized, and no new HB-027 plan/ADR is created now.
+- **D51 — ordinary server pagination.** Use budget_updates and unique scoped
+  recordedSeq,20 rows, Previous/Next, upper K_index captured on entry and lastSeq
+  keyset. New commits cannot shift a pinned view; re-entry/explicit refresh captures
+  a new view. UI may keep a page stack in memory only. No encrypted/signed cursors,
+  cursor secret,20-minute TTL, server history sessions or new tables. Private
+  actions/request bodies carry bounded untrusted parameters; every read resolves
+  owner/account again and validates K/lastSeq/filter/source membership. Page keys
+  confer no access. Validate retained owned batch anchors rather than accepting a
+  free numeric K as authority. Echo the full validated basis; UI never appends a
+  different-basis response. No financial URL/log/persistent browser state.
+- **D52 — demonstrated scale only.** Typical use is about4 bank checks/month;
+  enumerate all retained batches without a total/age cutoff and load details on
+  demand. Keep current timeouts/resource guards unchanged. No proactive cache,
+  read model, background work, partition/materialization/index/migration. A real
+  reproduced limit failure needs honest error, measurements and later owner
+  decision; it cannot hide partial history or authorize optimization in HB-019.2.
+- **D53 — existing finance gate through MVP.** Do not expand checker, mandatory
+  HBH bindings in coverage.json or CI. Keep current gate/fingerprint, UTC/LA,
+  isolated PostgreSQL and no-write checks. Execute applicable HBH U/C/PG/browser
+  proofs under separate implementation authorization and map exact results in
+  **one** main verification report for independent review. Old gate PASS is not
+  machine-enforced HBH coverage. Discuss additional gate enforcement only after
+  MVP; no automatic follow-up implementation. This is separate from required
+  freshness maintenance: these protected-document changes invalidate context
+  hashes/old receipts. No manifest/receipt edit or fresh runtime PASS now; before
+  publication a separately authorized context-only maintenance stage must restore
+  existing CI validity and run fresh evidence without weakening/extending the gate.
+
+The41-candidate controlled cleanup (33 HB-019.1 plus8 conditional HB-017 images),
+final/unique proof preservation, exact historical SHA/permalinks and minimal-file
+policy remain. [Plan](planning/hb-019-2-financial-history.md),
+[HBH](../tests/scenarios/phase-01/hb-019-2-financial-history.md) and
+[TASKS](TASKS.md#hb-027--exact-intra-day-historical-state-reconstruction) carry
+the scope/test mapping. If even the daily three-perspective contract cannot be
+met by the permitted existing path, record the exact blocker and obtain an owner
+decision before coding; no partial implementation is called complete.
+
 ## HB-019.1 implementation acceptance and publication authorization — 2026-11-08
 
 The owner reports independent repeat ChatGPT review **APPROVED**, with
