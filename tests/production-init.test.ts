@@ -6,7 +6,7 @@ import { loadMigrations, target, catalogHash, type Catalog } from '../scripts/pr
 import { validateUrl, requireApproval, verifyNeon, runOperator } from '../scripts/production-init/operator';
 const url=`postgresql://${target.owner}:synthetic-only@${target.host}/${target.database}?sslmode=verify-full`;
 it('accepts only exact direct production endpoint and enforces certificate verification outside URL options',()=>{
-  expect(new URL(validateUrl(url)).search).toBe('');
+  expect(new URL(validateUrl(url).connectionString).search).toBe('');
 });
 it.each([
   undefined,'invalid',url.replace('postgresql:','postgres:'),url.replace(target.host,'localhost'),
@@ -55,4 +55,16 @@ it.each(['valid','project','branch','endpoint','database'])('provider identity m
   const get=(async (input: string|URL|Request)=>new Response(JSON.stringify(objects[String(input).split(target.project)[1]]),{status:200})) as typeof fetch;
   if(kind==='valid')await expect(verifyNeon('synthetic-test-key',get)).resolves.toBeUndefined();
   else await expect(verifyNeon('synthetic-test-key',get)).rejects.toThrow(/MISMATCH/);
+});
+
+it('Neon channel_binding=require becomes mandatory driver policy while URL sslmode cannot override TLS',()=>{
+  const config=validateUrl(url+'&channel_binding=require');
+  expect(config.requireChannelBinding).toBe(true);expect(new URL(config.connectionString).search).toBe('');
+  expect(validateUrl(url).requireChannelBinding).toBe(false);
+});
+it.each(['prefer','disable','', 'require&channel_binding=require','require&host=evil'])('rejects weak, repeated or redirected channel binding policy (%s)',policy=>{
+  expect(()=>validateUrl(url+'&channel_binding='+policy)).toThrow('EXACT_DIRECT_TLS_TARGET_REQUIRED');
+});
+it('rejects repeated SSL mode even if one value is valid',()=>{
+  expect(()=>validateUrl(url+'&sslmode=disable&channel_binding=require')).toThrow('EXACT_DIRECT_TLS_TARGET_REQUIRED');
 });
