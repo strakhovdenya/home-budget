@@ -1,0 +1,42 @@
+{
+  "sourceCommit": "fde8f629a071c745b2a02859208df1f3986eea5e",
+  "project": "cool-bread-39602851",
+  "branch": "br-cool-lake-ba2lm73t",
+  "endpoint": "ep-plain-unit-ba3b0mkg",
+  "host": "ep-plain-unit-ba3b0mkg.c-8.eu-central-1.aws.neon.tech",
+  "region": "aws-eu-central-1",
+  "database": "neondb",
+  "owner": "neondb_owner",
+  "migrations": [
+    {
+      "tag": "0000_foundation",
+      "when": 1793576074467,
+      "sha256": "bb4f3b62ba9214d15332f941738eaf606be6d0fc3e37a6408801614995831725"
+    },
+    {
+      "tag": "0001_integrity",
+      "when": 1793576176948,
+      "sha256": "ed11aab4d64b7b1dfae59f5bf3af8affd7bb6cabb78d643f3e3db1b6604e872f"
+    },
+    {
+      "tag": "0002_checkpoint_positions",
+      "when": 1793576276948,
+      "sha256": "833550c3bb313011881cccaf5694d84746180c22dc89688c6df9731618ad7419"
+    },
+    {
+      "tag": "0003_obligation_lifecycle_guards",
+      "when": 1793576376948,
+      "sha256": "b92ce6f0b11e2ffc2e126c1e02132e496d384423b1576369fa1a47c488be2103"
+    },
+    {
+      "tag": "0004_savings_lifecycle_guards",
+      "when": 1793576476948,
+      "sha256": "222f84242ce194e9da8c9b41354ed9902de22c285b48bf507a0f837dfe19671d"
+    },
+    {
+      "tag": "0005_period_transfers",
+      "when": 1793646584083,
+      "sha256": "d80bd65ec45863cfbc6a92c04430616294d37ae892b8c1adfa08b634afb12bb0"
+    }
+  ]
+}
