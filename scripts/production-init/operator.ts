@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { TLSSocket } from 'node:tls';
+import { connectVerifiedOperator } from './transport';
 import pg from 'pg';
 import { InitRefusal, initialize, loadMigrations, requireCondition, target, verify, catalogHash, type Connection } from './core';
 
@@ -11,11 +11,15 @@ export function validateUrl(value: string | undefined) {
   try { u=new URL(value ?? ''); } catch { throw new InitRefusal('DIRECT_TLS_URL_REQUIRED'); }
   requireCondition(u.protocol==='postgresql:' && u.hostname===target.host && (!u.port||u.port==='5432') &&
     u.pathname==='/'+target.database && decodeURIComponent(u.username)===target.owner && u.password && !u.hash &&
-    [...u.searchParams.keys()].every(k=>k==='sslmode') && ['require','verify-full'].includes(u.searchParams.get('sslmode')??''),
+    [...u.searchParams.keys()].every(k=>k==='sslmode'||k==='channel_binding') &&
+    u.searchParams.getAll('sslmode').length===1 && u.searchParams.getAll('channel_binding').length<=1 &&
+    (!u.searchParams.has('channel_binding')||u.searchParams.get('channel_binding')==='require') &&
+    ['require','verify-full'].includes(u.searchParams.get('sslmode')??''),
     'EXACT_DIRECT_TLS_TARGET_REQUIRED');
-  // pg treats URL sslmode as an override. Remove it and explicitly enforce certificate verification.
+  // Translate security parameters into explicit pg options; require is enforced by transport, never ignored.
+  const requireChannelBinding=u.searchParams.get('channel_binding')==='require';
   u.search='';
-  return u.toString();
+  return {connectionString:u.toString(),requireChannelBinding};
 }
 export function requireApproval(env: Readonly<Record<string,string|undefined>>, head: string) {
   requireCondition(/^[a-f0-9]{40}$/.test(head) && env.HB_PRODUCTION_INIT_REVIEWED_COMMIT===head,'REVIEWED_COMMIT_REQUIRED');
@@ -60,14 +64,13 @@ export async function runOperator(env: Readonly<Record<string,string|undefined>>
   requireCondition(expected.version===1 && /^[a-f0-9]{64}$/.test(expected.sha256) && catalogHash(expected.catalog)===expected.sha256,'EXPECTED_CATALOG_REQUIRED');
   const url=validateUrl(env.HB_PRODUCTION_INIT_DIRECT_URL);
   await verifyNeon(env.NEON_API_KEY??'');
-  const client=new pg.Client({connectionString:url,ssl:{rejectUnauthorized:true},connectionTimeoutMillis:10000,
+  const client=new pg.Client({connectionString:url.connectionString,ssl:{rejectUnauthorized:true},
+    enableChannelBinding:url.requireChannelBinding,connectionTimeoutMillis:10000,
     application_name:'home-budget-reviewed-initializer'});
   // Never display driver/provider errors or credentials, including asynchronous socket errors.
   client.on('error',()=>{});
   try {
-    await client.connect();
-    const stream=(client as unknown as {connection:{stream:unknown}}).connection.stream;
-    requireCondition(stream instanceof TLSSocket && stream.encrypted && stream.authorized,'VERIFIED_TLS_SOCKET_REQUIRED');
+    await connectVerifiedOperator(client,url.requireChannelBinding);
     const db:Connection={query:(sql,values)=>client.query(sql,values),tlsVerified:true};
     // Recheck provider identity after connecting, before any SQL write.
     await verifyNeon(env.NEON_API_KEY??'');
