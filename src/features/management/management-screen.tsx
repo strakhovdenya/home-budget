@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Paper, Stack, TextField, Typography } from '@mui/material';
@@ -8,6 +8,7 @@ import type { ManagementKind, ManagementList, ManagementHistory, HistoryQuery, R
 import type { ProjectionResult } from '@/domain/forecast/contracts';
 import type { CanonicalValue } from '@/domain/updates/contracts';
 import { useBudgetWorkspace, requestEntry, type EntryIntent } from '@/features/budget-updates/budget-draft-provider';
+import {onBudgetCommitted} from '@/features/budget-updates/refresh';
 import { formatMoney } from '@/features/dashboard/format-money';
 import { formatCalendarDate, formatMonth } from '@/features/dashboard/presentation';
 
@@ -27,11 +28,16 @@ export function orderedItems(items: readonly Item[], status: string, period: str
 }
 export function ManagementScreen({ initial, kind, actions }: { initial: ManagementList; kind: ManagementKind; actions: ManagementActions }) {
   const t=useTranslations('management'),u=useTranslations('budgetUpdate'),d=useTranslations('dashboard'),locale=useLocale(),router=useRouter();
-  const [data,setData]=useState(initial),[status,setStatus]=useState(''),[period,setPeriod]=useState(''),[visible,setVisible]=useState(50);
+  const [loaded,setData]=useState(initial),[status,setStatus]=useState(''),[period,setPeriod]=useState(''),[visible,setVisible]=useState(50);
   const [selected,setSelected]=useState<Item|null>(null),[history,setHistory]=useState<ManagementHistory|null>(null);
   const [pending,setPending]=useState(false),[error,setError]=useState(false),[entry,setEntry]=useState<EntryIntent|null>(null),[blocked,setBlocked]=useState(false);
   const [accessLost,setAccessLost]=useState(false);
+  const data=initial.scopeKey===loaded.scopeKey&&BigInt(initial.knowledgeCut)>BigInt(loaded.knowledgeCut)?initial:loaded;
   const version=useRef(0),store=useBudgetWorkspace(data.scopeKey);
+  useEffect(()=>{let disposed=false;let request=0;const unsubscribe=onBudgetCommitted(()=>{const current=++request;void actions.load().then(result=>{if(disposed||request!==current)return;
+    if(result.ok&&result.value.scopeKey===initial.scopeKey)setData(old=>BigInt(result.value.knowledgeCut)>=BigInt(old.knowledgeCut)?result.value:old);
+    else {if(result.ok||result.code==='FORBIDDEN'||result.code==='UNAUTHORIZED')setAccessLost(true);setError(true);}
+  }).catch(()=>{if(!disposed)setError(true);});});return()=>{disposed=true;unsubscribe();};},[actions.load,initial.scopeKey]);
   const items=kind==='OBLIGATION'?data.obligations:data.savings,filtered=orderedItems(items,status,period);
   const projection=data.projection,ready=projection.kind==='ACCOUNT_ESTIMATE'?projection:null;
   const budgets=new Map(ready?.periods.map(p=>[p.period,p])??[]);
@@ -40,7 +46,7 @@ export function ManagementScreen({ initial, kind, actions }: { initial: Manageme
     if(result==='READY'){setEntry(null);setSelected(null);router.push('/update-budget');}
     else{setEntry(intent);setBlocked(result==='UNKNOWN');}}
   function intent(item:Item,action:string,amount?:string):EntryIntent{return {kind,identityId:item.identityId,revisionId:item.revisionId,action,...(amount?{suggestedAmount:amount}:{})};}
-  async function refresh(){setPending(true);setError(false);version.current++;try{const r=await actions.load();if(r.ok){setData(r.value);setSelected(null);setHistory(null);}else{if(r.code==='FORBIDDEN'||r.code==='UNAUTHORIZED')setAccessLost(true);setSelected(null);setHistory(null);setError(true);}}catch{setError(true);}finally{setPending(false);}}
+  async function refresh(){setPending(true);setError(false);version.current++;try{const r=await actions.load();if(r.ok){if(r.value.scopeKey!==initial.scopeKey){setAccessLost(true);return;}setData(old=>BigInt(r.value.knowledgeCut)>=BigInt(old.knowledgeCut)?r.value:old);setSelected(null);setHistory(null);}else{if(r.code==='FORBIDDEN'||r.code==='UNAUTHORIZED')setAccessLost(true);setSelected(null);setHistory(null);setError(true);}}catch{setError(true);}finally{setPending(false);}}
   async function detail(item:Item,cursor:string|null=null){const generation=++version.current;setSelected(item);if(!cursor)setHistory(null);setPending(true);setError(false);
     try{const r=await actions.history({kind,identityId:item.identityId,cursor});if(generation!==version.current)return;
       if(r.ok)setHistory(old=>cursor&&old?{...r.value,hasNewData:r.value.hasNewData||r.value.knowledgeCut!==data.knowledgeCut,entries:[...old.entries,...r.value.entries]}:{...r.value,hasNewData:r.value.hasNewData||r.value.knowledgeCut!==data.knowledgeCut});else{if(r.code==='FORBIDDEN'||r.code==='UNAUTHORIZED')setAccessLost(true);setError(true);}
@@ -105,7 +111,7 @@ export function ManagementScreen({ initial, kind, actions }: { initial: Manageme
           <Typography component="h2" variant="h3">{u('history')}</Typography><Typography>{t('historyExplanation')}</Typography>
           {error?<Alert severity="error">{t('error')} <Button onClick={()=>detail(selected)}>{t('retry')}</Button></Alert>:null}
           {history?<><Typography>{t('historyCut',{date:formatCalendarDate(history.through,locale),cut:history.knowledgeCut})}</Typography>
-            {history.hasNewData?<Alert severity="info">{t('newData')} <Button onClick={refresh}>{t('refresh')}</Button></Alert>:null}
+            {history.hasNewData||history.knowledgeCut!==data.knowledgeCut?<Alert severity="info">{t('newData')} <Button onClick={refresh}>{t('refresh')}</Button></Alert>:null}
             {history.entries.map(e=><Paper variant="outlined" key={e.id} sx={{p:2}}><Stack spacing={1}>
               <Typography component="h3" variant="h3">{u(`action.${e.action}`)}</Typography>
               <Typography>{t('effective')}: {formatCalendarDate(e.effectiveDate,locale)}</Typography>

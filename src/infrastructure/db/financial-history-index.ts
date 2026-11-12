@@ -9,11 +9,12 @@ import { databaseToday } from './transition-state';
 import type { createDatabase } from './client';
 import type { Transaction } from './commit';
 import * as s from './schema';
+import {verifyTemplateHistory} from './template-repository';
 
 export class HistoryFailure extends Error {constructor(readonly code:HistoryError){super(code);}}
 function fail(code:HistoryError):never{throw new HistoryFailure(code);}
 type Root={id:string;kind:string;seq:string;recordedAt:string;receiptValid:boolean};
-type Metadata=SourceRef & {batchId:string;valid:boolean;entityType:string|null;entityId:string|null;eventIndex:string|null};
+type Metadata=SourceRef & {batchId:string;valid:boolean;entityType:string|null;entityId:string|null;eventIndex:string|null;membershipPeriod:string|null};
 // Static identifiers only. Every dynamic value enters a parameterized SQL fragment.
 const sources = [
   ['obligations','OBLIGATION_IDENTITY',null,'NULL','NULL','NULL',null],
@@ -30,7 +31,7 @@ const sources = [
   ['month_closings','MONTH_CLOSING','historical_through_date','NULL','NULL','previous_version_id',null],
   ['audit_events','AUDIT','effective_date','NULL','NULL','NULL','event_kind'],
 ] as const;
-const knownKinds = new Set(['BANK_CHECKPOINT','BUDGET_UPDATE','PERIOD_TRANSITION','ALLOCATION_ONLY','MONTH_CLOSE',
+const knownKinds = new Set(['TEMPLATE_CONFIG','TEMPLATE_ACCEPT','TEMPLATE_DECLINE','BANK_CHECKPOINT','BUDGET_UPDATE','PERIOD_TRANSITION','ALLOCATION_ONLY','MONTH_CLOSE',
   ...['CREATE','AMEND','PARTIAL_SETTLEMENT','PAID','CANCELLED','CORRECTION_SET'].map(a=>'OBLIGATION_'+a),
   ...['CREATE','AMEND','INCREASE','PARTIAL_RELEASE','FULL_RELEASE','CORRECTION_SET','ACTUAL_CHECK'].map(a=>'SAVING_'+a)]);
 
@@ -65,6 +66,7 @@ async function metadata(tx:Transaction,scope:AuthorizedScope,cut:bigint,ids:read
     const col=(name:string)=>name==='NULL'?sql`NULL::text`:sql`${sql.raw('t.'+name)}::text`;
     const audit=kind==='AUDIT';
     const doc=sql`t.before_after`;
+    const membership=audit?sql.raw("CASE WHEN t.before_after->'entity'->>'type'='TEMPLATE_DECISION' AND t.event_kind IN ('TEMPLATE_ACCEPT','TEMPLATE_DECLINE') THEN t.before_after->'after'->'command'->'payload'->>'originPeriod' ELSE NULL END"):sql`NULL::text`;
     // The snapshot is not assembled for a list. Typed membership and mandatory audit
     // envelopes are checked here. VALID is metadata admission only; original
     // confirmations and full retained facts are verified on selected detail.
@@ -86,7 +88,7 @@ async function metadata(tx:Transaction,scope:AuthorizedScope,cut:bigint,ids:read
     return sql`SELECT ${kind}::text kind,t.id::text id,t.budget_update_id::text "batchId",t.recorded_seq::text "recordedSeq",
       ${date?sql`${sql.raw('t.'+date)}::text`:sql`coalesce((SELECT min(a.effective_date)::text FROM audit_events a WHERE a.owner_user_id=t.owner_user_id AND a.account_id=t.account_id AND a.budget_update_id=t.budget_update_id), '')`} date,
       ${col(position)} "positionId",${col(supersedes)} "supersedesId",${col(previous)} "previousRevisionId",${action?col(action):sql`NULL::text`} action,
-      coalesce((${valid}),false) valid,${audit?sql`${doc}->'entity'->>'type'`:sql`NULL::text`} "entityType",${audit?sql`${doc}->'entity'->>'id'`:sql`NULL::text`} "entityId",${audit?sql`${doc}->>'eventIndex'`:sql`NULL::text`} "eventIndex"
+      coalesce((${valid}),false) valid,${audit?sql`${doc}->'entity'->>'type'`:sql`NULL::text`} "entityType",${audit?sql`${doc}->'entity'->>'id'`:sql`NULL::text`} "entityId",${audit?sql`${doc}->>'eventIndex'`:sql`NULL::text`} "eventIndex",${membership} "membershipPeriod"
       FROM ${sourceTable(table)} t WHERE t.owner_user_id=${scope.ownerUserId} AND t.account_id=${scope.accountId} AND t.recorded_seq<=${cut}
       ${ids===null?sql``:sql`AND t.budget_update_id IN (${sql.join(ids.map(id=>sql`${id}::uuid`),sql`,`)})`}`;
   });
@@ -103,7 +105,7 @@ function entries(rs:readonly Root[],ms:readonly Metadata[]):Entry[]{
     let valid=r.receiptValid&&audits.length>0&&group.every(x=>x.valid&&x.recordedSeq===r.seq);
     const copiedOnce=audits.filter(a=>!['BANK_HEAD','REPORT_REVIEW_REQUIRED','REPORT_HEAD'].includes(a.entityType??''));
     if(new Set(copiedOnce.map(a=>a.entityType+':'+a.entityId)).size!==copiedOnce.length)valid=false;
-    const supportedAudits=new Set(['BANK_CHECKPOINT','ALLOCATION_REVISION','OBLIGATION_STATE','SAVINGS_STATE','TRANSITION_DECISION','BUDGET_TRANSFER','DAY_ORDERING','REPORT_VERSION','FUNDING_TRANSFER','BANK_HEAD','REPORT_HEAD','REPORT_REVIEW_REQUIRED','ALLOCATION_ONLY_REVIEW','TRANSITION_CONFIRMATION','BUDGET_UPDATE_REVIEW']);
+    const supportedAudits=new Set(['BANK_CHECKPOINT','ALLOCATION_REVISION','OBLIGATION_STATE','SAVINGS_STATE','TRANSITION_DECISION','BUDGET_TRANSFER','DAY_ORDERING','REPORT_VERSION','FUNDING_TRANSFER','BANK_HEAD','REPORT_HEAD','REPORT_REVIEW_REQUIRED','ALLOCATION_ONLY_REVIEW','TRANSITION_CONFIRMATION','BUDGET_UPDATE_REVIEW','ACCOUNT_CREATED','TEMPLATE_CONFIG','TEMPLATE_DECISION']);
     if(audits.some(a=>!supportedAudits.has(a.entityType??'')||!validUuid(a.entityId)))valid=false;
     const indices=new Set(audits.map(a=>a.eventIndex));
     if(indices.size!==audits.length||audits.some(a=>!a.valid||a.eventIndex===null||BigInt(a.eventIndex)>=BigInt(audits.length)))valid=false;
@@ -114,6 +116,8 @@ function entries(rs:readonly Root[],ms:readonly Metadata[]):Entry[]{
     if(r.kind==='BUDGET_UPDATE')valid=valid&&count('ALLOCATION_REVISION')===1&&audits.filter(a=>a.entityType==='BUDGET_UPDATE_REVIEW'&&a.entityId===r.id).length===1;
     if(r.kind==='PERIOD_TRANSITION')valid=valid&&count('TRANSITION_DECISION')===1&&count('ALLOCATION_REVISION')===1
       &&audits.filter(a=>a.entityType==='BUDGET_UPDATE_REVIEW'||a.entityType==='TRANSITION_CONFIRMATION').length===1;
+    if(r.kind==='TEMPLATE_CONFIG'||r.kind==='TEMPLATE_DECLINE')valid=valid&&group.length===1&&audits.length===1&&audits[0].entityType===(r.kind==='TEMPLATE_CONFIG'?'TEMPLATE_CONFIG':'TEMPLATE_DECISION');
+    if(r.kind==='TEMPLATE_ACCEPT')valid=valid&&count('OBLIGATION_STATE')===1&&count('POSITION')===1&&count('DAY_ORDERING')===1&&audits.filter(a=>a.entityType==='TEMPLATE_DECISION').length===1;
     if(r.kind==='MONTH_CLOSE')valid=valid&&count('MONTH_CLOSING')===1&&audits.filter(a=>a.entityType==='REPORT_HEAD').length===1;
     if(r.kind.startsWith('OBLIGATION_'))valid=valid&&count('OBLIGATION_STATE')>0&&(r.kind==='OBLIGATION_CORRECTION_SET'||group.filter(x=>x.kind==='OBLIGATION_STATE').every(x=>x.action===r.kind.slice(11)));
     if(r.kind.startsWith('SAVING_'))valid=valid&&count('SAVINGS_STATE')>0&&(['SAVING_CORRECTION_SET','SAVING_ACTUAL_CHECK'].includes(r.kind)||group.filter(x=>x.kind==='SAVINGS_STATE').every(x=>x.action===r.kind.slice(7)));
@@ -146,10 +150,13 @@ export function createHistoryIndexReader(database:ReturnType<typeof createDataba
     if(q.basis.month!==null){
       const r=await roots(tx,scope,cut,LIMITS.historyRows+1,null);
       if(r.length>LIMITS.historyRows)fail('HISTORY_LIMIT_EXCEEDED');
-      all=entries(r,await metadata(tx,scope,cut,null));
+      await verifyTemplateHistory(tx,scope,cut);
+      const ms=await metadata(tx,scope,cut,null),memberships=new Map<string,Set<string>>();
+      for(const m of ms)if(m.membershipPeriod!==null){const set=memberships.get(m.batchId)??new Set<string>();set.add(m.membershipPeriod);memberships.set(m.batchId,set);}
+      all=entries(r,ms);
       if(all.some(e=>e.sourceStatus!=='VALID'))fail('HISTORY_SOURCE_INVALID');
       const previous=new Map(all.flatMap(e=>e.sources.map(x=>[x.kind+':'+x.id,x] as const)));
-      all=all.filter(e=>e.sources.some(x=>x.kind!=='AUDIT'&&(x.date.slice(0,7)===q.basis.month||x.supersedesId&&previous.get(x.kind+':'+x.supersedesId)?.date.slice(0,7)===q.basis.month)));
+      all=all.filter(e=>memberships.get(e.id)?.has(q.basis.month!)||e.sources.some(x=>(x.kind!=='AUDIT'||['TEMPLATE_CONFIG','TEMPLATE_DECLINE'].includes(e.kind))&&(x.date.slice(0,7)===q.basis.month||x.supersedesId&&previous.get(x.kind+':'+x.supersedesId)?.date.slice(0,7)===q.basis.month)));
     }
     async function keys(last:string|null){return all?all.filter(e=>last===null||BigInt(e.recordedSeq)<BigInt(last)).slice(0,21):roots(tx,scope,cut,21,last===null?null:BigInt(last));}
     for(const boundary of [q.fromLastSeq,q.lastSeq])if(boundary!==null){
@@ -203,7 +210,7 @@ export async function requireHistoryEntry(tx:Transaction,scope:AuthorizedScope,b
   if(entry.sourceStatus!=='VALID')fail('HISTORY_SOURCE_INVALID');
   if(basis.month!==null){
     const all=await metadata(tx,scope,BigInt(basis.knowledgeCut),null),byId=new Map(all.map(x=>[x.kind+':'+x.id,x]));
-    if(!entry.sources.some(x=>x.kind!=='AUDIT'&&(x.date.slice(0,7)===basis.month||x.supersedesId&&byId.get(x.kind+':'+x.supersedesId)?.date.slice(0,7)===basis.month)))fail('INVALID_INPUT');
+    if(!all.some(m=>m.batchId===batch.id&&m.membershipPeriod===basis.month)&&!entry.sources.some(x=>(x.kind!=='AUDIT'||['TEMPLATE_CONFIG','TEMPLATE_DECLINE'].includes(batch.kind))&&(x.date.slice(0,7)===basis.month||x.supersedesId&&byId.get(x.kind+':'+x.supersedesId)?.date.slice(0,7)===basis.month)))fail('INVALID_INPUT');
   }
   return entry;
 }

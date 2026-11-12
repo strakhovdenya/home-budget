@@ -281,10 +281,39 @@ retain draft and guide the user to two **separately confirmed** updates (first
 transition, later payment/edit) rather than silently performing two commits.
 Disjoint identities continue to work within the established contract.
 
-HB-020 is planned to add first-run creation of **one owned account** after
-successful allowlisted authentication, then an initial real checkpoint and full
-allocation using existing HB-010/017 protections; not an account selector,
-multi-card model, new authorization path or automatic real-bank integration.
+HB-020's current first-run contract is [D55](DECISIONS.md#hb-020-product-alignment--owner-2026-11-11):
+after admitted Google OAuth the owner confirms actual B/date and complete A
+once, with no name/create-budget screen. Missing single technical owned EUR
+account/internal stable name and first real C/V/audit/receipt commit atomically,
+not on login or a preliminary hidden save. Existing empty accounts resume
+real confirmation without recreation; before confirmation funds are UNKNOWN,
+and explicit actual B=0 is valid. No account selector, multi-card model or
+authorization expansion.
+
+The independently owner-reported approved [R1 plan](planning/hb-020-first-run-and-recurring-templates.md)
+proposes a private owner-lock → account-lock transaction-local composition,
+initial draft/review translation and original evidence verification using the
+existing financial planner/persistence helpers. Current HB-017 APIs do not yet
+provide missing-account composition. The exact-schema template adapter invokes
+ordinary writeObligations({changes:[CREATE]}) within the same tx/batch, with one
+outer receipt and proved outer/inner/actual identity mapping; never broaden the
+financial parser or start a second transaction.
+
+Under [D56](DECISIONS.md#hb-020-monthly-decisions--owner-2026-11-11), an enabled template offers a new calendar-month instance even with old unpaid debt. Reading writes nothing. Explicit ACCEPT creates exactly one ordinary full-reserve obligation after reviewed integer-cent amount editing. Explicit DECLINE ("Не добавлять за этот месяц") durably suppresses only owner/account+templateId+originPeriod, with typed audit/receipt but no obligation, payment, bank operation or change to B/A/C/V,R/S/F or bank-check date. Both outcomes are final and mutually exclusive per key; retries/races resolve one proved winner. Next enabled month is offered independently of prior DECLINE. Disable stops future offers, preserving debts/decisions/history; local close without DECLINE writes nothing and may reappear. Old debt retains identity, full remainder/reserve, origin/current funding and history, with no automatic move/debit. Already paid before access and included in B may be DECLINED without false payment history; an existing obligation uses its normal Paid/Partial/Cancelled lifecycle and required financial confirmations. Config edits, funding changes, disable/re-enable or later payment/cancellation never reset a decided key.
+
+The planned DECLINE transaction is decision-only typed audit/receipt, never
+writeObligations or a synthetic bank check. Both outcomes share serialized key
+admission and strict original-proof/status/UNKNOWN. ACCEPT alone uses the exact
+CREATE adapter above; history admits audit-only DECLINE with month membership.
+No income trigger/schedule. Template dueDate=null; ordinary optional dueDate stays.
+
+Storage A/B, bounded proof, original replay/UNKNOWN and history kind/audit/month
+membership remain technical gates; no storage or migration selection now.
+New events must remain reachable without false bank checks or changed daily
+H/K/immutable reports. Import directions/external allowlists are unchanged;
+architecture.json needs no dependency-boundary edit in this alignment.
+Protected hashes intentionally require separately authorized later freshness
+maintenance; no gate/CI/evidence or runtime execution now.
 
 [Decision](DECISIONS.md#hb-0191-budget-update-ux-and-hb-020-first-run-scope--2026-11-04) ·
 [HB-019.1 plan](planning/hb-019-1-budget-update-ux.md).
@@ -300,3 +329,53 @@ optional copy. No domain formula, writer transaction/schema or historical endpoi
 changes. Historical result and current D36 are separate UI sections; saved amounts
 come only from verified history. Full history remains HB-019.2. See
 [verification](planning/hb-019-1-verification.md).
+
+## HB-020 local implementation — 2026-11-12, independent review pending
+
+D57 correction: template context P is loaded with the offer and displayed without independent month inputs. The strict template parser, exact adapter, commit admission and original verifier enforce initial originPeriod=fundingPeriod=P. EffectiveDate is the actual confirmation date, not P. Existing ordinary obligation/funding-transition APIs and import boundaries remain unchanged.
+
+The owner's implementation request supersedes the earlier document-only runtime
+gate above. The approved D55/D56 product rules are unchanged. Local code adds
+first confirmation at the existing home page and monthly templates within
+/obligations. Authentication/admission, installed stack, physical schema and
+app -> features -> domain directions are unchanged. Domain ports live in
+domain/onboarding and domain/recurring; infrastructure implements them. Existing
+architecture fitness tests still enforce every import edge.
+
+First confirmation derives the technical EUR account identity/name on the server,
+locks the trusted owner before account discovery and atomically writes the actual
+HB-017 plan, ACCOUNT_CREATED evidence and one batch/receipt. The transaction-local
+commit helper never opens a nested transaction. Every batch now takes owner
+FOR UPDATE before account FOR UPDATE: ordinary batch actor FKs otherwise risked
+reversing the onboarding lock order. This serializes writes for one owner; it
+does not add a UNIQUE(owner) constraint or change authorization.
+
+Storage A is implemented locally: TEMPLATE_CONFIG, TEMPLATE_ACCEPT and
+TEMPLATE_DECLINE batches retain typed TEMPLATE_CONFIG/TEMPLATE_DECISION audits.
+The reader preflights all matching at-K rows/bytes before materializing them,
+verifies original commands/hashes/receipts/config chains and both terminal
+outcomes, and refuses corruption, duplicates or exceeded limits. There is no
+latest-page business-key lookup, cache or process-local uniqueness mutex.
+Limits are 2048 template updates, 12000 audits, 4 MiB preflight bytes, 64 template
+identities and 4 million bounded source-validation work units. New writes reserve
+1 MiB/128 audits of headroom; accepted descriptors are capped at 128 total and
+256 KiB. Existing financial source limits remain authoritative too. Exceeding a
+bound fails closed and never forgets old decisions.
+
+ACCEPT adapts the immutable outer command to exactly one ordinary CREATE and
+invokes writeObligations once in the same transaction. Inner commands have no
+separate receipt. Original proof validates source version, adapter, identity,
+event, position and reviewed day ordering. DECLINE/config create no financial
+positions or bank/reserve facts. A repeated month-only DECLINE returns the
+original proved receipt even with a new request key; conflicting intents name
+the actual winning outcome. Disable or PAID/CANCELLED never reset a key.
+
+History admits only the explicit new kinds/audits, verifies original evidence on
+detail, and includes control dates plus selected decision origin month in filtered
+membership. Existing H/K selection, 20-row paging and immutable closing versions
+are retained. Bank checkpoints remain authoritative; template actions never
+infer a bank debit, income, spending or funding transfer. D36 is unchanged.
+
+This is uncommitted local implementation, not owner acceptance or publication.
+Executed checks, exact source hashes and unexecuted real OAuth/browser gates:
+[HB-020 implementation verification](planning/hb-020-implementation-verification.md).

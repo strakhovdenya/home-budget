@@ -80,10 +80,22 @@ it('HB17-X03 delayed preview cannot reactivate confirmation after the generation
   vi.mocked(f.actions.preview).mockImplementationOnce(()=>new Promise(r=>{resolve=r;}));render(f.tree);
   await userEvent.click(screen.getByRole('checkbox',{name:/I have checked the complete allocation/}));await userEvent.click(screen.getByRole('button',{name:'Preview result'}));
   expect(screen.queryByRole('button',{name:'Confirm update'})).toBeNull();await act(async()=>resolve({ok:false,code:'STALE_REVISION'}));
-  expect(screen.queryByRole('button',{name:'Confirm update'})).toBeNull();expect(screen.getByText(/Confirmed data, ordering/)).toBeTruthy();
+  expect(screen.queryByRole('button',{name:'Confirm update'})).toBeNull();expect(screen.getByText(catalogs.en.budgetUpdate.errors.stale)).toBeTruthy();
 });
 it('HB17-X04 reuse cannot authorize a payment without a new actual check',()=>{
   const {seed}=setup(),form=initialForm(seed);form.reuse=true;form.vectorConfirmed=true;form.unchangedFunding=true;
   form.edits=[{key:'o',kind:'OBLIGATION',identityId:seed.obligations[0].obligationId,action:'PARTIAL_SETTLEMENT',amount:'50.00',title:'',period:'2026-11',dueDate:'',bankDate:'',isPossible:false,reserveFull:true,source:'TRACKED_CARD'}];
   const command=makeBudgetCommand(seed,form,'en',id());expect(parseBudgetDraft(command.payload)).toMatchObject({ok:false,code:'PAYMENT_CONFIRMATION_REQUIRED'});
+});
+
+it('HB20-UX04 same-day hint focuses explicit consent; stale reload retains B950 allocations and clears consents for review',async()=>{
+  const f=setup(),user=userEvent.setup();f.seed.placement={id:id(),afterPositionId:id()};f.seed.today='2026-11-12';
+  render(f.tree);await user.clear(screen.getByRole('textbox',{name:catalogs.en.budgetUpdate.balance}));await user.type(screen.getByRole('textbox',{name:catalogs.en.budgetUpdate.balance}),'950');
+  await user.click(screen.getByRole('button',{name:catalogs.en.budgetUpdate.preview}));
+  expect(await screen.findByText(catalogs.en.budgetUpdate.errors.sameDay)).toBeTruthy();
+  expect(f.actions.preview).not.toHaveBeenCalled();expect(document.activeElement?.getAttribute('name')).toBe('orderAcknowledged');
+  await user.click(screen.getByRole('button',{name:catalogs.en.budgetUpdate.reloadBase}));
+  expect((screen.getByRole('textbox',{name:catalogs.en.budgetUpdate.balance}) as HTMLInputElement).value).toBe('950');
+  expect((screen.getByRole('checkbox',{name:catalogs.en.budgetUpdate.orderConsent}) as HTMLInputElement).checked).toBe(false);
+  expect(screen.getByText(catalogs.en.budgetUpdate.sameDayHint)).toBeTruthy();
 });

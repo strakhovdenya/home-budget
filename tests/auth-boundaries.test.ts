@@ -8,6 +8,7 @@ vi.mock('next/navigation', () => ({ redirect: (url: string) => { throw new Error
 import { currentOwner, requireOwner, requireOwnedAccount } from '../src/infrastructure/auth/auth';
 import { login, logout } from '../src/app/auth-actions';
 import HomePage from '../src/app/page';
+import {FirstRunScreen} from '@/features/onboarding/first-run-screen';
 import MonthsPage from '../src/app/months/page';
 import ObligationsPage from '../src/app/obligations/page';
 import SavingsPage from '../src/app/savings/page';
@@ -65,9 +66,11 @@ it('HB16-A01 rejects a direct explicit period before discovering an account', as
   await expect(MonthsPage({ searchParams: Promise.resolve({ period: '2026-12' }) })).rejects.toThrow('REDIRECT:/login');
   expect(mocks.findAccountIdsForOwner).not.toHaveBeenCalled();
 });
-it('HB16-A02 renders the actual dashboard empty state for an authenticated owner without accounts', async () => {
+it('HB16-A02 HB20-A01 renders actual first confirmation for an authenticated owner without accounts', async () => {
   mocks.auth.mockResolvedValue({ user: { id: ownerId, email: syntheticAuthEnvironment.ALLOWED_GOOGLE_EMAIL } });
   const page = await HomePage();
-  expect(page.props.view).toEqual({ kind: 'NO_ACCOUNT' });
+  expect(page.type).toBe(FirstRunScreen);expect(page.key).toBe(ownerId);
+  expect(page.props.today).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  expect(page.props.actions).toEqual({preview:expect.any(Function),confirm:expect.any(Function),status:expect.any(Function)});
   expect(mocks.findAccountIdsForOwner).toHaveBeenCalledExactlyOnceWith(ownerId);
 });

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import {notifyBudgetCommitted} from './refresh';
 import { BudgetEditors } from './budget-editors';
 import { BudgetSession, useBudgetWorkspace, useBudgetState, useBudgetRef, openBudgetSession } from './budget-draft-provider';
 import Link from 'next/link';
@@ -8,7 +9,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Alert, Box, Button, Checkbox, FormControlLabel, MenuItem, Paper, Stack, TextField, Typography } from '@mui/material';
 import type { CanonicalValue, CommitReceipt } from '@/domain/updates/contracts';
 import { formatMoney } from '@/features/dashboard/format-money';
-import { formatCalendarDate } from '@/features/dashboard/presentation';
+import { formatCalendarDate,formatMonth } from '@/features/dashboard/presentation';
 import { initialForm, makeBudgetCommand, FormInputError, type BudgetActions, type DraftEdit, type UpdateForm, type UpdateSeed } from './presentation';
 import { parseBudgetDraft,cashVectorGap } from '@/domain/budget-update/validation';
 
@@ -56,7 +57,11 @@ function UpdateBudgetForm({initialSeed,actions}:{initialSeed:UpdateSeed;actions:
     if(code==='TRANSITION_CONFIRMATION_REQUIRED')return t('chooseTransition');
     if(code==='OWNER_POLICY_REQUIRED')return t('errors.policy');
     if(code==='UNAUTHORIZED'||code==='FORBIDDEN'){setAccessLost(true);original.current=null;setReviewed(null);return t('errors.access');}
-    if(/STALE|CONFLICT|ORDERING|REPORT_IMPACT|TARGET_PERIOD/.test(code))return t('errors.conflict');
+    if(code==='ORDER_ACKNOWLEDGEMENT_REQUIRED')return t('errors.sameDay');
+    if(code.startsWith('STALE_'))return t('errors.stale');
+    if(code==='ORDERING_CONFLICT')return t('errors.ordering');
+    if(code==='HISTORICAL_STATE_CONFLICT'||code==='HISTORICAL_REPLAY_CONFLICT')return t('errors.historical');
+    if(/CONFLICT|REPORT_IMPACT|TARGET_PERIOD/.test(code))return t('errors.conflict');
     if(/STORAGE|TRANSACTION/.test(code))return t('errors.storage');return t('errors.input');
   };
   async function preview(){if(busy.current||unknown)return;const version=generation.current;setError('');setFieldError('');setPending(true);
@@ -69,12 +74,12 @@ function UpdateBudgetForm({initialSeed,actions}:{initialSeed:UpdateSeed;actions:
   async function readHistory(id?:string){try{const h=await actions.history(id??null);if(h.ok){setHistory(h.value as unknown as typeof history);setReadFailed(false);}else{if(h.code==='FORBIDDEN'||h.code==='UNAUTHORIZED'){setAccessLost(true);original.current=null;}setReadFailed(true);}}catch{setReadFailed(true);}}
   async function confirm(retry=false){const command=retry?original.current:reviewed;if(!command||busy.current)return;
     busy.current=true;setPending(true);original.current=command;setError('');
-    try{const r=await actions.confirm(command);if(r.ok){setReceipt(r.value);setUnknown(false);setDirty(false);setReviewed(null);await readHistory(r.value.updateId);}
+    try{const r=await actions.confirm(command);if(r.ok){setReceipt(r.value);setUnknown(false);setDirty(false);setReviewed(null);notifyBudgetCommitted();await readHistory(r.value.updateId);}
       else if(r.code==='COMMIT_OUTCOME_UNKNOWN'){setUnknown(true);setError(t('unknown'));}
       else{setUnknown(false);setError(message(r.code));}
     }catch{setUnknown(true);setError(t('unknown'));}finally{busy.current=false;setPending(false);}}
   async function status(){const command=original.current as {requestId?:string}|null;if(!command?.requestId)return;setPending(true);
-    try{const r=await actions.status(command.requestId);if(r.ok&&r.value){setReceipt(r.value);setUnknown(false);setDirty(false);setReviewed(null);await readHistory(r.value.updateId);}
+    try{const r=await actions.status(command.requestId);if(r.ok&&r.value){setReceipt(r.value);setUnknown(false);setDirty(false);setReviewed(null);notifyBudgetCommitted();await readHistory(r.value.updateId);}
       else setError(r.ok?t('unknown'):message(r.code));}catch{setError(t('unknown'));}finally{setPending(false);}}
   async function reload(){setPending(true);setError('');try{const r=await actions.load();if(r.ok){setSeed(r.value as unknown as UpdateSeed);setReviewed(null);setForm(old=>({...old,vectorConfirmed:false,bankAffirmed:false,unchangedAcknowledged:false,fundingConfirmed:false,nonCarryConfirmed:false,futureConfirmed:false,orderAcknowledged:false,unchangedFunding:false}));generation.current++;}else setError(message(r.code));}catch{setError(message('STORAGE_ERROR'));}finally{setPending(false);}}
   function consent(key:keyof UpdateForm,label:string){return <FormControlLabel control={<Checkbox name={key} checked={Boolean(form[key])} disabled={disabled} onChange={e=>change({[key]:e.target.checked})} slotProps={{input:{'aria-invalid':fieldError===key,'aria-describedby':fieldError===key?'budget-update-error':undefined}}}/>} label={t(label)}/>;}
@@ -83,10 +88,10 @@ function UpdateBudgetForm({initialSeed,actions}:{initialSeed:UpdateSeed;actions:
     <Typography component="h1" variant="h1">{t('title')}</Typography><Typography>{t('description')}</Typography>
     <Button component={Link} href="/" prefetch={false} sx={{alignSelf:'flex-start'}}>{t('back')}</Button>
     {entryError?<Alert severity="warning">{t('errors.conflict')}</Alert>:null}
-    {error?<Alert id="budget-update-error" severity="error" ref={errorRef} tabIndex={-1} role="alert">{error}</Alert>:null}
+    {error?<Alert id="budget-update-error" severity="error" ref={errorRef} tabIndex={-1} role="alert">{error}<Button disabled={pending||unknown} onClick={reload}>{t('reloadBase')}</Button></Alert>:null}
     {receipt?<Alert severity="success" ref={resultRef} tabIndex={-1} role="status">{t('saved')}
       {saved?<><Typography>{t('bank')}: {formatMoney(saved.review.financial.bank.balanceCents,locale)} · {formatCalendarDate(saved.review.financial.bank.observedDate,locale)}</Typography>
-        {saved.review.financial.allocations.map(a=><Typography key={a.period}>{a.period}: {formatMoney(a.amountCents,locale)}</Typography>)}</>:null}
+        {saved.review.financial.allocations.map(a=><Typography key={a.period}>{formatMonth(a.period,locale)}: {formatMoney(a.amountCents,locale)}</Typography>)}</>:null}
       <Box component="details"><Box component="summary">{t('technicalReference')}</Box>{receipt.updateId}</Box></Alert>:null}
     {readFailed?<Alert severity="warning">{t('savedReadFailed')}<Button onClick={()=>readHistory(receipt?.updateId)}>{t('retryRead')}</Button></Alert>:null}
     {unknown?<Alert severity="warning"><Typography>{t('unknown')}</Typography><Button onClick={status} disabled={pending}>{t('checkResult')}</Button>
@@ -99,7 +104,7 @@ function UpdateBudgetForm({initialSeed,actions}:{initialSeed:UpdateSeed;actions:
           <FormControlLabel label={t('reuse')} control={<Checkbox checked={form.reuse} disabled={disabled||!seed.bank||paid||form.mode==='FRESH_START'} onChange={e=>change({reuse:e.target.checked})}/>}/>
           <TextField name="balance" label={t('balance')} value={form.balance} disabled={disabled||form.reuse} error={fieldError==='balance'} onChange={e=>change({balance:e.target.value})} helperText={fieldError==='balance'?error:t('moneyHint')} slotProps={{htmlInput:{inputMode:'decimal',autoComplete:'off'}}}/>
           <TextField name="observedDate" label={t(form.reuse?'effectiveDate':'observedDate')} type="date" value={form.observedDate} disabled={disabled} error={fieldError==='observedDate'} helperText={fieldError==='observedDate'?error:undefined} onChange={e=>change({observedDate:e.target.value})} slotProps={{inputLabel:{shrink:true},htmlInput:{max:seed.today}}}/>
-          {seed.placement&&form.observedDate===seed.today?consent('orderAcknowledged','orderConsent'):null}
+          {seed.placement&&form.observedDate===seed.today?<><Typography>{t('sameDayHint')}</Typography>{consent('orderAcknowledged','orderConsent')}</>:null}
           <Typography variant="body2">{t('memoryOnly')}</Typography>
         </Stack></Paper>
         <Paper variant="outlined" sx={box}><Stack spacing={2}>
@@ -140,7 +145,7 @@ function UpdateBudgetForm({initialSeed,actions}:{initialSeed:UpdateSeed;actions:
           <Button type="submit" variant="outlined" disabled={pending||unknown}>{t(pending?'working':'preview')}</Button>
           {review?<><Alert severity="info">{t('notSaved')}</Alert><Review review={review}/><Button variant="contained" disabled={disabled} onClick={()=>confirm()}>{t('confirm')}</Button></>:null}
         </Stack></Paper>
-        <Button disabled={pending||unknown} onClick={reload}>{t('reloadBase')}</Button>
+        {!error?<Button disabled={pending||unknown} onClick={reload}>{t('reloadBase')}</Button>:null}
         <Button disabled={pending} onClick={()=>readHistory()}>{t('history')}</Button>
         {history.filter(h=>h.receipt.updateId!==receipt?.updateId).map(h=><Paper key={h.receipt.updateId} variant="outlined" sx={box}><Box component="details"><Box component="summary">{t('technicalReference')}</Box>{h.receipt.updateId}</Box>
           <Typography>{t('recordedAt')}: {new Intl.DateTimeFormat(locale,{dateStyle:'long',timeStyle:'short',timeZone:'Europe/Berlin'}).format(new Date(h.recordedAt))}</Typography><Review review={h.review}/></Paper>)}

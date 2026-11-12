@@ -75,9 +75,26 @@ Given one known €1000 incoming transfer in November assigned €50 November an
 Then the confirmed new WHOLE-balance distribution includes only €50 extra November / €950 extra December, preserving any prior allocations and exact bank total. Optional receipt funding details sum €1000; they do not add another €1000 to bank or active distribution. Current eligible free rises only €50; no receipt entry is required for the checkpoint update.
 
 ## F-016 — recurrence proposal not duplicate
-Given enabled template €54 per month, confirmed November obligation created from it.
-When user revisits the proposal in November.
-Then same obligation is not recreated. Original October unpaid amount carries separately from newly accepted November template item.
+Given enabled monthly5400-cent template and accepted unpaid M5400 bill.
+When Berlin month becomes P, offer P read-only despite old debt; no writes.
+D57: P is the viewed YYYY-MM context (default current Berlin month), not two
+independent selections. Initial ACCEPT must save originPeriod=fundingPeriod=P;
+unequal or invalid periods are rejected with exact no-write. EffectiveDate is
+the actual confirmation day, not a fabricated date in P. Old funding moves only
+under a separate explicit D43/D44 FRESH_START/CARRY, never this ACCEPT.
+Explicit ACCEPT P creates one distinct full-reserve obligation; old identity,
+full remainder/reserve, origin/current funding and history stay unchanged.
+Explicit DECLINE P instead durably suppresses P with one typed audit/receipt,
+no obligation/payment or B/A/C/V,R/S/F change. Repeat DECLINE is idempotent;
+ACCEPT/DECLINE race produces one terminal winner, never both. The stable owned
+template+origin key cannot reset on config/funding changes, re-enable or payment/
+cancellation. Next enabled month is independently offered after prior DECLINE.
+Disable stops future offers preserving facts; local close writes nothing and
+may reappear. Already paid before access and included in B may be DECLINED
+without false payment history or double debit; existing obligations instead use
+normal lifecycle confirmations. No automatic debt/funding replacement.
+See [D56](../../../docs/DECISIONS.md#hb-020-monthly-decisions--owner-2026-11-11) and [T01–T03](hb-020-first-run-and-recurring-templates.md#hb20-t01-explicit-template-acceptance-is-inert-until-confirmed-and-unique).
+Q-HB20-NEW-INSTANCE is resolved by D56. All assertions **NOT EXECUTED**.
 
 ## F-017 — partial payment allowed, remainder fully reserved
 Given outstanding €200 and reserve €200.

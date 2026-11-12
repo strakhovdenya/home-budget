@@ -29,7 +29,7 @@ export function parseDashboardQuery(query: Record<string, unknown>) {
   if (query.period === undefined) return { ok: true, value: null } as const;
   return parsePeriod(query.period);
 }
-export function periodHref(base: '/' | '/months', period: string | null) {
+export function periodHref(base: '/' | '/months' | '/obligations', period: string | null) {
   if (period === null) return base;
   const p = parsePeriod(period);
   if (!p.ok) throw new Error('INVALID_PERIOD');

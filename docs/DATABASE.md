@@ -315,3 +315,85 @@ Direct-SQL evidence tests assert runtime refusal, not SQL audit enforcement.
 No new migration, table, constraint, connection setting or database target. Aggregate confirmation reuses commitBatch and the existing audit/receipt transaction. Preview/load are repeatable-read read-only; only transition prepare can persist nonfinancial proposal/period controls. All selected sources, ownership, revision, H/K, ordering, funding refs and report bases are rechecked under the existing account lock. Typed domain refusal throws rejectBatch to roll back the entire batch; audit INSERT and deferred COMMIT failures leave no partial financial writes. Unknown COMMIT outcome requires scoped status/original-key replay rather than an assumed rollback.
 
 The HB-017 local tests use an explicitly owned loopback disposable PostgreSQL container, all three URL overrides and local-target markers, existing migration chain and synthetic data only. Auth error rendering uses an identity-independent read-only SELECT 1 availability check with statement timeout; it neither diagnoses allowlist membership nor repairs/switches database targets. [Evidence and limits](planning/hb-017-verification.md).
+
+## HB-020 planned persistence boundary — D55 / D56
+
+One explicit first actual B/date/full-A confirmation must atomically create any
+missing technical owned EUR account/internal stable name and real C/V/audits/
+receipt on one connection/outer COMMIT. No account on login, precommitted empty
+stage or fake checkpoint. Existing empty accounts use real confirmation without
+recreation. Current commitBatch requires an account and owns its transaction;
+HB-017 public preview/confirm cannot simply be nested to provide this capability.
+
+The approved R1 plan proposes owner-row then account-row locking and a private
+transaction-local commit body with existing financial validators/persistBudgetPlan.
+Same/different-key races, original proof/status/replay, deferred rollback and
+outer unknown-COMMIT outcome require separate implementation evidence. No claim
+of existing UNIQUE(owner) or universal direct-SQL exclusion.
+
+Template acceptance's outer command must use a bounded exact-schema adapter
+into unchanged parseObligationBatch({changes:[one ordinary CREATE]}) and
+writeObligations on the same tx/batch. No template fields in the financial parser,
+second transaction or inner receipt. Copied outer/inner/actual CREATE mapping
+must be proved on replay/history. dueDate=null on this entry path, ordinary
+optional dueDate unchanged. Ignore/close writes nothing, including no saved SKIP.
+
+Storage A (existing typed immutable batch/audit) versus B (minimal scoped tables
+and UNIQUE(owner,account,templateId,originPeriod) across BOTH outcomes) remains a technical gate: A must prove
+complete bounded semantic reads and serialized business-key admission; B needs
+separate consent and a reviewed forward-only migration. No SQL/schema/index or
+physical table is selected/created now. Existing PK/FKs/request/seq/immutability
+and financial sum constraints remain; account lock is not a SQL unique key.
+D56 requires durable typed DECLINE decision/audit/receipt with no obligation,
+position/C/V/A/reserve/payment/report mutation. Account-locked admission proves
+both-outcome key evidence before new writes. B must enforce one shared decision
+UNIQUE, never separate acceptance/decline keys that allow both. A must prove all
+writers obey serialized admission and complete bounded lookup; corrupt/duplicate
+evidence fails closed. Both outcomes need original replay/status/UNKNOWN and
+history; disable never deletes a decision. No migration selected or created.
+New control/decision history must retain strict proof and month membership
+without a bank check, omitted record or changed H/K/report versions.
+[D55](DECISIONS.md#hb-020-product-alignment--owner-2026-11-11); [R1 plan](planning/hb-020-first-run-and-recurring-templates.md).
+
+These normative edits intentionally stale protected Finance Gate hashes.
+No checker/coverage/CI/receipt/evidence update or fresh runtime claim here.
+Separate authorization and fresh checks are needed later before publication.
+Runtime tests: NOT RUN (documentation-only, owner instruction).
+
+## HB-020 local storage A — 2026-11-12, review pending
+
+The owner subsequently authorized implementation. No SQL/schema/index/migration
+file changes are introduced. The earlier planned A/B comparison is retained as
+design history; local implementation uses A with complete bounded original-proof
+lookup and account-locked admission across both ACCEPT and DECLINE.
+
+All financial batches use owner-row then account-row locking, including ordinary
+updates, so user/actor foreign keys cannot invert the first-confirmation order.
+The missing account and actual checkpoint/vector/audit/receipt share one outer
+transaction and outcome classification. Existing empty accounts retain their
+name, actual revision and null anchors and use ordinary HB-017 initialization.
+
+Template kinds are TEMPLATE_CONFIG / TEMPLATE_ACCEPT / TEMPLATE_DECLINE; audit
+entities are TEMPLATE_CONFIG and TEMPLATE_DECISION. UUID template identities are
+canonical lowercase. ACCEPT's inner prepared ordinary CREATE is derived exactly,
+has dueDate=null and no bankCheck/payment, and gets no second batch/receipt.
+Original proof checks the complete config/decision chain, outer hash and receipt,
+copied source version, exact adapter, actual one CREATE identity/event/position
+and day ordering. Config/DECLINE have no financial rows or report mutation.
+Repeated DECLINE may reuse its original receipt across request IDs; opposite
+intent conflicts identify the proved winner. A status miss during an unfinished
+request remains inconclusive.
+
+The application protocol is not SQL UNIQUE(template, originPeriod). Every trusted
+template writer uses the shared lock and full at-K collector. Row, UTF-8 byte,
+audit, template-count, work and write-headroom limits fail closed; no truncation,
+first-match choice, hidden backfill or direct-SQL uniqueness claim is made.
+Financial history metadata/detail support these typed sources and audit-only
+month membership without fabricated checkpoints.
+
+Verification uses only the separately owned hb020-codex-20261112 PostgreSQL18
+container, loopback binding, all three explicit URL overrides, existing migration
+chain and uniquely named synthetic child databases. It does not use the existing
+PostgreSQL17 service, Neon, private env files or production exports. Exact results
+and remaining gates are recorded in the linked verification report. Existing
+Finance Gate fingerprints/receipts are deliberately not rewritten here.

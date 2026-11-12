@@ -19,6 +19,25 @@ History entry: all saved checks/states are reachable through HB-019.2, not only 
 For a selected PAST/FUTURE month, prioritize that month’s labelled A/R/S/F and basis; dated latest-card cash is secondary with a visible non-attribution explanation. Closed months lead with the selected accepted report (latest by default, explicit old selection respected); active old allocation is separate. Future A is already confirmed cash, not expected income or future bank balance.
 
 ## Update budget flow (central interaction)
+
+### First run — D55 (planned, not implemented)
+
+After admitted Google OAuth, show the actual balance, its observation date and
+the required complete month allocation; one explicit review/confirmation saves
+them. No “Create budget” screen, account-name field or public technical-account
+step. Missing owned EUR account/internal stable name is created atomically with
+the first real checkpoint/vector/audit/receipt, not on login or by a hidden
+preliminary commit. Before confirmation funds are UNKNOWN; explicit actual B=0
+with complete A is distinct. Existing empty account resumes actual confirmation,
+existing initialized budget proceeds normally; storage/ambiguous-account errors
+do not invite recreation. Pending/UNKNOWN retains original command and offers
+safe result checking/replay, never an assumed success or automatic second check.
+After cancel/reload, rediscover persisted state; no promise of unsaved input
+recovery or invented zero. Auth, localizations, keyboard/focus and browser proofs
+remain mandatory. [D55](DECISIONS.md#hb-020-product-alignment--owner-2026-11-11).
+
+### Ordinary updates
+
 Step 1: manually enter actual card balance and **observation date** (today default, earlier allowed); display last known point, require explicit confirmation.
 Step 2: checklist of existing obligations paid/cancelled, amount edits, new obligations, savings changes; note these **do not modify card balance**.
 Step 3: distribute the WHOLE entered card balance among financial months. Show editable month balances and exact total; every amount requires confirmation, including suggested values. Sum must equal card balance; every month amount must be nonnegative; reject negative A even when the total matches, no suspense category. Do not ask to distribute the interval delta, enter purchases/income/categories or explain it. Example 800 -> 770 with month balances November 750 / December 20 saves directly; -50/+20 is not inferred expense/income.
@@ -33,7 +52,14 @@ review → explicit confirmation. CARRY and DEFER remain separate working second
 actions; neither primary placement nor page opening preselects a mode. Do not require a preliminary old-balance confirmation or separate carry procedure. A real new check at the same amount creates a new observation with its actual date; only an explicit redistribution-only mode reuses the old check. Showing/editing the proposal without saving changes no financial data.
 
 ## Obligations
-Cards with label,full outstanding,origin/funding month,optional due date,status unpaid/paid/cancelled and history. Possible claims have a badge and explicit full-reservation selection (reserveFull),not a partial-reserve slider or automatic inclusion. Changes retain identity and historical selection. Actions edit/pay/cancel;payment needs fresh balance and never changes bank automatically. Recurring templates propose acceptance,not automatic reserve creation.
+
+[D57](DECISIONS.md#hb-020-contextual-month--owner-2026-11-12) refines only new template acceptance: show one contextual month P in the proposal and confirmation, with editable amount and no editable origin/funding month fields. Both initial periods equal P. The existing /obligations page defaults to the current Berlin month; refreshing an offer must retain its loaded P. A separate context, when supplied by a caller, is not a funding-transfer instruction. Old debt transfers require their existing separate reviewed consent.
+
+Cards show label, full outstanding, origin/funding month, optional due date, unpaid/paid/cancelled and history. Possible claims have explicit full-reserve selection, never partial reservation. Edit/pay/cancel retain identity; payment requires existing bank-state confirmations and never auto-debits B.
+
+Under [D56](DECISIONS.md#hb-020-monthly-decisions--owner-2026-11-11), an enabled template offers a new calendar-month instance even with old unpaid debt. Reading writes nothing. Explicit ACCEPT creates exactly one ordinary full-reserve obligation after reviewed integer-cent amount editing. Explicit DECLINE ("Не добавлять за этот месяц") durably suppresses only owner/account+templateId+originPeriod, with typed audit/receipt but no obligation, payment, bank operation or change to B/A/C/V,R/S/F or bank-check date. Both outcomes are final and mutually exclusive per key; retries/races resolve one proved winner. Next enabled month is offered independently of prior DECLINE. Disable stops future offers, preserving debts/decisions/history; local close without DECLINE writes nothing and may reappear. Old debt retains identity, full remainder/reserve, origin/current funding and history, with no automatic move/debit. Already paid before access and included in B may be DECLINED without false payment history; an existing obligation uses its normal Paid/Partial/Cancelled lifecycle and required financial confirmations. Config edits, funding changes, disable/re-enable or later payment/cancellation never reset a decided key.
+
+Use distinct controls: **Добавить** (review/edit then ACCEPT), **Не добавлять за этот месяц** (durable DECLINE), **Отключить шаблон** (config disable), local close/later, and existing obligation **Оплачено / Частично / Отменено**. Show pending/error/UNKNOWN and original-result checking; conflict displays the proved winner, never silently switches intent. Reload/relogin preserves suppression only for the decided key. No schedule/income trigger; template dueDate=null, ordinary optional dueDate retained.
 
 ## Savings
 Named earmarks, amounts, history; increase/release/delete with audit. Suggestions to release savings when deficit appears, never silent release.

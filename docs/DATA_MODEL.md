@@ -108,7 +108,7 @@ All money is signed integer EUR cents (BIGINT storage with checked conversion/ra
 | savings_goals | owner_user_id, origin_period_id, current_funding_period_id, status | Persistent voluntary earmark identity |
 | savings_events | savings_id, amount_delta_cents, funding_period_id, action, effective_date, budget_update_id | Earmark/release and funding history, no automatic bank debit |
 | month_closings | period_id, version, closed_at, evidence_recorded_cutoff, last_historical_checkpoint_revision_id, historical_allocation_revision_id, end_balance_cents nullable, bank_data_completeness, snapshot_json, previous_version_id, reason | Immutable historical report, including unknown actual month-end balance |
-| recurring_templates / template_decisions | template_id, period_id, accepted/skipped, obligation_id | User-confirmed proposals, idempotent per period |
+| Recurring template configuration / monthly decision (logical, storage unselected) | stable templateId, config revision, title/positive cents, enabled; owner/account+templateId+originPeriod; final ACCEPT or DECLINE; original command/audit/receipt; ACCEPT-only obligation/CREATE refs | One immutable terminal key across BOTH outcomes. ACCEPT full reserve; DECLINE no obligation/payment/money effect, month-only suppression. Disable preserves facts. Typed A vs separately approved scoped UNIQUE B unselected. Template dueDate=null; ordinary optional dueDate unchanged. |
 | cash_movements (optional detail) | account_id, occurred_date optional, signed_amount_cents, evidence/status, revision, recorded_at | Confirmed explanatory bank operations, not required for A or B |
 | operation_funding_details (optional) | movement_revision_id, financial_period_id, signed_amount_cents, detail_revision_id | Optional split description, separate from active period_allocations; no automatic posting |
 | reconciliation_intervals (optional derived view) | from/to_checkpoint_revision_id, D, K, U, evidence_revision | K+U=D only; U is NOT a residual financial source requiring allocations |
@@ -119,6 +119,8 @@ All money is signed integer EUR cents (BIGINT storage with checked conversion/ra
 | audit_events | actor, aggregate/id, event_kind, before_after, effective_date, recorded_at, request_id, reason | Inspectable consent and immutable change history |
 
 ## State and persistence invariants
+
+- D57 initial template ACCEPT has one context YYYY-MM P: identity origin and first event funding both P; recorded/effective day stays the actual confirmation day. This is an adapter invariant, not a restriction of ordinary obligation origin/funding or separately confirmed transfers. Storage A retains the original equal-period wire command and its exact ordinary CREATE proof without a schema migration.
 
 - For EVERY committed allocation revision, sum(period_allocations.amount_cents)=referenced checkpoint.balance_cents. No unassigned/suspense row. Each amount>=0;ordinary checkpoint B>=0. Negative free from full earmarks is allowed;negative bank/overdraft scope is separately pending. First checkpoint follows exactly the same complete-distribution rule; no opening-income/source entity.
 - Choose one allocation head for the active view; select historical revisions separately. Do not sum all revisions or derive active A from operation financing details.
@@ -211,3 +213,29 @@ Reads and recovery prove the original immutable command/receipt/audit/report;
 ancestor validation is bounded metadata work, not a replay of every old graph.
 The source manifest keeps top-level obligationRevisionIds/savingsRevisionIds for
 existing report-impact compatibility. [Verification](planning/hb-019-verification.md).
+
+## HB-020 logical initialization and template contract — D55 / D56 (planned)
+
+First real confirmation atomically creates a missing single owned EUR technical
+account with stable internal displayName plus actual checkpoint/complete vector,
+creation/financial audits and one durable receipt. No login-created/precommitted
+empty account, synthetic bank point, name field or UNKNOWN-to-zero conversion.
+Existing empty accounts initialize through real confirmation without recreation;
+existing initialized accounts, names and history are unchanged. A>=0/ΣA=B and
+explicit observed B=0 remain. This is planned composition, not current API support.
+
+Under [D56](DECISIONS.md#hb-020-monthly-decisions--owner-2026-11-11), an enabled template offers a new calendar-month instance even with old unpaid debt. Reading writes nothing. Explicit ACCEPT creates exactly one ordinary full-reserve obligation after reviewed integer-cent amount editing. Explicit DECLINE ("Не добавлять за этот месяц") durably suppresses only owner/account+templateId+originPeriod, with typed audit/receipt but no obligation, payment, bank operation or change to B/A/C/V,R/S/F or bank-check date. Both outcomes are final and mutually exclusive per key; retries/races resolve one proved winner. Next enabled month is offered independently of prior DECLINE. Disable stops future offers, preserving debts/decisions/history; local close without DECLINE writes nothing and may reappear. Old debt retains identity, full remainder/reserve, origin/current funding and history, with no automatic move/debit. Already paid before access and included in B may be DECLINED without false payment history; an existing obligation uses its normal Paid/Partial/Cancelled lifecycle and required financial confirmations. Config edits, funding changes, disable/re-enable or later payment/cancellation never reset a decided key.
+
+Planned typed decision evidence retains trusted scope, templateId, originPeriod,
+outcome, reviewed config revision, original normalized command identity,
+effective/recorded dates, batch/receipt refs and schema version. ACCEPT additionally
+proves one ordinary CREATE/identity/full reserve and funding month. DECLINE has
+no obligation/CREATE/payment refs. No mutable flag overwrites terminal decisions.
+Template dueDate=null; ordinary optional dueDate and D43/D44 unchanged.
+
+Configuration/decision storage A (typed existing immutable batch/audit) versus
+B (minimal scoped tables/UNIQUE across both outcomes) is unselected; A needs bounded semantic
+proof, B needs separate schema/migration consent. No physical table, migration,
+formula, H/K selector or version is added here. Atomicity, exact-schema adapter,
+original receipt/evidence and complete history membership are technical gates.
+[D55](DECISIONS.md#hb-020-product-alignment--owner-2026-11-11); [R1 plan](planning/hb-020-first-run-and-recurring-templates.md).
