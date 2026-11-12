@@ -22,6 +22,8 @@ import type {createDatabase} from './client';
 import * as s from './schema';
 import {requireHistoryEntry, HistoryFailure} from './financial-history-index';
 import {originalEvidence} from './budget-update-repository';
+import {verifyInitialBudgetEvidence} from './onboarding-repository';
+import {verifyTemplateHistory} from './template-repository';
 import {parseTransition} from '@/domain/transitions/validation';
 import {parseInstant} from '@/shared/pure/instant';
 
@@ -70,12 +72,19 @@ export function createHistoryDetailReader(database:ReturnType<typeof createDatab
         // selected source before any perspective can disclose its financial state.
         const aggregate=batch.kind==='BUDGET_UPDATE'||audits.some(a=>(a.beforeAfter as {entity?:{type?:string}})?.entity?.type==='BUDGET_UPDATE_REVIEW');
         const proof=aggregate?await originalEvidence(tx,scope,batch):null;
+        const templateProof=batch.kind.startsWith('TEMPLATE_')?(await verifyTemplateHistory(tx,scope,batch.recordedSeq)).proofs.get(batch.id):null;
+        if(batch.kind.startsWith('TEMPLATE_')&&!templateProof)fail('HISTORY_SOURCE_INVALID');
+        if(audits.some(a=>(a.beforeAfter as {entity?:{type?:string}})?.entity?.type==='ACCOUNT_CREATED'))await verifyInitialBudgetEvidence(tx,scope,batch);
         if(!aggregate&&batch.kind==='PERIOD_TRANSITION')await legacyProof(tx,scope,batch,audits);
         const budget=new ClosingReadBudget();
         const report=batch.kind==='MONTH_CLOSE'?await validateOriginal(tx,scope,account,batch,budget):null;
+        if(q.perspective==='SOURCE'&&templateProof)return jsonDocument({schemaVersion:1,basis:q.basis,batchId:q.batchId,perspective:'SOURCE',precision:'SOURCE',dayH:q.dayH,offset:q.offset,source:entry,
+          template:templateProof.document,evidence:audits.slice(q.offset,q.offset+100),nextOffset:q.offset+100<audits.length?q.offset+100:null});
         if(q.perspective==='SOURCE'&&proof){
+          const periodReferences=await tx.select({id:s.budgetPeriods.id,period:s.budgetPeriods.period}).from(s.budgetPeriods).where(scoped(s.budgetPeriods)).limit(1201);
+          if(periodReferences.length>1200)fail('HISTORY_LIMIT_EXCEEDED');
           return jsonDocument({schemaVersion:1,basis:q.basis,batchId:q.batchId,perspective:'SOURCE',precision:'SOURCE',dayH:q.dayH,offset:q.offset,source:entry,
-            evidence:[...proof.audits].sort((a,b)=>a.id.localeCompare(b.id)).slice(q.offset,q.offset+100),original:proof.evidence,nextOffset:q.offset+100<proof.audits.length?q.offset+100:null});
+            evidence:[...proof.audits].sort((a,b)=>a.id.localeCompare(b.id)).slice(q.offset,q.offset+100),original:proof.evidence,periodReferences,nextOffset:q.offset+100<proof.audits.length?q.offset+100:null});
         }
         if(q.perspective==='REPORT'||q.perspective==='SOURCE'&&batch.kind==='MONTH_CLOSE'){
           if(!report)fail('INVALID_INPUT');
@@ -122,7 +131,7 @@ export function createHistoryDetailReader(database:ReturnType<typeof createDatab
         const evidence=visibleAudits.slice(q.offset,q.offset+100).map(a=>({id:a.id,recordedSeq:a.recordedSeq,effectiveDate:a.effectiveDate,document:a.beforeAfter}));
         if(q.offset>=audits.length&&q.offset!==0)fail('INVALID_INPUT');
         return jsonDocument({schemaVersion:1,basis:q.basis,batchId:q.batchId,perspective:q.perspective,precision:'DAY',offset:q.offset,dayH:q.dayH,knowledgeCut:stateCut,knowledgeRecordedAt,
-          snapshot,periods,source:entry,periodReferences:context.periods,sourceRecordedAt:batch.recordedAt,endBalance:snapshot.kind==='ACTIVE_COMPLETE'&&snapshot.checkpoint.observedDate===q.dayH?snapshot.checkpoint.balance:null,
+          snapshot,periods,template:templateProof?.document??null,source:entry,periodReferences:context.periods,sourceRecordedAt:batch.recordedAt,endBalance:snapshot.kind==='ACTIVE_COMPLETE'&&snapshot.checkpoint.observedDate===q.dayH?snapshot.checkpoint.balance:null,
           evidence,nextOffset:q.offset+100<visibleAudits.length?q.offset+100:null});
       },{isolationLevel:'repeatable read',accessMode:'read only'});
       if(Buffer.byteLength(JSON.stringify(result),'utf8')>1048576)fail('HISTORY_LIMIT_EXCEEDED');

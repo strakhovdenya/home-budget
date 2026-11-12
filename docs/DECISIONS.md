@@ -1,5 +1,110 @@
 # Product decision log — current correction and archived chronology
 
+## HB-020 contextual month — owner 2026-11-12
+
+- **D57 — one proposal month and initial funding.** The owner directly clarifies D55 after independent implementation review. This supersedes D55's bullet beginning “Templates prefill title/amount and reviewed origin/funding month” only insofar as it suggests two independent user choices, and clarifies D55's “Origin and funding remain distinct” for the initial template ACCEPT. D45/D55/D56 text below remains dated history; D56 terminal decisions are unchanged.
+- Each proposal has one contextual month P (YYYY-MM): the month being viewed, or the current Europe/Berlin month when no separate context exists. No independent origin/funding month controls appear in its card. Show P in the offer and confirmation; the integer-cent amount may be edited.
+- Initial explicit ACCEPT saves originPeriod=P and fundingPeriod=P with the full unpaid reserve R[P], one ordinary CREATE and no bank debit/checkpoint/allocation change. The server and original semantic proof reject unequal periods. The financial event is recorded on the actual confirmation day; P does not backdate the event or invent a future bank observation.
+- Old unpaid obligations retain identity, full remainder/reserve, status, origin/current funding and history. Moving their funding is a separate existing explicitly reviewed FRESH_START/CARRY under D43/D44, never a side effect of accepting a new monthly instance. General obligation origin/funding and legitimate transfers remain distinct domain concepts.
+- D56 ACCEPT/DECLINE stays terminal per owned template+origin period. DECLINE only P; next enabled month independently reoffers despite old debt. Already paid before first access may be DECLINED without a counterfeit PAID/bank debit; an existing obligation uses its normal PAID/PARTIAL/CANCELLED lifecycle. Disable preserves historical facts; Later is local and writes nothing.
+- No dueDay, payment schedule or income trigger is introduced; ordinary optional dates are retained. Accepted ADR0001–0003, D36, ΣA=B, full R/S, UNKNOWN, H/K and immutable closing versions are unchanged.
+- The owner authorizes this local correction, focused normative alignment and only the necessary F-016 definition/reference maintenance in Finance Gate. Broader manifest/context-fingerprint maintenance requires separate approval. No publication or Owner Acceptance is granted.
+
+## HB-020 monthly decisions — owner 2026-11-11
+
+- **D56 — new-month offers and durable ACCEPT / DECLINE.** The owner accepts
+  the independently reviewed D55 documentation and supplies this later product
+  correction. D45/D55 remain historical; D56 supersedes their open suggestion
+  policy and acceptance-only persistence design. This patch awaits independent
+  ChatGPT review and separate owner confirmation before implementation.
+- In each new Europe/Berlin calendar month an enabled monthly template may offer
+  a separately reviewable new instance even while the previous bill is unpaid.
+  Opening the site never accepts/declines or writes anything automatically.
+  Old debt retains separate identity, full unpaid remainder/reserve, origin and
+  current funding months and history; no automatic payment/cancellation/transfer.
+- Explicit **ACCEPT** creates exactly one normal full-reserve obligation per
+  **owner/account + templateId + originPeriod**, even under retry/race/reopen.
+  The owner may edit integer EUR-cent amount before confirmation. Another
+  obligation's historical funding month remains unchanged.
+- Explicit **DECLINE — «Не добавлять за этот месяц»** is durable, idempotent and
+  provable for exactly that key. It creates no obligation/payment/bank operation,
+  changes no B/A/C/V, R/S/F or observation date, and suppresses that month's
+  offer after reopen/relogin. Next enabled month is offered independently of
+  prior DECLINE. ACCEPT and DECLINE are mutually exclusive final decisions;
+  parallel commands yield one proved result. Replay preserves original evidence;
+  conflicting/losing commands cannot overwrite the winner or report false success.
+- A bill already paid before first monthly access and included in confirmed B
+  may be DECLINED without invented payment history or a second debit. An already
+  created obligation uses Paid / Partial / Cancelled and the existing required
+  financial confirmations; DECLINE cannot remove its reserve.
+- **Disable template** stops future offers, preserving obligations, decisions
+  and history. Closing/ignoring without DECLINE is local UI only: no durable
+  rejection/audit/receipt. Declining a month, disabling config, cancelling an
+  obligation and paying are distinct. None resets an existing terminal key.
+- Q-HB20-NEW-INSTANCE is **RESOLVED by D56**. Storage A/B remains unselected.
+  A needs typed immutable audit/receipt, serialized admission and bounded proof
+  for BOTH outcomes. B needs a separately approved migration and scoped UNIQUE
+  across both outcomes on owner/account+templateId+originPeriod. Both must prove
+  replay/status/UNKNOWN and complete H/K history. No schema is added here.
+- D55 first-run atomic real B/date/full-A confirmation, D36, full R/S, ΣA=B,
+  D43/D44 and immutable reports remain. No income tracking, payment schedule,
+  automatic transfer/debit, daily expenses, new login method or multiple cards.
+  HB-020 stays Planned/P0; HB-019.2 status is unchanged. Stage 0 changes only
+  documents/scenarios; runtime checks are NOT RUN. Finance Gate/hashes/CI/evidence
+  remain untouched pending later authorized freshness maintenance and checks.
+  Stop for independent ChatGPT review and separate owner permission before code.
+  No commit/push/PR/merge/deploy, acceptance or Done.
+
+## HB-020 product alignment — owner 2026-11-11
+
+- **D55 — one first financial confirmation and monthly entry templates.**
+  The owner reports independent approval of the [HB-020 R1 plan](planning/hb-020-first-run-and-recurring-templates.md)
+  and authorizes coordinated documentation/scenario alignment only. This records
+  the supplied review, not an independent review by this editor or runtime proof.
+  After admitted Google OAuth, first run asks for actual B, observation date and
+  complete A; one explicit confirmation atomically creates any missing single
+  owned EUR technical account (stable internal name), the first real checkpoint,
+  full vector, audit and durable receipt. No public “Create budget” screen or
+  name field, no account on login, no preliminary hidden commit or synthetic
+  observation. Before confirmation B/A/F remain UNKNOWN; explicit B=0 is valid.
+  An existing empty account resumes real confirmation without recreation/rename.
+- Templates prefill title/amount and reviewed origin/funding month for explicit
+  monthly obligation creation, including amount editing before confirmation.
+  No template due-day/payment schedule, automatic debit, standalone income/receipt
+  tracking or receipt-triggered proposals. Template-created dueDate=null;
+  ordinary obligations retain their optional dueDate and lifecycle unchanged.
+  Checkpoint differences never prove income. Optional explanatory operation
+  detail and unrelated future capabilities remain outside this HB-020 correction.
+- Ignoring/closing a proposal is local UI only: no server write, saved SKIP,
+  terminal skip, receipt, audit, reserve or counter increment. Only an explicit
+  accepted creation adds an obligation, fully reserving its outstanding amount.
+  At most one accepted obligation per template+origin period. Old unpaid debt
+  retains identity, full remainder, reserve and history; a separately confirmed
+  new bill has its own identity, never a merge or automatic replacement.
+  Origin and funding remain distinct. Funding changes require explicit existing
+  FRESH_START/CARRY consent; D43/D44 and SAME_IDENTITY_COMPOUND_NOT_SUPPORTED remain.
+- **OPEN [Q-HB20-NEW-INSTANCE](OPEN_QUESTIONS.md#hb-020-monthly-instance-suggestion--open):**
+  whether to suggest a new monthly instance while older debt remains unpaid.
+  No option, default suppression or automatic creation is selected. F-016/T03
+  describe the conditional separately confirmed outcome, not final UI policy.
+- Atomic composition/original proof, the exact-schema obligation adapter,
+  recurring storage A/B and complete history support remain technical review
+  gates, not additional owner product decisions. A requires bounded semantic
+  proof; B tables/migration require separate consent. Current HB-017 does not
+  already expose no-account atomic composition. No fallback with hidden commits.
+  Accepted ADR0001–0003, D36, bigint cents, A>=0/ΣA=B, full R/S, negative F,
+  H/K, immutable reports, privacy and per-action authorization are unchanged.
+  HB-020 remains Planned; HB-019.2 remains Review / awaiting Owner Acceptance.
+  D54 does not waive HB-020's own real-browser proofs.
+- This dated decision supersedes conflicting current named/two-step onboarding,
+  receipt-trigger and persisted-skip requirements; D45 and older decisions stay
+  historical. Implementation, SQL/migrations, executable tests, commit/push/PR/
+  merge/deploy and Done are not authorized. Protected normative hashes are now
+  intentionally stale: leave the Finance Gate/checker/CI/bindings/receipts and
+  existing evidence untouched. Separate authorization and fresh verification
+  are required later, before publication. Runtime tests: NOT RUN
+  (documentation-only, owner instruction).
+
 ## HB-019.2 browser verification handoff — owner 2026-11-11
 
 - **D54 — HB-021 owns the outstanding real-browser and physical-AT execution.**

@@ -35,7 +35,7 @@ function parsed(command:PreparedCommand){const payload=command.payload;
     ||(payload.proposalId!==null&&!validUuid(payload.proposalId)))return rejectBatch('INVALID_INPUT');
   const draft=parseBudgetDraft(payload.draft);if(!draft.ok)return rejectBatch(draft.code);
   if(draft.value.effectiveDate!==command.effectiveDate)return rejectBatch('INVALID_INPUT');return {draft:draft.value,payload};}
-async function planned(tx:Transaction,scope:AuthorizedScope,command:PreparedCommand,context:BudgetContext,draft:BudgetDraft,batchId:string,now:string){
+export async function planReviewedBudget(tx:Transaction,scope:AuthorizedScope,command:PreparedCommand,context:BudgetContext,draft:BudgetDraft,batchId:string,now:string){
   if(context.revision!==command.expectedRevision)return rejectBatch('STALE_REVISION');
   const result=planBudgetUpdate(context,draft,coordinates(scope,command.requestId,context.recordedSeq+1n,batchId,now));
   if(!result.ok)return rejectBatch(result.code);
@@ -127,7 +127,7 @@ export function createBudgetRepository(database:Readonly<{db:Parameters<typeof c
     preview:(scope:AuthorizedScope,command:PreparedCommand)=>safe(async()=>{
       const d=parseBudgetDraft(command.payload);if(!d.ok)return rejectBatch(d.code);if(d.value.effectiveDate!==command.effectiveDate)return rejectBatch('INVALID_INPUT');
       const candidate=await database.db.transaction(async tx=>{
-        const context=await loadBudgetContext(tx,scope);const p=await planned(tx,scope,command,context,d.value,command.requestId,context.now);
+        const context=await loadBudgetContext(tx,scope);const p=await planReviewedBudget(tx,scope,command,context,d.value,command.requestId,context.now);
         return {context,plan:p};
       },{isolationLevel:'repeatable read',accessMode:'read only'});
       let proposalId:string|null=null;
@@ -165,7 +165,7 @@ export function createBudgetRepository(database:Readonly<{db:Parameters<typeof c
         if(u.payloadIdentity!==identity||!sameDocument(original.evidence.command,commandDocument(command)))return rejectBatch('PROPOSAL_ALREADY_CONFIRMED');
         return original.receipt;
       }}:{} )},async(tx,batch)=>{
-        const context=await loadBudgetContext(tx,scope,batch.account),p=await planned(tx,scope,command,context,draft,batch.id,batch.recordedAt);
+        const context=await loadBudgetContext(tx,scope,batch.account),p=await planReviewedBudget(tx,scope,command,context,draft,batch.id,batch.recordedAt);
         if(!sameDocument(p.review,payload.review))return rejectBatch('STALE_PROPOSAL');
         if(isTransition(draft)){
           const [proposal]=await tx.select().from(s.transferProposals).where(and(eq(s.transferProposals.ownerUserId,scope.ownerUserId),eq(s.transferProposals.accountId,scope.accountId),eq(s.transferProposals.id,String(payload.proposalId)))).for('update');

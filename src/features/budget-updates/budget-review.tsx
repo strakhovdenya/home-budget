@@ -49,7 +49,7 @@ export function BudgetReview({review}:{review:BudgetReviewData}){
     {[...f.obligations,...f.savings].map((e,i)=><Box key={i} sx={{p:2,border:1,borderColor:'divider',borderRadius:1,overflowWrap:'anywhere'}}>
       <Typography sx={{fontWeight:700}}>{e.after.title}: {t('action.'+e.action)}</Typography>
       {(['before','after'] as const).map(key=>{const s=e[key];return <Box key={key}><Typography>{t(key)}</Typography>{s?<>
-        <Typography>{t('fundingPeriod')}: {f.fundingPeriods.find(p=>p.id===s.fundingPeriodId)?.period??'—'}</Typography><Typography>{t('itemStatus')}: {t('status.'+s.status)}</Typography>
+        <Typography>{t('fundingPeriod')}: {f.fundingPeriods.some(p=>p.id===s.fundingPeriodId)?formatMonth(f.fundingPeriods.find(p=>p.id===s.fundingPeriodId)!.period,locale):'—'}</Typography><Typography>{t('itemStatus')}: {t('status.'+s.status)}</Typography>
         {s.originalCents!==undefined?<Typography>{t('originalAmount')}: {m(s.originalCents)}</Typography>:null}
         {s.outstandingCents!==undefined?<Typography>{t('outstandingAmount')}: {m(s.outstandingCents)}</Typography>:null}
         {s.amountCents!==undefined?<Typography>{t('amount')}: {m(s.amountCents)}</Typography>:null}

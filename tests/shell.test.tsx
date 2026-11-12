@@ -13,14 +13,14 @@ import { renderToString } from 'react-dom/server';
 import { hydrateRoot } from 'react-dom/client';
 import { NotFoundScreen } from '../src/features/shell/not-found-screen';
 
-const mocks = vi.hoisted(() => ({ refresh: vi.fn(), setLocale: vi.fn(), path: '/' }));
-vi.mock('next/navigation', () => ({ usePathname: () => mocks.path, useRouter: () => ({ refresh: mocks.refresh }) }));
+const mocks = vi.hoisted(() => ({ refresh: vi.fn(), setLocale: vi.fn(), path: '/', query:'' }));
+vi.mock('next/navigation', () => ({ useSearchParams:()=>new URLSearchParams(mocks.query), usePathname: () => mocks.path, useRouter: () => ({ refresh: mocks.refresh }) }));
 vi.mock('../src/shared/i18n/actions', () => ({ setLocale: mocks.setLocale }));
 
 let dark = false;
 const listeners = new Set<(event: MediaQueryListEvent) => void>();
 beforeEach(() => {
-  localStorage.clear(); dark = false; listeners.clear(); vi.clearAllMocks(); mocks.path = '/';
+  localStorage.clear(); dark = false; listeners.clear(); vi.clearAllMocks(); mocks.path = '/';mocks.query='';
   window.matchMedia = vi.fn((query: string) => ({
     matches: query === '(prefers-color-scheme: dark)' && dark, media: query, onchange: null,
     addListener: (cb: (event: MediaQueryListEvent) => void) => { listeners.add(cb); },
@@ -143,4 +143,14 @@ describe('HB-005 shell', () => {
     render(<NextIntlClientProvider locale="en" messages={catalogs.en}><AppThemeProvider><Preferences /></AppThemeProvider></NextIntlClientProvider>);
     expect(screen.getByRole('combobox', { name: 'Language' })).toBeTruthy();
   });
+});
+
+it('HB20-UX03 overview menu retains only a validated proposal month, not private URL data',()=>{
+  mocks.query='period=2026-12&account=private';
+  mount('en');
+  expect(screen.getByRole('link',{name:catalogs.en.navigation.obligations}).getAttribute('href')).toBe('/obligations?period=2026-12');
+  cleanup();mocks.query='period=2026-13';mount('en');
+  expect(screen.getByRole('link',{name:catalogs.en.navigation.obligations}).getAttribute('href')).toBe('/obligations');
+  cleanup();mocks.query='period=2026-11&period=2026-12';mount('en');
+  expect(screen.getByRole('link',{name:catalogs.en.navigation.obligations}).getAttribute('href')).toBe('/obligations');
 });

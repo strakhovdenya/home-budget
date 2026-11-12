@@ -1,238 +1,360 @@
-# HB-020 — First-run budget onboarding and recurring templates
+# HB-020 — First actual budget confirmation and monthly obligation templates
 
-Status: **Planned; documentation / scope update only**. Every scenario below is
-**NOT EXECUTED**. No onboarding implementation or executable test is authorized
-in HB-019 by this document. HB-020 retains its existing recurring-template scope,
-P0 MVP priority under owner D45 (2026-11-04); Q-HB1-03 is resolved.
-D47 (2026-11-08): HB-020 and HB-019.2 independently follow HB-019.1;
-HB-021 requires both. These HB20 cases belong solely to HB-020; HB-019.2 owns
-complete saved-state browsing. Existing A/B/T oracles remain unchanged.
+## D57 scenario refinement — 2026-11-12
 
-Owner-approved addition: the admitted Google user can explicitly create their
-first named budget, then confirm actual balance and complete allocations through
-the existing financial mechanisms. This does not expand Google admission/public
-registration, add a second account or authorize schema/architecture changes.
+All original 17 IDs and financial/H/K oracles remain. For HB20-T01–T03/F-016, P is the loaded proposal context YYYY-MM (default current Berlin month). Initial ACCEPT origin=funding=P; no two editable month fields. Show P in offer/review and permit amount editing; refreshing another context cannot retarget an already reviewed command. Unequal origin/funding, malformed period, changed original command, stale config/revision or forged scope must refuse without writes. DECLINE remains only for P. Test a noncurrent valid P using a current-day event, leap February, Berlin/DST and int64 boundaries without changing ordinary date policy. Old unpaid M remains unchanged/full-reserved; moving its funding is a separately confirmed existing FRESH_START/CARRY, and D44 still rejects combined same-identity lifecycle. Code/tests and actual results are in the verification report; historical NOT EXECUTED stage labels below are not current runtime evidence. Browser/physical AT still require their own execution.
 
-Sources: [HB-020 task](../../../docs/TASKS.md#hb-020--first-run-budget-onboarding-and-recurring-payment-templates),
-[M2 plan](../../../docs/IMPLEMENTATION_PLAN.md#milestone-m2--first-usable-product-mvp),
-[auth](../../../docs/AUTH.md), [financial rules](../../../docs/BUSINESS_RULES.md),
-[HB-017](../../../docs/planning/hb-017-update-budget.md),
-[F-016](core-rules.md#f-016--recurrence-proposal-not-duplicate).
+Status: **Planned; documentation alignment only** under owner D55 / D56 (2026-11-11).
+Every scenario below is **NOT EXECUTED**. Owner reports independent approval of
+the R1 plan and authorizes this coordinated specification update, not code,
+executable tests, migration, publication, acceptance or Done. HB-020 remains P0;
+HB-019.2 and HB-020 independently follow HB-019.1, and HB-021 waits for both.
+D54's HBH browser handoff does not waive HB-020's own browser proofs.
+
+Sources: [D56](../../../docs/DECISIONS.md#hb-020-monthly-decisions--owner-2026-11-11), [D55](../../../docs/DECISIONS.md#hb-020-product-alignment--owner-2026-11-11),
+[task](../../../docs/TASKS.md#hb-020--first-run-budget-onboarding-and-recurring-payment-templates),
+[R1 plan](../../../docs/planning/hb-020-first-run-and-recurring-templates.md),
+[BR](../../../docs/BUSINESS_RULES.md), [auth](../../../docs/AUTH.md),
+[F-016](core-rules.md#f-016--recurrence-proposal-not-duplicate),
+[RESOLVED Q-HB20-NEW-INSTANCE](../../../docs/OPEN_QUESTIONS.md#hb-020-monthly-instance-suggestion--resolved-d56).
 
 ## Shared fixture and proof rules
 
-Use synthetic data only, integer EUR cents and Europe/Berlin calendar dates.
-P is the current server month, Q the following month, M the previous month;
-browser dates derive from the server, never a calendar bypass. The admitted
-Google identity is a reviewed isolated test identity; existing allowlist,
-verified-subject/session and Origin/CSRF protections remain enabled.
+Synthetic data only; all amounts integer EUR cents, dates Europe/Berlin.
+P=current server month, Q=following month, M=previous month. Browser dates derive
+from server calendar, never an auth/calendar bypass. Google identity/client/
+redirect and synthetic DB must be reviewed and isolated; keep verified allowlist,
+subject/session, Origin/Host and Auth.js CSRF/PKCE/state/nonce protections.
 
-The first login creates only the existing authenticated user identity. Account
-creation is a separate explicit action. Ownership comes only from the trusted
-server session, never a client email/user/account field. With no confirmed bank
-checkpoint, actual balance, allocations and free funds are **unknown**, not zero.
-No obligations/savings initially exist (R=S=0), and no financial history is invented.
-An auditable account-creation event records the real user action; it is not a bank
-checkpoint, income/expense, period allocation or closed-month report.
+First login provisions only the existing authenticated users identity. Before
+first confirmation B/A/F and daily guidance are UNKNOWN, not0; no obligations/
+savings exist, so R=S=0. First-run UI asks for real B, actual observation date
+and complete nonnegative A, with one explicit reviewed confirmation. There is
+no public Create budget/name step. Any missing single owned EUR technical
+account with stable internal displayName commits atomically with the first real
+checkpoint/vector, required creation/financial audits and durable receipt.
+No account on login, preliminary hidden account COMMIT, fictitious bank point,
+income/expense or automatic template acceptance. A real explicit B=0 is distinct
+from unknown. Existing empty account resumes actual confirmation without rename/
+recreation; existing initialized budget stays unchanged by first-run entry.
 
-Account creation and the first financial confirmation are two resumable steps.
-Atomic account creation means account identity/name/owner, required real creation
-audit and durable retry outcome are committed coherently or not committed at all.
-It does not require committing the initial bank balance in that transaction.
-The exact command/receipt contract, name normalization/bound and PostgreSQL
-duplicate/race mechanism must be specified in HB-020 planning before coding.
-Process-local memory, a disabled button or a pre-insert existence check alone
-cannot provide the required cross-instance duplicate guarantee.
+Owner comes only from trusted session, never client owner/account/name/currency.
+Account/first C/V/audit/receipt commit together or all roll back. Original command
+identity/status/replay and cross-instance owner-level exclusion are required.
+Different-key losing first-run command cannot silently become another financial
+update. NOT_FOUND while a command is in flight is not proof of rollback.
+Technical composition is specified in R1, not an already working HB-017 API.
 
-Proof labels below are required future evidence: **PG** real isolated PostgreSQL,
-**A** auth/server-boundary tests, **B** real browser E2E, **U/C** unit/component.
-An unavailable runtime remains NOT EXECUTED. Later implementation must register
-actual executable identities and fresh normative hashes in finance coverage;
-this future specification is not a passing mapping or HB-019 verification update.
+Monthly template is explicit title/amount/origin/funding entry convenience.
+Template-created dueDate=null; ordinary optional dueDate elsewhere is unchanged.
+No payment-day schedule, income/receipt trigger, inferred income or card debit.
+Ignoring/closing is local UI only: no server write, skip entity, audit, receipt,
+seq/counter or reserve. Explicit DECLINE is different: durable terminal month-only
+decision with typed audit/receipt, no obligation or money change. Only ACCEPT
+creates a full-reserve ordinary obligation. One final ACCEPT or DECLINE may win
+per owner/account+templateId+originPeriod, never both, even with races/retries.
+An enabled template offers next month despite old debt or prior DECLINE. Disable
+stops offers but retains obligations/decisions/history. Old debt keeps identity,
+full remainder/reserve, origin/current funding and history; only explicit existing
+FRESH_START/CARRY and D43/D44 may change funding. See T01–T03/F-016.
 
-## HB20-A01 Admitted first login offers a usable creation screen
+Proof labels: **A** auth/server/request boundary; **PG** real isolated PostgreSQL;
+**U/C** unit/component; **B** real browser. Compare all relevant rows before/after,
+not just account count: users/preferences, accounts/counters/pointer, batches/
+receipts/audits, periods, C/V/A, positions/orderings, obligations/savings and events,
+transition controls/transfers and report heads/immutable versions. No-write
+requires exact equality; allowed writes must be explicitly whitelisted. Real
+races use independent checked-out connections/backend PIDs and a barrier with
+proven overlap; a disabled button/Promise.all/process mutex is not proof.
+Ack-loss proof executes real COMMIT then loses its acknowledgement and recovers
+on a fresh owned connection, separately from full rollback and still-running cases.
+
+All financial invariants remain: ΣA=B, each A>=0, full R/S even if F<0, no
+future expected cash, no duplicate debit, no automatic funding/payment/closing,
+original H/K/revisions/versions intact. Use current safe-main formula unchanged.
+No unit/auth/PG/browser/runtime checks are run by this specification update.
+
+## HB20-A01 Admitted first login offers actual balance and complete allocation
 
 Proof A/PG/U/C; browser counterpart B01.
 GIVEN an admitted Google identity, no owned account and no financial facts.
-WHEN the first login completes and the protected budget page loads.
-THEN show a clear localized "Create budget" screen with a labelled name field
-and confirmation action, rather than a dead-end NO_ACCOUNT. Only the existing
-user identity may have been provisioned by login; account count remains zero
-until explicit creation. No checkpoint, allocation, obligation, saving, income,
-expense, transfer or report is synthesized. Storage/auth failure is an error
-with safe retry, not evidence of account absence or permission to create.
+WHEN normal first login and protected first-run page/preview complete.
+THEN show labelled localized actual B/date/full-A input and clear explicit
+confirmation; no Create budget/name field, terminal NO_ACCOUNT or numeric zero
+cash. Login may provision only the existing user identity. Account count0 and
+all financial/audit/receipt tables unchanged until valid explicit confirmation.
+Storage/auth/multiple-account error fails safely, not invitation to create.
 
-## HB20-A02 Explicit named creation commits one empty owned budget
+## HB20-A02 First real confirmation atomically initializes owned budget
 
-Proof PG/A/U/C.
-GIVEN A01 and a valid bounded synthetic name "Household test".
-WHEN the authenticated owner explicitly confirms creation.
-THEN commit exactly one EUR budget account with that validated name and session
-owner, a real creation audit and coherent retry outcome in one transaction.
-No bank checkpoint or allocation pointer exists; balance/A/F remain unknown,
-R=S=0. Continue to existing initial balance/allocation setup. No automatic
-recurring acceptance, historical import, income or expense is created.
+Proof PG/A/U/C; browser counterpart B01.
+GIVEN A01 and actual B100000 on a valid observation date with complete confirmed
+A={P:70000,Q:30000}, R=S=0.
+WHEN the session owner explicitly confirms that reviewed real observation/vector.
+THEN one owned EUR technical account/internal stable name, one real checkpoint,
+one complete vector, required account/financial audit and coherent receipt
+commit in one transaction. No durable intermediate empty account or second
+confirmation/hidden COMMIT. ΣA=B, F[P]=70000,F[Q]=30000; original observation and
+recorded time remain separate. No invented income/expense, template acceptance,
+transfer, payment, savings or report. Existing users/preferences/foreign data
+unchanged. Technical original identity/proof follows the reviewed R1 contract.
 
-## HB20-A03 Invalid names and unauthorized creation write nothing
+## HB20-A03 Invalid inputs and unauthorized first confirmation write nothing
 
 Proof A/PG/U/C.
-GIVEN no owned budget. WHEN submit blank/whitespace or a name beyond the approved
-bound; or call creation directly with no session, expired session, denied Google
-identity, forged owner/account fields or invalid Origin/CSRF context.
-THEN refuse safely with no account/creation audit/receipt or financial mutation.
-Do not reassign another user's identity/account or disclose their data. Reading
-the creation page is not authorization for a later write; reauthorize each action.
-Preserve a valid editable name on recoverable UI errors without logging secrets.
+GIVEN no owned budget. WHEN submit malformed/fractional/overflow/negative B or A,
+future/invalid observation date, duplicate month, missing complete-vector consent
+or B100000 with A total90000; or call without valid session/allowlisted identity,
+with forged owner/account/name/currency fields or invalid Origin/CSRF context.
+THEN safe refusal and exact no-write across account, C/V/A, audit, receipt and
+every other financial table. No foreign identity reassignment/disclosure.
+Reauthorize each action, not only page load; preserve valid editable in-memory
+financial input on recoverable errors without URL/log/persistent browser storage.
 
-## HB20-A04 Original retry returns the same account across instances
+## HB20-A04 Original first-confirmation retry returns the same complete outcome
 
 Proof PG/A.
-GIVEN a committed account-creation command and original request identity/name.
-WHEN repeat it after refresh or through another application instance.
-THEN return the original owned account/outcome, with no second account, duplicate
-creation audit or financial fact. Reusing the same request identity with a
-different name is a conflict; it must not rename the committed account. Retrying
-setup must not restart Google identity provisioning or create another budget.
+GIVEN committed atomic first confirmation with original key and normalized B/
+observation/A/consent. WHEN retry via another instance or after refresh, or use
+owned status, THEN prove and return the original account/C/V/receipt without
+duplicate audit, counter, checkpoint or financial movement. Same key with changed
+B/date/vector is conflict, not a correction or new observation; no internal label
+rewrite. Original-date replay remains valid before new calendar/stale checks.
+No restart of user provisioning or blind new command after UNKNOWN.
 
-## HB20-A05 Concurrent create requests cannot produce a second account
+## HB20-A05 Concurrent confirmations cannot create another budget or bank check
 
-Proof PG/A; actual independent connections and synchronization barrier required.
-GIVEN one admitted owner and zero accounts. WHEN two tabs/instances confirm
-creation concurrently, both with the same request identity and separately with
-different identities/names.
-THEN at most one first account and coherent creation audit/outcome commit. A
-successful replay refers to the same account; a losing different request may
-receive an already-created/conflict result and safely resolve the owned account.
-Its different name must not overwrite the winner. Do not merge names/ownership,
-create a second account or rely on a client lock. Other owners remain unchanged.
+Proof PG/A; independent connections/backend PIDs and synchronization barrier.
+GIVEN one admitted owner, zero accounts. WHEN two confirmed requests overlap,
+with same key/payload and separately different keys/B/A.
+THEN at most one account and initial C/V/audit/receipt commit. Identical replay
+returns the original; different-key loser resolves existing initialized budget
+or conflicts without recording its B/A as a second check, changing winner
+values/counters or creating another account. Winner rollback permits the next
+explicit valid confirmation to proceed. Foreign owners/data unchanged.
+No client-only lock, pre-insert existence check alone or process-local guarantee.
 
-## HB20-A06 Creation rollback and unknown COMMIT recover safely
+## HB20-A06 Whole initialization rollback and unknown COMMIT recover safely
 
 Proof PG/A/U/C.
-GIVEN zero accounts. WHEN inject failures between account insert, required audit
-and durable outcome, before commit, THEN the complete creation transaction rolls
-back; the previously authenticated user remains valid and can retry creation.
-No dangling account, fake success, partial audit or financial state remains.
-Separately lose the acknowledgement after real COMMIT: retain the original
-request identity, resolve its outcome/owned account and resume; do not blindly
-issue a new creation command. Fresh connections must recover the single account
-without changing its name or generating any financial history.
+GIVEN zero accounts and the existing admitted user identity.
+WHEN inject failures after account/batch/checkpoint/vector/audit insertion or at
+deferred COMMIT, THEN account and all newly introduced financial/audit/receipt/
+counter state roll back together. User remains valid; no fake success, empty
+durable workspace, orphan or partial observation remains.
+Separately execute real COMMIT and lose acknowledgement. Retain original key/
+command, resolve full original outcome on a new authorized connection and resume
+the one initialized budget; no new key/checkpoint/bank movement. A read returning
+NOT_FOUND while original remains uncommitted never proves rollback or success.
 
-## HB20-A07 First actual balance uses the existing financial flow
+## HB20-A07 First actual money obeys existing financial invariants
 
 Proof PG/A/U/C; browser counterpart B03.
-GIVEN the successfully created empty account, no checkpoint, R=S=0.
-WHEN the user explicitly confirms actual B=100000 on a valid bank date and the
-complete A={P:70000,Q:30000} through HB-010/HB-017 initial-update mechanisms.
-THEN one real checkpoint/complete allocation revision and required audit commit
-atomically; sum(A)=B, each A>=0, F[P]=70000 and F[Q]=30000. Future-month cash is
-protected once and does not inflate current-month daily guidance. No difference
-is classified as income/expense; no automatic bank debit or rollover occurs.
-Separately B=0 with A={P:0} is accepted only after explicit real confirmation;
-this known zero must differ from the account's earlier unknown balance.
+GIVEN first-run no-account state (or an existing empty owned account).
+WHEN explicitly confirm B100000 on actual valid date and A={P:70000,Q:30000}
+using reused HB-010/HB-017 validators and the reviewed atomic composition.
+THEN one actual checkpoint/complete allocation and required audit/receipt commit;
+missing account is included atomically, existing empty account is not recreated.
+ΣA=B, every A>=0, R=S=0,F[P]=70000,F[Q]=30000,safeAvailable=70000;
+mainDaily=70000 div inclusive remaining Berlin days. Protect Q once; no inferred
+income/expense, debit or rollover. Separately explicit real B0/A={P:0} produces
+known0 only after confirmation; earlier UNKNOWN never defaults to this value.
 
-## HB20-A08 Incomplete or failed financial setup is resumable
+## HB20-A08 Interrupted first confirmation resumes from honest saved state
 
-Proof PG/A/U/C.
-GIVEN A02 has committed but no actual balance is confirmed. WHEN cancel, close
-the tab, log out/in, reload or submit an invalid partial allocation (B100000,
-A totals90000), THEN retain the same valid empty account, no partial checkpoint/
-vector/financial receipt, and a clear continuation into initial setup. Never
-replace unknown funds with zero or send the owner back to create a second account.
-If the first valid financial COMMIT acknowledgement is lost, use HB-017's original
-command/status/replay mechanism; resolve the one financial update without a new
-checkpoint or duplicate bank movement. Earlier confirmed facts are not overwritten.
+Proof PG/A/U/C; browser counterpart B03.
+GIVEN no account and an unconfirmed first-run draft. WHEN cancel/close/reload/
+logout-login or submit B100000/A total90000, THEN no new account/C/V/audit/receipt
+is saved; read persisted absence and offer initial real input, still UNKNOWN.
+Do not promise unsaved draft recovery after reload. GIVEN a successful atomic
+confirmation, reload/relogin resumes the same complete saved state; lost
+acknowledgement uses original status/replay with no second checkpoint.
+Separately GIVEN a pre-existing empty owned account, invalid/cancelled financial
+setup retains that exact account and unknown funds; fresh valid review uses
+existing financial confirmation without recreation, rename or stale retargeting.
+Never overwrite earlier confirmed facts or manufacture an empty stage.
 
-## HB20-A09 Existing users and accounts are unchanged
+## HB20-A09 Existing users and accounts remain unchanged
 
 Proof PG/A; browser counterpart B04.
-GIVEN an existing owned account with confirmed synthetic checkpoint, allocations,
-obligations/savings, audits and immutable closing versions. WHEN log in, reload,
-open first-run entry or directly request first-account creation.
-THEN use the existing owned budget or safely refuse duplicate creation; do not
-rename, reset counters/pointers, rewrite history or touch financial rows. Preserve
-existing user identity/preferences as well; compare user/account/history data
-before/after. An existing empty account resumes
-setup instead of creation. Unexpected inconsistent/multiple-account legacy state
-must not trigger automatic selection, deletion or repair; use a safe error and a
-separate reviewed procedure. This feature does not introduce multi-account support.
+GIVEN existing owned account with synthetic C/V, full R/S, audits and immutable
+closing v1/v2. WHEN login/reload/open first-run entry or directly request stale
+first initialization, THEN use the existing budget or safely refuse; exact
+before/after data equality for user/preferences/account/name/counters/pointer/
+financial/history rows, no extra checkpoint or account. Existing empty resumes
+actual confirmation. Unexpected multiple/inconsistent accounts fail safely,
+with no selection, deletion, reset or repair. No multi-account support added.
 
-## HB20-B01 Browser first Google login through first budget creation
+## HB20-B01 Browser first Google login through one actual confirmation
 
 Proof B; not replaceable by auth/component results.
-GIVEN reviewed isolated Google sign-in setup and no owned budget.
-WHEN complete the normal admitted sign-in, enter a synthetic budget name and
-confirm creation using keyboard and pointer on mobile/desktop in RU/DE/EN.
-THEN labelled/focusable "Create budget" UI, clear pending/error feedback, one
-account and a usable initial-finance step. No terminal NO_ACCOUNT or invented
-zero balance. Keep secrets/name/financial values out of URLs and diagnostic logs.
-No production auth bypass or disabled allowlist/Origin/CSRF checks for this test.
+GIVEN reviewed isolated Google sign-in/redirect and synthetic DB, no owned budget.
+WHEN complete normal admitted login, enter actual B/date/complete A and confirm
+once using keyboard/pointer on mobile320px/desktop in RU/DE/EN.
+THEN accessible labelled financial form and review, clear pending/error feedback,
+one account with one real complete first update and usable budget. No public
+Create budget/name step, fabricated0 or account created on login/preview.
+Check visible actual date and persisted C/V/receipt. No money/IDs/secrets in
+URL/logs and no allowlist/Origin/CSRF/auth bypass.
 
-## HB20-B02 Browser validation, double submission and recovery
+## HB20-B02 Browser validation, repeated submission and result recovery
 
-Proof B with PG state verification.
-GIVEN first-run creation form. WHEN submit invalid names, double-click/press
-Enter repeatedly, confirm in two tabs and interrupt a response, THEN show useful
-accessible errors/pending state, preserve recoverable input, and permit safe
-continuation. Verify the single account/name/outcome, not just a disabled button.
-Never conceal an unknown outcome behind an unconditional success or a new create.
+Proof B with independent PG before/after state verification.
+GIVEN actual-balance/full-A first-run form. WHEN invalid B/date/allocations,
+double-click/repeated Enter, two-tab confirmations and interrupted response.
+THEN useful accessible inline errors/focus/pending/UNKNOWN, retained recoverable
+input and safe original-result checking. Verify single account/actual C/V/winner
+amount/date/vector/receipt, not merely disabled controls. No unconditional success,
+assumed rollback, automatic new key/checkpoint or hidden partial account save.
 
-## HB20-B03 Browser resume through first real balance confirmation
-
-Proof B with PG state verification.
-GIVEN an empty created account. WHEN cancel/relogin before confirming money,
-THEN resume the same account's initial setup. Reject incomplete allocations
-without partial financial state; then complete A07 via the existing flow.
-Show the confirmed actual balance/date and correct period amounts; require no
-bank operation explanation, PDF or artificial initial checkpoint. Distinguish
-explicit B0 confirmation from unknown. No automatic recurring item is created.
-
-## HB20-B04 Browser regression for established accounts
+## HB20-B03 Browser cancel/relogin and known-zero real confirmation
 
 Proof B with PG state verification.
-GIVEN A09. WHEN normal Google login and navigation continue, THEN the existing
-budget remains usable with unchanged money, history and name; no forced creation
-or repeated onboarding confirmation. Unauthorized/expired sessions cannot use
-an already-open creation form to write. A storage failure offers safe retry,
-never a misleading invitation to create another budget.
+GIVEN uncommitted no-account first-run draft. WHEN cancel/reload/logout-login,
+THEN absence/UNKNOWN remains honest and first real input is offered again.
+Reject incomplete A with no account/partial facts, then explicitly confirm A07
+in one action. Verify real B/date/P-Q free and complete receipt.
+Separately resume an already-existing empty account without recreating/naming it.
+Distinguish explicit B0 from UNKNOWN; interrupt real financial acknowledgement
+and resolve original once. No required operation explanation/PDF, artificial
+checkpoint or automatic recurring bill.
 
-## HB20-T01 Recurring proposal requires confirmation and is not duplicated
+## HB20-B04 Browser regression for established accounts and expired forms
 
-Proof PG/A/U/C/B; retains F-016.
-GIVEN an enabled monthly5400-cent template and a confirmed P obligation from it.
-WHEN reload/reopen proposals or accept/retry/concurrently accept template+P,
-THEN at most one accepted obligation for that template+period, no automatic
-acceptance and no bank debit. Future-period/new-income suggestions remain
-proposals; expected income never funds today's allocations or daily forecast.
-First-run account creation itself accepts no template or obligation.
+Proof B with PG state verification.
+GIVEN A09. WHEN normal admitted Google login/navigation/history continue,
+THEN existing budget/name/money/history remain usable unchanged; no forced
+first-run confirmation. Expire session on an already-open financial form and
+invoke it directly: no unauthorized write. Storage error offers safe retry,
+never misleading absence/creation. No change to normal Google/Origin/CSRF checks.
 
-## HB20-T02 Edit or skip recurring suggestion remains explicit
+## HB20-T01 Explicit template acceptance is inert until confirmed and unique
 
-Proof PG/A/U/C/B.
-GIVEN a5400-cent template proposal for P and an existing confirmed bank state.
-WHEN explicitly edit to5000 and accept, THEN create one confirmed5000-cent
-obligation with full outstanding reserve through existing financial mechanisms,
-not both5000 and5400 items. WHEN instead skip, THEN create no obligation/reserve
-or bank movement for that proposal. Neither choice silently changes the template,
-actual checkpoint or unrelated obligations; keep the real decision auditable.
+Proof PG/A/U/C/B; retains F-016. Every subcase is NOT EXECUTED.
+GIVEN B100000,A={M:0,P:70000,Q:30000},R=S=0 and enabled5400-cent template,
+no P decision. WHEN load/reload/open suggestions, THEN exact all-table no-write,
+no reserve, automatic ACCEPT/DECLINE, income, schedule or debit.
+WHEN explicitly ACCEPT P5400 funded P, THEN one normal UNPAID identity/CREATE,
+dueDate=null, full R[P]=5400,F[P]=64600,safeAvailable64600; B/A/C/V,S, bank date
+and unrelated debt unchanged. One receipt proves original reviewed command,
+config/origin/funding and exact CREATE through the unchanged obligation adapter.
 
-## HB20-T03 Old debt and a new month's accepted bill stay distinct
+**Repeat/key stability.** Same-key ACCEPT under original or different request
+resolves the proved original without duplicate obligation/audit/receipt/counter.
+Changed same-request payload conflicts. Competing5400/5000 accepts yield one
+proved winner, no hidden amendment. Config/amount/funding edits, PAID/CANCELLED
+or disable/re-enable never reset P. First-run accepts no template; ordinary
+optional dueDate elsewhere stays. Each action reauthorizes trusted owned scope.
 
-Proof PG/A/U/C/B; retains F-016 and full-reserve/history rules.
-GIVEN an unpaid5400-cent M bill and a separate proposed5400-cent P bill.
-WHEN accept the P proposal, THEN retain two independent obligations and their
-full outstanding amounts/origin/funding history. Do not merge, auto-pay, cancel
-or erase the old debt, fabricate income, debit the bank or close a month.
-Payment/carry/correction remains a separate explicit existing financial action.
+**ACCEPT / DECLINE race.** Independent checked-out PG connections, backend PIDs
+and a synchronization barrier prove overlap, in both lock orders, with same and
+different request IDs. Exactly one terminal outcome commits. ACCEPT winner has
+one full-reserve CREATE; DECLINE winner has zero CREATE and exact unchanged
+financial state. Losing request conflicts or explicitly resolves the proved
+winner, never reports its own uncommitted intent as success. Same-request changed
+payload conflicts. Compare all rows/counters/evidence, not disabled UI controls.
 
-## Future acceptance gate and exclusions
+**Failure/UNKNOWN/auth.** Inject decision/CREATE/audit and deferred-COMMIT failures:
+all new writes roll back. Separately execute actual COMMIT then lose its ack;
+READ/STATUS/original retry on a fresh authorized connection proves original
+winner with no new key or bill. NOT_FOUND while in flight proves neither rollback
+nor success. Foreign/expired session, forged scope, invalid Origin/CSRF, invalid
+month/config or malformed input writes nothing and leaks no foreign decision.
+Real browser covers review/confirm/revisit/two tabs/conflict/UNKNOWN with PG proof.
 
-Implement HB-020 only after its scoped plan reviews the authorization entry,
-name validation, durable command identity/status/replay and PostgreSQL atomic/
-race guarantees, including any necessary separately reviewed schema proposal.
-No process-local-only duplicate protection, new finance engine or auth bypass.
-Run real PG/auth/browser first-run scenarios and recurring regressions; record
-exact executed results and remaining gaps. Do not infer PASS from this document.
-HB-021 broad browser QA does not waive HB-020's own first-run acceptance checks.
-No HB-019 code/test/report change, bank import, public registration, account
-deletion/renaming, second budget account or publication is part of this scope update.
+## HB20-T02 Edit before acceptance, durable monthly DECLINE or local ignore
+
+Proof PG/A/U/C/B. Every subcase is NOT EXECUTED.
+GIVEN T01 baseline. WHEN edit5400→5000 before review/ACCEPT P, THEN one full
+R[P]=5000,F[P]=65000,safeAvailable65000; template still5400,B/A/C/V/S and other
+obligations unchanged. Fractional/overflow/nonpositive cents refuse with no write.
+WHEN close/ignore without DECLINE, THEN exact no-write including no audit/receipt/
+counter/reserve/saved suppression. Reopening may offer again, never auto-accepts.
+
+**Durable month-only decline/repeat.** From an undecided T01 baseline explicitly
+choose «Не добавлять за этот месяц» P. THEN one durable terminal DECLINE with
+scope/template/origin/config/original-command typed proof/audit/receipt, zero
+obligation/CREATE/position/payment/bank operation. B100000,A/C/V,R=S=0,F[P]=70000,
+safeAvailable70000,bank date and report heads/immutable versions exactly unchanged.
+Only required decision batch/audit/receipt/account counters are whitelisted writes.
+Reload/relogin/another instance suppresses only P. Repeat same or new request ID,
+including overlapping DECLINE/DECLINE, returns original without extra audit/
+receipt/counter. Changed original payload conflicts. ACCEPT cannot overturn
+DECLINE; DECLINE after ACCEPT cannot erase its obligation or reserve (T01 race).
+
+**Already paid before access.** GIVEN the actual earlier payment is already in
+confirmed B100000 but no P obligation/decision was recorded, WHEN explicitly
+DECLINE P, THEN same financial no-change oracle: no invented payment date/history,
+bank transaction, income or second debit. DECLINE itself proves no payment.
+If P obligation already exists, DECLINE is unavailable/refused; use existing
+Paid/Partial/Cancelled with its required bank-state confirmations.
+
+**Next month/disable/cancel.** Advance injected Berlin month P→Q after DECLINE P:
+the enabled template offers Q on read with exact no-write. ACCEPT Q creates one
+Q bill only on explicit review; DECLINE Q independently suppresses Q. Disable
+is a separate audited config change: future offers stop, prior obligations,
+decisions/history and immutable reports remain. Re-enable never resets decided
+P/Q. Cancelling an accepted Q obligation is a separate lifecycle event, releases
+its reserve without bank debit or deletion of decisions; normal confirmation
+rules remain. Physical template deletion/history erasure is outside scope.
+Real browser distinguishes all controls, reload/relogin suppression, next-month
+offer and pending/error/UNKNOWN. DECLINE also needs T01 failure/real-ack-loss/auth
+oracles and proof the obligation writer was never invoked.
+
+## HB20-T03 New month offers a distinct bill while old unpaid debt remains
+
+Proof PG/A/U/C/B; retains F-016, full reserves/history and D43/D44.
+Every subcase is NOT EXECUTED.
+GIVEN B100000,A={M:0,P:70000,Q:30000},S0,enabled5400-cent template and accepted
+unpaid M5400 bill funded M. WHEN calendar becomes P and suggestions load, THEN
+P is offered despite old debt, exact all-table no-write. WHEN explicitly ACCEPT
+P5400 funded P, THEN two distinct identities/origins/full reserves, R[M]=5400,
+R[P]=5400,Rtotal10800,F[M]=-5400,F[P]=64600,F[Q]=30000,safeAvailable59200.
+Old identity/status/amount/origin/current funding/history, B/A/C/V/S and bank date
+remain unchanged. Historical funding never changes to make P fit. If old funding
+was explicitly moved P beforehand, R[P]=10800,F[P]=59200 and same safeAvailable;
+template never performs that move. If old partial remainder4000 instead,
+Rtotal9400,F[M]=-4000,F[P]=64600,safeAvailable60600, old identity/history retained.
+
+**Decline alternative.** From old-debt baseline with no P decision, DECLINE P
+suppresses only P, no new obligation; old R5400 remains exactly, F[M]=-5400,
+F[P]=70000,safeAvailable64600. No old payment/cancellation/funding transfer,
+money or report mutation. Next enabled Q offers independently of DECLINE P and
+still-unpaid M; read writes nothing. Disable stops offers without changing debt
+or decisions (T02). No merge, automatic pay/cancel, income, debit, savings release
+or close. Funding requires explicit existing FRESH_START/CARRY consent.
+Reject same-identity funding+lifecycle atomically under D44; retain draft for
+separate later explicitly confirmed lifecycle update.
+
+**History.** At K before decision it is absent; after commit exactly one outcome
+is reachable with config/origin/CREATE refs for ACCEPT or audit-only month
+membership for DECLINE, no invented bank evidence. Original/later daily H/K,
+old/new sources, complete pagination/filter membership and immutable closing
+v1/v2 stay reachable. T01/T02 repeats/races/rollback/UNKNOWN remain required;
+real browser must show new-month offer with old debt and explicit decisions.
+
+## Future acceptance gate and execution boundary
+
+Before implementation, independently review atomic no-account composition,
+original financial/creation proof/status/replay and outer UNKNOWN classification.
+The approved R1 exact-schema adapter must derive {changes:[one CREATE]} for
+unchanged parseObligationBatch/writeObligations on the same tx/batch; validate
+outer command, prepared provenance and copied outer/inner/actual CREATE mapping
+with one receipt. No template-field parser expansion or second transaction.
+Storage A/B stays unselected: A needs complete bounded semantic proof and account
+lock for BOTH outcomes; B scoped decision tables/UNIQUE across both outcomes
+require separate consent/migration review. Neither option is selected.
+DECLINE uses only typed decision/audit/receipt, never the obligation writer;
+original proof/status/UNKNOWN and final cross-outcome exclusion are required.
+History must expose technical creation/config/ACCEPT/DECLINE sources and month
+membership without false bank checks, dropped controls or changed H/K/reports.
+
+Retain all17 original IDs (16 HB20 IDs plus core F-016) and all real
+auth/unit/component/PG/browser proof requirements.
+Run such tests only at a separately authorized later implementation stage;
+unavailable proof stays NOT EXECUTED. D54/HB-021 does not replace B01–B04.
+Normative hashes are intentionally stale after this documentation alignment;
+do not edit Finance Gate/checker/CI/bindings/receipts/evidence or claim old PASS
+as new proof. Later separately authorized maintenance/fresh checks are required.
+Runtime tests: NOT RUN (documentation-only, owner instruction).
+No implementation, executable test, SQL, production change, publication or Done.

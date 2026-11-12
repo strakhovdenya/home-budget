@@ -3,6 +3,29 @@
 Only the application owner's verified Google account is admitted. There is no
 password login, public registration, test bypass, or automatic bank-account creation.
 
+## HB-020 first-run authorization — D55 (planned)
+
+Google admission provisions only the existing users identity, never an account
+or financial fact. After admission, actual B/observation date/full A are reviewed
+and confirmed once; any missing owned EUR technical account with a server-stable
+internal name is created in that same transaction with the first real C/V,
+audit and receipt. No separate name/create-account UX or hidden preliminary
+commit. Existing empty account resumes actual confirmation without recreation.
+Before confirmation funds remain UNKNOWN; an explicit real B=0 is valid.
+Every load/preview/confirm/status/template operation revalidates current session
+and ownership; client owner/account/name/currency fields confer no authority.
+Keep allowlist/subject/session, PKCE/state/nonce, Auth.js CSRF and Next Origin/Host
+protections. Rollback/UNKNOWN/replay/races must protect the complete confirmation.
+Storage errors or multiple accounts fail safely, without creation/repair.
+Current financial public APIs require an existing account; this is a planned
+private composition under technical review, not implemented capability.
+[D56](DECISIONS.md#hb-020-monthly-decisions--owner-2026-11-11) adds planned ACCEPT/DECLINE/disable action authorization: revalidate
+trusted session and owned account/template on each read/write/status/recovery.
+Exact bounded inputs and Origin/CSRF apply to DECLINE as to ACCEPT. Client scope
+never grants authority; foreign/expired denial writes no decision/audit/receipt
+and discloses no foreign winner. No new login/admission policy.
+[D55](DECISIONS.md#hb-020-product-alignment--owner-2026-11-11); [R1 plan](planning/hb-020-first-run-and-recurring-templates.md).
+
 ## Configure Google
 
 1. Create/select a project in Google Cloud Console and configure Google Auth

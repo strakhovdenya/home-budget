@@ -4,7 +4,9 @@ import type {AuthorizedScope} from '@/domain/updates/contracts';
 import type {HistoryIndexReader,HistoryResult,Page} from '@/domain/history/contracts';
 import {month,parsePageQuery,requestCopy} from '@/domain/history/validation';
 import {exactKeys} from '@/domain/checkpoints/validation';
+import type {HistorySummary} from './presentation';
 export type HistoryActions={
+  summarize?(input:unknown):Promise<HistoryResult<HistorySummary>>;
   open(input:unknown):Promise<HistoryResult<Page>>;
   page(input:unknown):Promise<HistoryResult<Page>>;
   detail(input:unknown):Promise<HistoryResult<CanonicalValue>>;

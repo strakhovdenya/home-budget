@@ -1,5 +1,22 @@
 # Remaining implementation-level questions
 
+## HB-020 monthly instance suggestion — RESOLVED D56
+
+<a id="hb-020-monthly-instance-suggestion--open"></a>
+Historical OPEN anchor retained for D55 links; current disposition is resolved.
+
+| ID | Open product question | Gate / accepted minimum |
+|---|---|---|
+| Q-HB20-NEW-INSTANCE | New monthly instance while older template debt is unpaid? | **RESOLVED 2026-11-11, owner D56:** new-month offer allowed despite debt; explicit ACCEPT or durable month-only DECLINE, final and mutually exclusive per owned template+origin month. No auto-create/transfer/debit. Disable and local ignore remain separate. |
+
+[D56](DECISIONS.md#hb-020-monthly-decisions--owner-2026-11-11) closes the remaining HB-020 product question; D55 first-run remains.
+Atomic composition, exact ACCEPT adapter, storage A/B covering BOTH terminal
+outcomes and history are technical review gates, not extra product choices.
+A requires bounded semantic proof/account serialization; B requires separate
+migration consent and scoped UNIQUE across ACCEPT/DECLINE. Neither is selected.
+[R1 plan](planning/hb-020-first-run-and-recurring-templates.md). Other question
+dispositions below remain unchanged.
+
 ## History implementation questions — 2026-11-08
 
 All four product choices are **resolved by owner D46–D49**: complete MVP history,

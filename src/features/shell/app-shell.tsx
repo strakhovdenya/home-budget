@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { Suspense, useState, type ReactNode } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Box, Chip, Divider, Drawer, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Stack, Typography } from '@mui/material';
 import { Preferences } from '@/shared/ui/preferences';
 import { SectionIcon } from './section-icon';
+import {parsePeriod} from '@/domain/periods/period';
 import { sectionPaths, sections } from './sections';
 
 export function AppShell({ children, sessionControl }: { children: ReactNode; sessionControl?: ReactNode }) {
@@ -14,17 +15,17 @@ export function AppShell({ children, sessionControl }: { children: ReactNode; se
   const nav = useTranslations('navigation');
   const path = usePathname();
   const [open, setOpen] = useState(false);
-  function navigation() {
-    return <Box component="nav" aria-label={t('navigation')}>
-      <List disablePadding>{sections.map((section) => <ListItemButton
-        component={Link} href={sectionPaths[section]} prefetch={section==='history'?false:undefined} key={section}
-        selected={path === sectionPaths[section]} aria-current={path === sectionPaths[section] ? 'page' : undefined}
-        onClick={() => setOpen(false)}>
-        <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}><SectionIcon section={section} /></ListItemIcon>
-        <ListItemText primary={nav(section)} slotProps={{ primary: { sx: { fontWeight: 550 } } }} />
-      </ListItemButton>)}</List>
-    </Box>;
+  function links(period:string|null){
+    return <List disablePadding>{sections.map(section=>{
+      const href=section==='obligations'&&period&&(path==='/'||path==='/obligations')?sectionPaths[section]+'?period='+period:sectionPaths[section];
+      return <ListItemButton component={Link} href={href} prefetch={section==='history'?false:undefined} key={section}
+        selected={path===sectionPaths[section]} aria-current={path===sectionPaths[section]?'page':undefined} onClick={()=>setOpen(false)}>
+        <ListItemIcon sx={{minWidth:36,color:'inherit'}}><SectionIcon section={section}/></ListItemIcon>
+        <ListItemText primary={nav(section)} slotProps={{primary:{sx:{fontWeight:550}}}}/>
+      </ListItemButton>;
+    })}</List>;
   }
+  function navigation(){return <Box component="nav" aria-label={t('navigation')}><Suspense fallback={links(null)}><ContextNavigation render={links}/></Suspense></Box>;}
   const brand = <Stack spacing={0.5}><Typography sx={{ fontWeight: 750, fontSize: 22, letterSpacing: '-0.04em' }}>Home Budget<Box component="span" sx={{ color: 'primary.main' }}>.</Box></Typography><Typography variant="caption" color="text.secondary">{t('tagline')}</Typography></Stack>;
   return <Box sx={{ minHeight: '100svh' }}>
     <a className="skip-link" href="#main-content">{t('skip')}</a>
@@ -50,4 +51,9 @@ export function AppShell({ children, sessionControl }: { children: ReactNode; se
       <Box component="main" id="main-content" tabIndex={-1} sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, sm: 4, lg: 6 }, outline: 'none' }}>{children}</Box>
     </Box>
   </Box>;
+}
+
+function ContextNavigation({render}:{render:(period:string|null)=>ReactNode}){
+  const query=useSearchParams(),values=query?.getAll('period')??[],period=values.length===1?parsePeriod(values[0]):null;
+  return render(period?.ok?period.value:null);
 }

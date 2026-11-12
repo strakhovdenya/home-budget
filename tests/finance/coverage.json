@@ -7095,7 +7095,7 @@
       "source": {
         "path": "tests/scenarios/phase-01/core-rules.md",
         "locator": "## F-016 — recurrence proposal not duplicate",
-        "definitionHash": "72497666558d94776044d875db7d9498abbc80595162a024bae4e4d82f625fa4"
+        "definitionHash": "d15df9e51bd3cd11fd1ff3a7d68ae434c0cff1287fab7006a9767f99f2fe2ed7"
       },
       "br": [
         "BR-01",
@@ -44169,7 +44169,7 @@
   "contexts": [
     {
       "path": "tests/scenarios/phase-01/core-rules.md",
-      "sha256": "7d7d7c779f06b3ccebb02e0e51cd3d79932b0c4728250a212ba5dac10e962caf"
+      "sha256": "cf7c10d1f590456d0ec46152cfa726f71797285753fdc8ca327c2a3637e30389"
     },
     {
       "path": "tests/scenarios/phase-01/hb-001-checkpoints-and-allocations.md",
@@ -44225,11 +44225,11 @@
     },
     {
       "path": "docs/BUSINESS_RULES.md",
-      "sha256": "7b22cfbf3aa14f7f62acfe6afddf03985c2ea85d42fcb72f2560f39230d18538"
+      "sha256": "8c52eba464f22c2c0ac10d7153c8be5e90518288a66fe5c4e0ae30483451c66e"
     },
     {
       "path": "docs/DECISIONS.md",
-      "sha256": "21004a5b37b46cb2b5a4267dd4bc41863a43ed246bc13cc609e23ac69f2dfcfc"
+      "sha256": "44bc8941f3db28628a7483280d637ccc01d74c4bcc9f8b22e2d1060bed741e3b"
     },
     {
       "path": "docs/adr/0001-checkpoints-and-allocations.md",
@@ -44245,15 +44245,15 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "sha256": "94cb18cdc58ccfca0171c72a4f6b4c335d36c217dc69cee389dacfc11f317403"
+      "sha256": "ea40fed5c6ebb1225aa8abcef7d877917ff36193088547994634062458051eb2"
     },
     {
       "path": "docs/architecture.json",
-      "sha256": "fd9349aa8c1ded613a886d04440f02609b50a15b9a3d73c0081c3e6aa3879225"
+      "sha256": "090883c4616f5d6f61f78f179d8afae0c6d98a7d10ee8bf04508d3006067a502"
     },
     {
       "path": "docs/DATA_MODEL.md",
-      "sha256": "20bce576f8edc77981afd338eeeb805187ccb2c870a79b8bd2b41f9abcba1f3e"
+      "sha256": "2aa18e33f22d3c3bf8f617e52a1ae2ed91f867e5b29863f85cdd810cb3ca802b"
     },
     {
       "path": "docs/conventions.md",
@@ -44261,23 +44261,23 @@
     },
     {
       "path": "docs/PRD.md",
-      "sha256": "e4f72d7a496878e962b7532eabdb80240970170020a7c67e6fc9e5490cdd6ebb"
+      "sha256": "744a71f45ce0114b9c7c7f182ff10df0802f4b67fc4ef5a2026f85417e724301"
     },
     {
       "path": "docs/UX.md",
-      "sha256": "e77a3b0e10ff10db8525fc5b5723db122cbecbea0cd7dfa57722cd95443e29d9"
+      "sha256": "9d6bdb922a1d4ac483d3881a4421d98db049147cead22cb7e457094973569be8"
     },
     {
       "path": "docs/TASKS.md",
-      "sha256": "83da10f332fad99ec485fe64503f94c7c8f03d955678ecd580bd2bd629f76bbf"
+      "sha256": "7d157f76d3a1403acad61634779ee2678f41bce362a9840c819a4564d0221e12"
     },
     {
       "path": "docs/OPEN_QUESTIONS.md",
-      "sha256": "421ff88b96c8e56c56cfe7b2da526531cafd2d63146c982267637d4430ab24ce"
+      "sha256": "d044072ef27adada42fe4e574067db3dde9f97f0e64ba874c588ec013fa297aa"
     },
     {
       "path": "docs/IMPLEMENTATION_PLAN.md",
-      "sha256": "981d90b2bee845407809cf4fa17aecaf4ca56d0f3a8f7619b609e05e3d0fe503"
+      "sha256": "4756b0aae4fde8f79282e9724d5dc50a7542cd69049f4c5cd0871a592b8c98a4"
     },
     {
       "path": "docs/planning/hb-019-1-budget-update-ux.md",

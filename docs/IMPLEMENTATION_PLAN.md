@@ -43,14 +43,14 @@ Deliver in small PRs:
 
 **Goal:** user can run their budget without manual spreadsheet.
 
-1. HB-020 first-run onboarding (owner-authorized scope addition, documentation only): after an admitted Google login with no owned account, offer "Create budget", require a name and explicit confirmation, then resume the existing HB-010/HB-017 actual-balance/full-month-allocation flow. Account creation is independently authorized, atomic, auditable and protected against retries/concurrent requests; it creates no synthetic financial facts. Empty/unconfigured means unknown, not zero. Failures and relogin must permit safe continuation without duplicate accounts or changes to existing users/accounts. Login provisioning itself remains users-only; no allowlist expansion or multi-account UI. No implementation is added to HB-019.
+1. HB-020 first run under [D55](DECISIONS.md#hb-020-product-alignment--owner-2026-11-11) (documentation only): admitted Google user enters actual B/date and complete A, then confirms once. No public name/create-budget step. Missing single technical owned EUR account with stable internal name, first real checkpoint/vector/audit/receipt commit atomically, never on login or by preliminary hidden save. Before confirmation funds are UNKNOWN; explicit B=0 is valid. Failed/invalid confirmation leaves no new account or financial facts; original-command retry/status, cross-instance races, rollback/UNKNOWN and reload discovery must preserve existing users/accounts/history. Existing empty accounts resume real confirmation without recreation. Reuse HB-010/HB-017 financial validation, but their current public APIs do not already provide missing-account composition; prove the private transaction-local path before implementation.
 2. Overview: physical balance, last check, reserved, voluntary savings, available, deficit, daily guideline, period switch and warning if old balance.
 3. Single "Update Budget" wizard: actual checkpoint date/amount + REQUIRED full balance distribution by month + optional obligation/savings changes + one confirmation. No operation entry, net-change allocation or explanation required.
 4. Obligations CRUD: full amount reserves, paid/cancelled, amount changes, partial payment of obligation (not partial reserve), event timeline.
 5. Savings: create/increase/decrease/release; optional proposal to free savings when deficit.
 6. Complete period allocation state: sum equals checkpoint; user confirms suggested/current/past/future amounts, with each share nonnegative and expected income excluded, without suspense. State deltas are not inferred income/expenses; optional physical operation details stay separate.
 7. Monthly open/close:detect current month on access;actual balance/full distribution and explicit CARRY or FRESH_START confirm atomically,neither mode auto-selected. After HB-019 acceptance, HB-019.1 makes user-chosen FRESH_START the primary new-month UX; CARRY and DEFER remain secondary explicit actions. Preserve full reserves/savings and historical versions;FRESH_START supports missed months without compulsory per-month transfers. Complex multi-source CARRY remains excluded under Q-HB2-02. Manual close supports unknown end balance without a final-day checkpoint;re-accepted corrected ADR0002 defines historical/correction contracts. D36 requires the same safe main current limit protecting all selected reserves/savings across periods and other-month allocations;D37..D39 retain dated old-state estimates,nonblocking informational warnings and Berlin calendar-age>=7 reminder. No formulas, historical semantics, or pending HB-019 acceptance are changed by this UX planning decision.
-8. HB-020 recurring templates (retained; now approved P0 scope in D45): suggestions requiring explicit accept/edit/skip, one obligation per accepted template+period, old debt separate from the new month bill; no automatic acceptance/debit. Q-HB1-03 is resolved. The first-run onboarding scope in item 1 remains unchanged.
+8. HB-020 monthly templates remain P0 (D45), D55 first-run plus D56 recurring correction, documentation only. Under [D56](DECISIONS.md#hb-020-monthly-decisions--owner-2026-11-11), an enabled template offers a new calendar-month instance even with old unpaid debt. Reading writes nothing. Explicit ACCEPT creates exactly one ordinary full-reserve obligation after reviewed integer-cent amount editing. Explicit DECLINE ("Не добавлять за этот месяц") durably suppresses only owner/account+templateId+originPeriod, with typed audit/receipt but no obligation, payment, bank operation or change to B/A/C/V,R/S/F or bank-check date. Both outcomes are final and mutually exclusive per key; retries/races resolve one proved winner. Next enabled month is offered independently of prior DECLINE. Disable stops future offers, preserving debts/decisions/history; local close without DECLINE writes nothing and may reappear. Old debt retains identity, full remainder/reserve, origin/current funding and history, with no automatic move/debit. Already paid before access and included in B may be DECLINED without false payment history; an existing obligation uses its normal Paid/Partial/Cancelled lifecycle and required financial confirmations. Config edits, funding changes, disable/re-enable or later payment/cancellation never reset a decided key. Template dueDate=null, ordinary optional dueDate unchanged. No income trigger/payment schedule. Storage A/B must prove both-outcome exclusion before selection; B migration separately authorized. Q-HB20-NEW-INSTANCE resolved; Q-HB1-03 P0 scope unchanged.
 9. HB-019.2 complete current/past saved-state history: all retained checks/states, stable bounded navigation, as-known H/K versus later-corrected H/new K and selected immutable closing versions; UNKNOWN and observed zero remain distinct. Basic history is mandatory MVP; extended analytics stays HB-022.
 10. Responsive, multilingual, accessibility and e2e budget paths. HB-019.1 precedes HB-020 and improves routine updating and the explicit new-month choice without changing financial math. HB-020 must include PostgreSQL/auth/browser first-run proofs from its [scenario contract](../tests/scenarios/phase-01/hb-020-first-run-and-recurring-templates.md); HB-021 supplies broader QA and does not substitute for those acceptance checks.
 
@@ -63,14 +63,18 @@ Within the current month a normal actual check requires no rollover choice unles
 old-period allocations or funding still require explicit disposition. New-month
 FRESH_START is a named user choice, not a background or implicit default.
 
-HB-020 implementation planning must specify bounded name validation, command identity,
-durable duplicate/race admission, atomic creation/audit and unknown-COMMIT recovery
-before coding; no persistence mechanism or migration is selected by this scope update.
-Keep account creation separate from the first confirmed financial update so a valid
-empty account can resume setup safely. A storage/auth error must not be interpreted
-as proof that no account exists. First-run onboarding here is distinct from M3's
-optional historical-data import. All HB-020 scenarios are Planned/NOT EXECUTED;
-this documentation work does not amend HB-019 code, tests or its frozen report.
+HB-020's independently owner-reported approved [R1 plan](planning/hb-020-first-run-and-recurring-templates.md)
+specifies one atomic first real confirmation, original command/receipt/status,
+duplicate/race admission, rollback and unknown-COMMIT recovery. No named separate
+account stage is required. Account initialization and first C/V must share one
+transaction/confirmation; existing empty accounts remain resumable through real
+confirmation. Storage/auth failure never proves absence. Atomic composition,
+the exact {changes} transaction-local obligation adapter, storage A/B and original
+history proof remain technical review gates, not selected migrations or new
+product questions. All HB20 scenarios stay NOT EXECUTED; browser proofs belong
+to HB-020 itself. Normative hashes become stale from this alignment and require
+separately authorized later maintenance/fresh checks; no checker/CI/binding/
+receipt/evidence edit or runtime test now. Historical-data import stays M3.
 
 **Exit gate:** user acceptance for the real routine: open once per week, enter new card balance, close paid liabilities, get accurate daily forecast; close last month without losing historical outcome.
 

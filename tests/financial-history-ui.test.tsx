@@ -19,7 +19,7 @@ beforeEach(()=>{localStorage.clear();sessionStorage.clear();window.matchMedia=vi
 it.each(['ru','de','en'] as const)('HBH-007 localized daily basis, UNKNOWN/full R/S and focus are component evidence only %s',async locale=>{
   const a=actions(),t=catalogs[locale].financialHistory;mount(a,locale);await userEvent.click(screen.getByRole('button',{name:t.open}));
   await screen.findAllByText(t.unknown,{exact:false});
-  expect(screen.getAllByText(t.unknown).length).toBeGreaterThan(0);expect(screen.getByText(t.dailyCaption.replace('{day}',new Intl.DateTimeFormat(locale,{timeZone:'Europe/Berlin',day:'numeric',month:'long',year:'numeric'}).format(new Date('2026-10-31T12:00:00Z'))).replace('{cut}','3'))).toBeTruthy();
+  expect(screen.getAllByText(t.unknown).length).toBeGreaterThan(0);expect(screen.getByText(t.originalCaption.replace('{day}',new Intl.DateTimeFormat(locale,{timeZone:'Europe/Berlin',day:'numeric',month:'long',year:'numeric'}).format(new Date('2026-10-31T12:00:00Z'))).replace('{cut}','3'))).toBeTruthy();
   expect(a.detail).toHaveBeenCalledWith(expect.objectContaining({dayH:'2026-10-31',perspective:'ORIGINAL'}));
   await waitFor(()=>expect(document.activeElement).toBe(screen.getByRole('heading',{level:2,name:t.selected})));
   expect(localStorage.length).toBe(0);expect(sessionStorage.length).toBe(0);expect(location.search).toBe('');
@@ -59,7 +59,7 @@ it('HBH-006/007 evidence for another offset is discarded without showing a finan
 it('HBH-003/007 explicitly selected v1 reloads its own version and H/K instead of latest',async()=>{
   const a=actions(),first:Page={...page(),items:[{...page().items[0],kind:'MONTH_CLOSE'}]};a.open=vi.fn(async()=>({ok:true as const,value:first}));
   a.detail=vi.fn(async(raw:unknown)=>{const q=raw as Record<string,unknown>;return {ok:true as const,value:{schemaVersion:1,offset:0,basis:first.basis,batchId:id,perspective:q.perspective as string,precision:'REPORT',dayH:q.dayH as string,reportMeta:{id,version:1,dayH:'2026-10-31',knowledgeCut:'3',digest:'a'.repeat(64)},report:{period:'2026-10',endBalanceCents:null,historicalAllocatedCents:'60000',historicalReservedCents:'20000',historicalSavingsCents:'10000',historicalFreeCents:'30000',snapshot:{kind:'ACTIVE_COMPLETE',checkpoint:{balance:'80000',observedDate:'2026-10-20'},obligations:[],savings:[]}}}};});
-  mount(a,'en',first);await userEvent.click(screen.getByRole('button',{name:catalogs.en.financialHistory.open}));await screen.findByText('Version 1: through October 31, 2026, as known at 3');
+  mount(a,'en',first);await userEvent.click(screen.getByRole('button',{name:catalogs.en.financialHistory.open}));await screen.findByText('Saved report version 1, through October 31, 2026');
   await userEvent.click(screen.getByRole('button',{name:catalogs.en.financialHistory.report}));
   await waitFor(()=>expect(a.detail).toHaveBeenCalledTimes(2));expect(a.detail).toHaveBeenLastCalledWith(expect.objectContaining({batchId:id,perspective:'REPORT',offset:0}));
 });
@@ -107,10 +107,23 @@ it.each(['ru','de','en'] as const)('HBH-003/007 R1 report v1 v2 provenance and s
   for(const i of [0,1,0]){
     await userEvent.click(screen.getAllByRole('button',{name:t.open})[i]);
     expect(await screen.findByText(t.reportReason+': '+versions[i].reason)).toBeTruthy();
-    expect(screen.getByText(t.reportPredecessor+': '+(i===0?t.initialVersion:id))).toBeTruthy();
+    const raw=JSON.parse(mounted.container.querySelector('section pre')!.textContent!);expect(raw.reportMeta.previousVersionId).toBe(versions[i].previousVersionId);expect(raw.reportMeta.knowledgeCut).toBe(versions[i].knowledgeCut);
     const date=new Intl.DateTimeFormat(locale,{timeZone:'Europe/Berlin',day:'numeric',month:'long',year:'numeric'}).format(new Date('2026-10-31T12:00:00Z'));
-    expect(screen.getByText(t.reportBasis.replace('{version}',String(i+1)).replace('{day}',date).replace('{cut}',versions[i].knowledgeCut))).toBeTruthy();
+    expect(screen.getByText(t.reportHumanBasis.replace('{version}',String(i+1)).replace('{day}',date).replace('{cut}',versions[i].knowledgeCut))).toBeTruthy();
     expect(Array.from(mounted.container.querySelectorAll('time')).some(time=>time.getAttribute('datetime')===versions[i].createdAt)).toBe(true);
   }
   expect(JSON.stringify(versions)).toBe(retained);
+});
+
+it.each(['ru','de','en'] as const)('HB20-UX01 friendly %s timeline uses only verified summary; failed proof remains neutral and technical sources stay collapsed',async locale=>{
+  const a=actions(),first=page(),t=catalogs[locale].financialHistory;
+  a.summarize=vi.fn(async()=>({ok:true as const,value:{batchId:id,basis:first.basis,kind:'ACCEPT' as const,changes:[{action:'CREATE',title:'Internet',amount:'5000',period:'2026-11',status:'UNPAID',reserve:'5000'}]}}));
+  const rendered=mount(a,locale,first);
+  await waitFor(()=>expect(screen.getByRole('heading',{level:2}).textContent).toContain('Internet'));
+  expect(screen.getByRole('heading',{level:2}).textContent).not.toContain('2026-11');
+  expect(Array.from(rendered.container.querySelectorAll('details')).every(d=>!d.open)).toBe(true);
+  expect(a.summarize).toHaveBeenCalledWith(expect.objectContaining({perspective:'SOURCE',offset:0,basis:first.basis}));
+  rendered.unmount();a.summarize=vi.fn(async()=>({ok:false as const,code:'HISTORY_SOURCE_INVALID' as const}));mount(a,locale,first);
+  await waitFor(()=>expect(a.summarize).toHaveBeenCalled());
+  expect(screen.getByRole('heading',{level:2}).textContent).toBe(t.updateTitle);
 });

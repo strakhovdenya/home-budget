@@ -32,7 +32,7 @@ export function makeBudgetCommand(seed:UpdateSeed,form:UpdateForm,locale:string,
   const balanceCents=form.reuse?seed.bank?.balanceCents:inputCents(form.balance,locale);if(!balanceCents)throw Error('INVALID_INPUT');
   const target=seed.today.slice(0,7),hasPast=seed.allocations.some(a=>a.period<target&&a.amountCents!=='0')||seed.obligations.some(e=>e.status==='UNPAID'&&e.fundingPeriod<target)||seed.savings.some(e=>e.status==='ACTIVE'&&e.fundingPeriod<target);
   if(hasPast&&form.observedDate.slice(0,7)===target&&!form.mode&&!form.reuse)throw Error('TRANSITION_CONFIRMATION_REQUIRED');
-  if(form.observedDate===seed.today&&seed.placement&&!form.orderAcknowledged)throw Error('ORDERING_CONFLICT');
+  if(form.observedDate===seed.today&&seed.placement&&!form.orderAcknowledged)throw new FormInputError('orderAcknowledged','ORDER_ACKNOWLEDGEMENT_REQUIRED');
   const dayPlacement=form.observedDate===seed.today&&seed.placement?{expectedOrderingRevisionId:seed.placement.id,afterPositionId:seed.placement.afterPositionId,beforePositionId:null}:null;
   const cp={observedDate:form.observedDate,observedAt:null,balanceCents,allocations,correction:null,placement:dayPlacement};
   const os=[],ss=[];

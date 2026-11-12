@@ -1,5 +1,5 @@
 {
-  "version": 10,
+  "version": 11,
   "hb018_management": {
     "routes": [
       "/obligations",
@@ -17,7 +17,11 @@
   "hb0192_history_planning": {
     "status": "Planned_owner_D46_D48_2026_11_08_not_implemented",
     "scope": "all_saved_checks_and_financial_states_current_and_past_MVP",
-    "perspectives": ["as_known_H_K", "later_corrected_same_H_new_K", "immutable_closing_version_pinned_H_K"],
+    "perspectives": [
+      "as_known_H_K",
+      "later_corrected_same_H_new_K",
+      "immutable_closing_version_pinned_H_K"
+    ],
     "read_design": "owned_bounded_complete_index_consistent_paging_requires_review",
     "owner_clarification": "D50_D53_2026_11_09_documentation_only_repeat_review_required",
     "mvp_precision": "existing_day_H_proven_K_and_immutable_reports_all_same_day_source_evidence_retained",
@@ -342,5 +346,51 @@
     "browser_verification": "NOT_EXECUTED_runtime_unavailable",
     "storage_changes": false,
     "layer_directions_changed": false
+  },
+  "hb020_local_implementation": {
+    "status": "local_uncommitted_independent_review_pending",
+    "routes": [
+      "/",
+      "/obligations"
+    ],
+    "ports": [
+      "domain/onboarding/ports.ts",
+      "domain/recurring/ports.ts"
+    ],
+    "lock_order": [
+      "owner_FOR_UPDATE",
+      "account_FOR_UPDATE"
+    ],
+    "first_confirmation": "single_transaction_actual_HB017_plan_and_ACCOUNT_CREATED_one_receipt",
+    "storage": "A_existing_immutable_budget_updates_audit_events_no_migration",
+    "terminal_key": [
+      "owner",
+      "account",
+      "templateId",
+      "originPeriod"
+    ],
+    "outcomes": [
+      "ACCEPT",
+      "DECLINE"
+    ],
+    "same_decline": "original_proved_receipt_even_new_request_key",
+    "accept_adapter": "exact_changes_one_CREATE_same_tx_one_outer_receipt",
+    "read_limits": {
+      "updates": 2048,
+      "audits": 12000,
+      "bytes": 4194304,
+      "templates": 64,
+      "work": 4000000
+    },
+    "write_headroom": {
+      "bytes": 1048576,
+      "audits": 128,
+      "descriptor_bytes": 262144
+    },
+    "history": "known_types_original_proof_control_date_and_origin_membership_existing_H_K_page20",
+    "browser": "not_executed_no_verified_isolated_OAuth_or_browser_runtime",
+    "storage_changes": false,
+    "layer_directions_changed": false,
+    "initial_template_funding": "D57_loaded_context_P_origin_equals_funding_no_independent_month_controls_actual_confirmation_day"
   }
 }

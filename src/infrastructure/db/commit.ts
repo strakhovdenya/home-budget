@@ -44,21 +44,24 @@ export function classifyTransactionError(error: unknown, callbackCompleted: bool
   }
   return callbackCompleted ? 'COMMIT_OUTCOME_UNKNOWN' : 'TRANSACTION_FAILED';
 }
-/** Private persistence boundary; app composes authentication before invoking it. */
-export async function commitBatch(db: Database, request: CommitRequest, write: BatchWriter) {
+/** Infrastructure-only transaction body. Caller owns COMMIT and outcome classification. */
+export async function commitBatchInTransaction(tx: Transaction, request: CommitRequest, write: BatchWriter) {
   let { ownerUserId, accountId } = request.scope;
   const { kind, command } = request;
   if (!validUuid(ownerUserId) || !validUuid(accountId)) throw new BatchFailure('FORBIDDEN');
   ownerUserId = ownerUserId.toLowerCase(); accountId = accountId.toLowerCase();
   if (typeof kind !== 'string' || kind !== kind.trim() || !/^[A-Z][A-Z0-9_]{0,63}$/.test(kind) || !isPreparedCommand(command)) throw new BatchFailure('INVALID_INPUT');
-  if(request.replay&&kind!=='PERIOD_TRANSITION')throw new BatchFailure('INVALID_INPUT');
-  if(request.verifyReplay&&!['BUDGET_UPDATE','PERIOD_TRANSITION','MONTH_CLOSE'].includes(kind))throw new BatchFailure('INVALID_INPUT');
+  if(request.replay&&!['PERIOD_TRANSITION','TEMPLATE_ACCEPT','TEMPLATE_DECLINE'].includes(kind))throw new BatchFailure('INVALID_INPUT');
+  if(request.verifyReplay&&!['BUDGET_UPDATE','PERIOD_TRANSITION','MONTH_CLOSE','TEMPLATE_CONFIG','TEMPLATE_ACCEPT','TEMPLATE_DECLINE'].includes(kind))throw new BatchFailure('INVALID_INPUT');
   const identity = createHash('sha256').update(encodeCanonical({ owner: ownerUserId, account: accountId, kind,
     expectedRevision: command.expectedRevision.toString(), payload: command.payload,
     effectiveDate: command.effectiveDate, reason: command.reason })).digest('hex');
-  let callbackCompleted = false;
-  try {
-    return await db.transaction(async tx => {
+  await tx.execute(sql.raw("SET LOCAL lock_timeout='3000ms'"));
+  await tx.execute(sql.raw("SET LOCAL statement_timeout='10000ms'"));
+  // Every financial writer locks owner before account. Besides onboarding discovery,
+  // this prevents actor FK KEY SHARE from reversing the order during ordinary writes.
+  const [owner] = await tx.select({id:schema.users.id}).from(schema.users).where(eq(schema.users.id,ownerUserId)).for('update');
+  if(!owner)throw new BatchFailure('FORBIDDEN');
       const scope = and(eq(schema.accounts.ownerUserId, ownerUserId), eq(schema.accounts.id, accountId));
       const [account] = await tx.select().from(schema.accounts).where(scope).for('update');
       if (!account) throw new BatchFailure('FORBIDDEN');
@@ -72,10 +75,9 @@ export async function commitBatch(db: Database, request: CommitRequest, write: B
         if (!receipt.ok || prior.expectedRevision < 0n || prior.expectedRevision >= MAX_CENTS || receipt.value.updateId !== prior.id || receipt.value.recordedSeq !== prior.recordedSeq.toString() ||
           receipt.value.aggregateRevision !== (prior.expectedRevision + 1n).toString()) throw new BatchFailure('STORAGE_ERROR');
         if(request.verifyReplay)await request.verifyReplay(tx,account,prior);
-        callbackCompleted = true;
         return receipt.value;
       }
-      if(request.replay){const replay=await request.replay(tx,account,identity);if(replay){const valid=parseReceipt(replay);if(!valid.ok)throw new BatchFailure('STORAGE_ERROR');callbackCompleted=true;return valid.value;}}
+      if(request.replay){const replay=await request.replay(tx,account,identity);if(replay){const valid=parseReceipt(replay);if(!valid.ok)throw new BatchFailure('STORAGE_ERROR');return valid.value;}}
       if (account.aggregateRevision !== command.expectedRevision) throw new BatchFailure('STALE_REVISION');
       if (account.aggregateRevision < 0n || account.recordedSeq < 0n || account.aggregateRevision >= MAX_CENTS || account.recordedSeq >= MAX_CENTS) throw new BatchFailure('REVISION_RANGE');
       const timestamp = await tx.execute<{ recorded_at: string }>(sql`SELECT to_char(clock_timestamp() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS recorded_at`);
@@ -95,6 +97,14 @@ export async function commitBatch(db: Database, request: CommitRequest, write: B
         budgetUpdateId: batch.id, recordedSeq: batch.recordedSeq, eventKind: kind,
         effectiveDate: command.effectiveDate, reason: command.reason, beforeAfter })));
       await tx.update(schema.accounts).set({ aggregateRevision: account.aggregateRevision + 1n, recordedSeq: batch.recordedSeq }).where(scope);
+      return result;
+}
+/** Private persistence boundary; app composes authentication before invoking it. */
+export async function commitBatch(db: Database, request: CommitRequest, write: BatchWriter) {
+  let callbackCompleted = false;
+  try {
+    return await db.transaction(async tx => {
+      const result = await commitBatchInTransaction(tx, request, write);
       callbackCompleted = true;
       return result;
     }, { isolationLevel: 'read committed' });
