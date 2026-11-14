@@ -315,3 +315,86 @@ it('HB17-P12 original invalid report evidence refuses preview without writes',as
   const f=await pastFixture();await report(f,false);const raw=await transitionCommand(f,'CARRY','50000',{[calendar.past]:'0',[calendar.target]:'50000'}),before=await baseline(f.scope);
   expect(await f.repo.preview(f.scope,raw)).toMatchObject({ok:false,code:'REPORT_IMPACT_REVIEW_REQUIRED'});expect(await baseline(f.scope)).toEqual(before);
 });
+
+it('HOTFIX-02 receipt/history use real repeatable-read read-only transactions with scoped evidence and no writes',async()=>{
+  const {f,confirmed}=await initial(),receipt=value(await f.repo.status(f.scope,confirmed.requestId));
+  expect(receipt).toBeTruthy();
+  const before=await baseline(f.scope),client=new pg.Client({connectionString:testDatabaseUrl});
+  await client.connect();
+  const query=client.query.bind(client),begins:string[]=[];
+  await client.query('SET default_transaction_read_only=on');
+  await client.query("SET default_transaction_isolation='read committed'");
+  Object.defineProperty(client,'query',{value:async(...args:unknown[])=>{
+    const q=args[0],text=typeof q==='string'?q:q&&typeof q==='object'&&'text'in q?String(q.text):'';
+    if(/^begin/i.test(text))begins.push(text.toLowerCase());
+    return Reflect.apply(query,client,args);
+  }});
+  try{
+    const reader=createBudgetRepository({db:drizzle(client,{schema:s})});
+    expect(value(await reader.status(f.scope,confirmed.requestId))).toEqual(receipt);
+    expect(value(await reader.history(f.scope,receipt!.updateId))).toMatchObject([{receipt}]);
+    expect(value(await reader.history(f.scope,null))).toMatchObject([{receipt}]);
+    expect(value(await reader.status(f.scope,randomUUID()))).toBeNull();
+    expect(value(await reader.history(f.scope,randomUUID()))).toEqual([]);
+    const foreign={...f.scope,ownerUserId:randomUUID()};
+    const missing={...f.scope,accountId:randomUUID()};
+    for(const scope of [foreign,missing]){
+      expect(await reader.status(scope,confirmed.requestId)).toEqual({ok:false,code:'FORBIDDEN'});
+      expect(await reader.history(scope,null)).toEqual({ok:false,code:'FORBIDDEN'});
+    }
+    expect(await reader.status(f.scope,'invalid')).toEqual({ok:false,code:'INVALID_INPUT'});
+    expect(await reader.history(f.scope,'invalid')).toEqual({ok:false,code:'INVALID_INPUT'});
+    expect(begins).toHaveLength(11);
+    for(const begin of begins)expect(begin).toBe('begin isolation level repeatable read read only');
+    expect(await baseline(f.scope)).toEqual(before);
+  }finally{await client.end();}
+});
+
+it('HOTFIX-02 history pins its account snapshot while a concurrent budget update commits',async()=>{
+  const {f}=await initial(),next=await settlement(f),client=new pg.Client({connectionString:testDatabaseUrl});
+  await client.connect();
+  const query=client.query.bind(client);
+  let captured!:()=>void,release!:()=>void,paused=false;
+  const entered=new Promise<void>(r=>{captured=r;}),gate=new Promise<void>(r=>{release=r;});
+  Object.defineProperty(client,'query',{value:async(...args:unknown[])=>{
+    const q=args[0],text=typeof q==='string'?q:q&&typeof q==='object'&&'text'in q?String(q.text):'';
+    const result=await Reflect.apply(query,client,args);
+    if(!paused&&text.includes('from "accounts"')){paused=true;captured();await gate;}
+    return result;
+  }});
+  const pending=createBudgetRepository({db:drizzle(client,{schema:s})}).history(f.scope,null);
+  try{
+    await Promise.race([entered,new Promise<never>((_,reject)=>setTimeout(()=>reject(Error('ACCOUNT_READ_NOT_REACHED')),5000))]);
+    value(await f.repo.confirm(f.scope,next));
+    release();
+    expect(value(await pending)).toMatchObject([{receipt:{recordedSeq:'1'}}]);
+    expect(value(await pending)).toHaveLength(1);
+    expect(value(await f.repo.history(f.scope,null))).toHaveLength(2);
+  }finally{release();await pending;await client.end();}
+});
+
+it('HOTFIX-02 transition proposal persistence still waits for the account writer lock',async()=>{
+  const {f}=await initial(),raw=await transitionCommand(f,'DEFER','50000',{[calendar.target]:'40000',[calendar.future]:'10000'});
+  let entered!:()=>void,release!:()=>void;
+  const held=new Promise<void>(r=>{entered=r;}),gate=new Promise<void>(r=>{release=r;});
+  const blocker=db.db.transaction(async tx=>{
+    await tx.select().from(s.accounts).where(eq(s.accounts.id,f.scope.accountId)).for('update');
+    entered();await gate;
+  });
+  await held;
+  const pending=f.repo.preview(f.scope,raw);
+  let waiting=false;
+  try{
+    for(let i=0;i<100;i++){
+      const r=await admin.query("SELECT count(*)::int AS n FROM pg_stat_activity WHERE datname=$1 AND wait_event_type='Lock' AND cardinality(pg_blocking_pids(pid))>0",[new URL(testDatabaseUrl).pathname.slice(1)]);
+      if(r.rows[0].n>=1){waiting=true;break;}
+      await new Promise(r=>setTimeout(r,20));
+    }
+    expect(waiting).toBe(true);
+    expect(await db.db.select().from(s.transferProposals).where(eq(s.transferProposals.accountId,f.scope.accountId))).toHaveLength(0);
+  }finally{release();await blocker;}
+  const reviewed=value(prepareCommand(value(await pending)));
+  expect(await db.db.select().from(s.transferProposals).where(eq(s.transferProposals.accountId,f.scope.accountId))).toHaveLength(1);
+  const receipt=value(await f.repo.confirm(f.scope,reviewed));
+  expect(value(await f.repo.confirm(f.scope,reviewed))).toEqual(receipt);
+});

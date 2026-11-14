@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 import {cleanup,render,screen} from '@testing-library/react';
 import {afterEach,expect,it,vi} from 'vitest';
+import {Children,isValidElement,type ReactNode} from 'react';
+import {Button} from '@mui/material';
 import {NextIntlClientProvider} from 'next-intl';
 import {catalogs} from '@/shared/i18n/catalogs';
 const fixtures=vi.hoisted(()=>({state:'CLOSED',version:2}));
@@ -23,4 +25,23 @@ it('HB19-Q04 CLOSED composition leads with selected historical version and leave
 it('HB19-Q04 nonclosed composition preserves the existing Dashboard surface',async()=>{
   fixtures.state='OPEN';render(<NextIntlClientProvider locale="en" messages={catalogs.en}>{await MonthsPage({searchParams:Promise.resolve({period:'2026-11'})})}</NextIntlClientProvider>);
   expect(screen.getByText('ACTIVE DASHBOARD')).toBeTruthy();expect(document.querySelector('details')).toBeNull();fixtures.state='CLOSED';
+});
+
+it('HOTFIX-01 closed-month entry passes an intrinsic anchor across the client boundary and preserves navigation',async()=>{
+  fixtures.state='CLOSED';
+  const tree=await MonthsPage({searchParams:Promise.resolve({period:'2026-10',version:'1'})});
+  const buttons:Record<string,unknown>[]=[];
+  function visit(node:ReactNode){
+    Children.forEach(node,child=>{
+      if(!isValidElement<{children?:ReactNode}>(child))return;
+      if(child.type===Button)buttons.push(child.props);
+      visit(child.props.children);
+    });
+  }
+  visit(tree);
+  expect(buttons).toHaveLength(1);
+  // A component object/function here cannot cross this Server -> MUI Client boundary.
+  expect(buttons[0]).toMatchObject({component:'a',href:'/update-budget'});
+  render(<NextIntlClientProvider locale="en" messages={catalogs.en}>{tree}</NextIntlClientProvider>);
+  expect(screen.getByRole('link',{name:'transitionEntry'}).getAttribute('href')).toBe('/update-budget');
 });
