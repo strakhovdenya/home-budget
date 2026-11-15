@@ -125,7 +125,7 @@ export function closingReviewContent(before:Json|null,after:Json,locale:string,t
     const type=evidence<0?'':own(own(own(at(doc,sourcePath.slice(0,evidence+2)),'document'),'entity'),'type');
     const scope=sourcePath.join(' ')+' '+String(type??'');
     const group=/obligation|saving|OBLIGATION|SAVINGS/.test(scope)?'earmarks':/checkpoint|bank|BANK_CHECKPOINT/i.test(scope)?'card':/allocation|ALLOCATION_REVISION/i.test(scope)?'allocation':'history';
-    for(let part=0;part<parts;part++)rows.push({section:c.section,subject:subjects[part]??(subjects.length===1?subjects[0]:''),field:names[part]??(names.length===1?names[0]:''),before:left[part]??'',after:right[part]??'',part:part+1,parts,technical:technical[part]??'',key,group,coverage:[JSON.stringify([oldPath,path,part])]});
+    for(let part=0;part<parts;part++)rows.push({section:c.section,subject:subjects[part]??(subjects.length===1?subjects[0]:''),field:names[part]??(names.length===1?names[0]:''),before:left[part]??'',after:right[part]??'',part:part+1,parts,technical:technical[part]??'',key,group,coverage:[JSON.stringify([oldPath,path,part,a!==undefined,b!==undefined])]});
   }
   function itemKey(entry:Json,path:readonly string[],doc:Json|null):string|null{
     const collection=path.at(-1);
