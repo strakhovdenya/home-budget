@@ -45,7 +45,9 @@ export async function planReviewedBudget(tx:Transaction,scope:AuthorizedScope,co
   return {...p,review:wire({financial:p.review,reportImpact:reports,presentation:budgetPresentation(context,draft,p)})};
 }
 function isTransition(d:BudgetDraft){return !!d.allocationChange&&d.allocationChange.mode!=='REDISTRIBUTE';}
-async function ownedAccount(tx:Transaction,scope:AuthorizedScope){const [a]=await tx.select().from(s.accounts).where(and(eq(s.accounts.ownerUserId,scope.ownerUserId),eq(s.accounts.id,scope.accountId))).for('update');if(!a)return rejectBatch('FORBIDDEN');return a;}
+async function ownedAccount(tx:Transaction,scope:AuthorizedScope){const [a]=await tx.select().from(s.accounts).where(and(eq(s.accounts.ownerUserId,scope.ownerUserId),eq(s.accounts.id,scope.accountId)));if(!a)return rejectBatch('FORBIDDEN');return a;}
+// Proposal persistence must still serialize against concurrent account writers.
+async function lockOwnedAccount(tx:Transaction,scope:AuthorizedScope){const [a]=await tx.select().from(s.accounts).where(and(eq(s.accounts.ownerUserId,scope.ownerUserId),eq(s.accounts.id,scope.accountId))).for('update');if(!a)return rejectBatch('FORBIDDEN');return a;}
 export async function originalEvidence(tx:Transaction,scope:AuthorizedScope,update:typeof s.budgetUpdates.$inferSelect){
   const audits=await tx.select().from(s.auditEvents).where(and(eq(s.auditEvents.ownerUserId,scope.ownerUserId),eq(s.auditEvents.accountId,scope.accountId),eq(s.auditEvents.budgetUpdateId,update.id))).limit(5001);
   if(audits.length>5000)return rejectBatch('STORAGE_ERROR');
@@ -135,7 +137,7 @@ export function createBudgetRepository(database:Readonly<{db:Parameters<typeof c
         proposalId=coordinates(scope,command.requestId,0n,command.requestId,candidate.context.now).id('proposal');
         const id=proposalId,change=d.value.allocationChange!;
         await database.db.transaction(async tx=>{
-          const account=await ownedAccount(tx,scope);if(account.aggregateRevision!==command.expectedRevision)return rejectBatch('STALE_REVISION');
+          const account=await lockOwnedAccount(tx,scope);if(account.aggregateRevision!==command.expectedRevision)return rejectBatch('STALE_REVISION');
           const document=wire({schemaVersion:1,expectedRevision:command.expectedRevision,effectiveDate:command.effectiveDate,reason:command.reason,
             input:change,review:candidate.plan.review,aggregateDraft:command.payload,aggregateSchemaVersion:1});
           const identity=hash({scope,document});
@@ -180,7 +182,7 @@ export function createBudgetRepository(database:Readonly<{db:Parameters<typeof c
       await ownedAccount(tx,scope);if(!validUuid(requestId))return rejectBatch('INVALID_INPUT');
       const [u]=await tx.select().from(s.budgetUpdates).where(and(eq(s.budgetUpdates.ownerUserId,scope.ownerUserId),eq(s.budgetUpdates.accountId,scope.accountId),eq(s.budgetUpdates.requestId,requestId)));
       return u?(await originalEvidence(tx,scope,u)).receipt:null;
-    })),
+    },{isolationLevel:'repeatable read',accessMode:'read only'})),
     history:(scope:AuthorizedScope,updateId:string|null)=>safe(()=>database.db.transaction(async tx=>{
       await ownedAccount(tx,scope);if(updateId!==null&&!validUuid(updateId))return rejectBatch('INVALID_INPUT');
       const rows=await tx.select().from(s.budgetUpdates).where(and(eq(s.budgetUpdates.ownerUserId,scope.ownerUserId),eq(s.budgetUpdates.accountId,scope.accountId),
@@ -194,6 +196,6 @@ export function createBudgetRepository(database:Readonly<{db:Parameters<typeof c
         const proof=await originalEvidence(tx,scope,u);result.push({receipt:proof.receipt,effectiveDate:(proof.evidence.command as {effectiveDate:string}).effectiveDate,recordedAt:u.recordedAt,review:proof.evidence.review});
       }
       return wire(result);
-    })),
+    },{isolationLevel:'repeatable read',accessMode:'read only'})),
   };
 }

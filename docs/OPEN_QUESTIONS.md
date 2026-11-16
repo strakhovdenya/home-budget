@@ -1,5 +1,36 @@
 # Remaining implementation-level questions
 
+## HB-021 local auth proof — planning question
+
+**Current disposition — owner 2026-11-16:** ACCEPTED LIMITATION for HB-021 under [D58](DECISIONS.md#hb-021-owner-acceptance--2026-11-16). Google provider login/relogin remains **NOT EXECUTED**; accepted synthetic session E2E is not equivalent provider proof. The owner accepts HB-021 without that additional check, so this is no longer an HB-021 acceptance/publication blocker. No OAuth/network/credential change or provider execution is authorized. Separate HB-019.2/HB-020 task acceptance is not inferred. The dated original planning question and constraints below are retained as history, not the current HB-021 blocker disposition.
+
+**Q-HB21-AUTH (2026-11-13, OPEN):** HB-021 must use synthetic local PostgreSQL
+without changing OAuth, secrets or production. A proposed test-only offline
+Auth.js encrypted session can exercise real application/session/ownership paths,
+but cannot prove genuine Google login/relogin in **HB20-B01, HB20-B03 or HB20-B04**.
+Each scenario requires separate session-authenticated browser and provider-login
+evidence with independent statuses/run IDs; session PASS cannot close provider
+proof or the full scenario. Current status for each: session NOT EXECUTED;
+provider BLOCKED BY CONSTRAINT / NOT EXECUTED. B01 needs genuine first Google
+login; B03 needs genuine logout/Google relogin and state recovery; B04 needs
+genuine established-user Google login/relogin and normal navigation/history.
+
+The offline E2E run remains loopback-only. Genuine Google OAuth needs external
+access and may run only as a **separately agreed isolated test**, with owner-agreed
+test client/identity/redirect, external destinations and execution boundaries,
+separate environment/network permissions/run ID/evidence, and only synthetic
+local PostgreSQL financial data. No production secrets/client or real financial
+data may be used. This is not permission to enable egress in the offline run,
+execute the provider test, or change OAuth/secrets/redirects now.
+
+The owner must separately decide how to obtain the required provider proof.
+No alternative evidence scope, equivalence, provider change, new redirect, auth
+bypass or waiver is selected; existing acceptance criteria remain unchanged.
+Independent session/finance QA can proceed after implementation authorization;
+full acceptance remains blocked by unexecuted provider proof for B01/B03/B04.
+See [HB-021 plan](planning/hb-021-browser-e2e-a11y-responsive.md#5-авторизация-что-именно-будет-доказано).
+Planning only; no runtime or OAuth configuration change is authorized.
+
 ## HB-020 monthly instance suggestion — RESOLVED D56
 
 <a id="hb-020-monthly-instance-suggestion--open"></a>

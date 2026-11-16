@@ -25,3 +25,17 @@ Work loop: requirement → small HB-* task/spec → scenarios/tests → implemen
 Skills: .agents/skills/ contains nine original Codex adaptations of Dark Factory's project scaffolding workflows plus project finance verification. Consult docs/CODEX_WORKFLOW.md.
 
 Additional project-local Codex skills: use `.agents/skills/vercel-react-best-practices/SKILL.md` for React/Next.js work, `.agents/skills/security-best-practices/SKILL.md` for server authorization, and `.agents/skills/web-design-guidelines/SKILL.md` for the login page. Read relevant references before use; inspect scripts before running them. Project ADRs, architecture and installed Next.js APIs take precedence over generic skill advice. Do not add libraries or change architecture merely to follow a skill.
+
+## Code quality skills / Scope discipline
+
+Third-party guidance from `pproenca/dot-skills`, pinned at `cf93c57cac89d6fc3e4194686000411567f5caf3`; `clean-code-ts-react` is experimental. Priority: owner authorization > BUSINESS_RULES/ADRs > architecture/security > AGENTS.md/project conventions > third-party skills.
+
+- Use [clean-code-ts-react](.agents/skills/clean-code-ts-react/SKILL.md) for new backend/frontend TypeScript, React/Next.js, domain/application code and new tests.
+- Before handing off an authorized coding task, use [code-simplifier](.agents/skills/code-simplifier/SKILL.md) to review readability and report completion. Scope is only that task's new/directly edited hunks, excluding pre-existing dirty work, neighboring code and the rest of a touched file.
+- Neither installation nor review authorizes automatic refactoring, rewriting, reformatting, fix-all or scanning old code for cleanup. Improve existing production code only within the directly edited, authorized portion while preserving behavior.
+- Existing tests are protected: no style-driven refactoring, simplifying, formatting, rewriting, recreating, deleting or changing assertions/fixtures/mocks. Changes require an independent functional reason, explicit scope and evidence; never adjust an old test merely to make changed production code pass. New tests follow the guidance.
+- Clarity outranks brevity, generation speed, line counts, diff size and token cost. Use semantic names, normal multiline layout, explicit if/guard clauses, clear error handling and reasonable function boundaries; do not compress code.
+- No nested ternaries or ternary control logic for auth, validation, errors, state or financial decisions. A simple, obvious pure-expression ternary is allowed. JSX rendering advice does not prescribe Server Action control flow.
+- No helpers, generic abstractions, universal layers or API variants without demonstrated benefit. Do not mechanically split functions or extract every duplicate. Preserve throw/Result, null/undefined, side-effect order, idempotency and external contracts, including receipts and atomic operations.
+- Financial invariants, H/K and historical versions, authorization/ownership, integer EUR cents, Berlin dates, strict types/contracts and test evidence take precedence. Preserve deliberate safe error boundaries; do not add sensitive logging, telemetry or rethrows just to follow generic advice.
+- Interpret upstream CLAUDE.md references as this AGENTS.md; create no Claude runtime. Skills authorize no extra tools, dependencies, configuration, production access or commit/push/deploy. Verification uses synthetic data and approved isolated environments only.

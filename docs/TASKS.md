@@ -1,7 +1,7 @@
 # Home Budget — Task Backlog (Codex-ready)
 
 **Source:** [PRD](PRD.md) → [business rules](BUSINESS_RULES.md) → [implementation plan](IMPLEMENTATION_PLAN.md) → these tasks.
-**Status overview (2026-11-11):** HB-001..HB-019 and HB-019.1 Done; HB-019.2 Review / awaiting Owner Acceptance; HB-020/HB-021 Planned. HB-019.1 independent repeat review APPROVED (0/0/0/0) and Owner Acceptance are recorded below. Accepted ADR0001..0003 remain normative. Per-task evidence and accepted exceptions are retained below.
+**Status overview (2026-11-16):** HB-001..HB-019, HB-019.1 and HB-021 Done; HB-019.2 Review / awaiting Owner Acceptance; HB-020 Planned. HB-021 independent A–J approval and Owner Acceptance with explicit MVP exceptions are recorded in [D58](DECISIONS.md#hb-021-owner-acceptance--2026-11-16). HB-019.1 independent repeat review APPROVED (0/0/0/0) and Owner Acceptance are recorded below. Accepted ADR0001..0003 remain normative. Per-task evidence and accepted exceptions are retained below.
 **Conventions:** `HB-NNN` stable ID; owner-approved scoped follow-ups may use `HB-NNN.n` (for example HB-019.1); `Ready` = can start after prerequisites, `Planned` = not yet ready, `Blocked` = needs decision, `In progress`, `Review`, `Done`.
 **Work policy:** one task / coherent PR at a time. Codex must not silently mark tasks complete. GitHub Issues optional later; add each issue URL beside the stable ID rather than duplicating tasks.
 
@@ -301,7 +301,7 @@ a fresh run before publication; no manifest/checker/CI changes in this stage.
 **Current authority — 2026-11-12:** [D57](DECISIONS.md#hb-020-contextual-month--owner-2026-11-12) plus D55/D56 and the approved R1 plan. The owner authorized the local implementation and now the focused post-review correction and F-016 definition maintenance. Local code/proofs are recorded in [verification](planning/hb-020-implementation-verification.md); authenticated browser/accessibility and independent review/Owner Acceptance remain pending. No schema change or publication is authorized; HB-020 is not Done. Older document-only stage descriptions are historical.
 
 ### HB-021 · Core browser E2E, a11y and responsive QA
-**Status:** Planned · **Priority:** P0 · **Dependencies:** HB-016..HB-020 (including HB-019.1 and HB-019.2), plus the separately reviewed finance-fingerprint stage before final evidence · **Area:** quality
+**Status:** Done · **Priority:** P0 · **Dependencies:** HB-016..HB-020 (including HB-019.1 and HB-019.2), plus the separately reviewed finance-fingerprint stage before final evidence · **Area:** quality
 **Deliverables:** Playwright flows for mobile/desktop, multi-locale, auth boundaries, first-run onboarding, recurring bills, actual checkpoints, FRESH_START/CARRY/DEFER UX, savings, same-identity two-step payment and closing; complete HB-019.2 history in all three perspectives. Reuse HBUX/HBH/HB20 contracts without duplicating scenario ownership.
 **Acceptance:** tests actually execute and pass against isolated synthetic DB; reviewed fixes, no data/privacy exposure and no unverified browser PASS.
 **Inherited execution — owner D54, 2026-11-11:** HB-021 owns all still-unexecuted real-browser/AT portions of HBH-001–007: authenticated history access/navigation, original/later/immutable-v1/v2 views and reload, all-history pagination/filter/refresh/error/basis/privacy/no-write flows; RU/DE/EN; 320px/desktop; native 200% zoom; keyboard/focus/announcements and physical screen-reader output. Every item is **NOT EXECUTED**. HB-021 must execute and record these assertions before its own Owner Acceptance; it must not redefine financial oracles or relabel U/C/P proof as browser evidence. See [D54](DECISIONS.md#hb-0192-browser-verification-handoff--owner-2026-11-11). This transfer does not grant HB-019.2 Owner Acceptance.
@@ -310,6 +310,12 @@ source completeness and immutable-report behavior; exact intra-day reconstructio
 (HB-027) does **not** block HB-021/MVP/release. The existing fingerprint stage is
 already accepted in HB-019.1; fresh protected-context/run maintenance remains
 required before publication. No HBH gate-binding or CI expansion is an MVP gate.
+
+**Owner Acceptance — 2026-11-16:** the owner confirms independent review of A–J, J **APPROVED with no findings**, and accepts HB-021 under [D58](DECISIONS.md#hb-021-owner-acceptance--2026-11-16). Unit1170/1170, PG544/544, LA552/552, DB17 two selected tests, H48/48 and reduced I smoke2/2 passed. Historical J Finance Gate:596 scenarios,803 obligations,1171 references; run `1cf82f39-3cef-42e3-8ab5-e82e4f75aadc`.
+
+**Accepted exceptions and dependencies:** provider Google login/relogin and native200% zoom remain **NOT EXECUTED**; full WCAG/AT/NVDA/VoiceOver is outside mandatory MVP acceptance. These explicit owner exceptions supersede the inherited planning blockers above for HB-021 only; synthetic session proof is not provider proof. Integrated dependency runtime/HBH/HB20 paths are accepted through A–I; separate HB-019.2/HB-020 task statuses and acceptance records are not promoted here. Financial/ownership/privacy/history assertions and Accepted ADR0001–0003 are unchanged.
+
+**Evidence/publication:** [A–J traceability and publication record](planning/hb-021-publication.md), [plan](planning/hb-021-browser-e2e-a11y-responsive.md), [H+I](planning/hb-021-hi-verification.md), [J](planning/hb-021-j-verification.md). Historical reports, FAILs and receipts remain unchanged. Finalization changes protected contexts: necessary hashes are maintained without changing Gate semantics, and fresh CI must pass on the final proposed source. Historical J PASS is not that new CI result. Commit/push/PR are authorized; merge and deploy are separate.
 
 ## M3 — Reporting and historical onboarding
 

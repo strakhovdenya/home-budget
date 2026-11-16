@@ -1,8 +1,8 @@
 'use client';
-import {useRef,useState} from 'react';
+import {useEffect,useId,useRef,useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {useLocale,useTranslations} from 'next-intl';
-import {Alert,Button,Checkbox,FormControlLabel,Paper,Stack,TextField,Typography} from '@mui/material';
+import {Alert,Button,Checkbox,FormControlLabel,FormLabel,Paper,Stack,TextField,Typography} from '@mui/material';
 import type {BudgetResult} from '@/domain/budget-update/ports';
 import type {CanonicalValue,CommitReceipt} from '@/domain/updates/contracts';
 import {inputCents} from '@/features/budget-updates/presentation';
@@ -11,11 +11,33 @@ type Actions={preview:(input:unknown)=>Promise<BudgetResult<CanonicalValue>>;con
 type ReviewCommand={requestId:string;payload:{review:BudgetReviewData}};
 export function FirstRunScreen({today,actions}:{today:string;actions:Actions}){
   const t=useTranslations('firstRun'),u=useTranslations('budgetUpdate'),locale=useLocale(),router=useRouter();
+  const balanceId=useId();
+  const errorAlert = useRef<HTMLDivElement>(null);
+  const balanceInput = useRef<HTMLInputElement>(null);
+  const reviewWasOpen = useRef(false);
   const [balance,setBalance]=useState(''),[day,setDay]=useState(today),[rows,setRows]=useState([{period:today.slice(0,7),amount:''}]),
     [consent,setConsent]=useState(false),[review,setReview]=useState<ReviewCommand|null>(null),[busy,setBusy]=useState(false),
     [unknown,setUnknown]=useState(false),[error,setError]=useState(''),[saved,setSaved]=useState(false);
   const pending=useRef(false),frozen=useRef<ReviewCommand|null>(null),heading=useRef<HTMLHeadingElement>(null);
   const disabled=busy||unknown;
+  useEffect(() => {
+    if (error) errorAlert.current?.focus();
+  }, [error]);
+  useEffect(() => {
+    if (saved) {
+      reviewWasOpen.current = false;
+      return;
+    }
+    if (review) {
+      heading.current?.focus();
+      reviewWasOpen.current = true;
+      return;
+    }
+    if (reviewWasOpen.current) {
+      reviewWasOpen.current = false;
+      balanceInput.current?.focus();
+    }
+  }, [review, saved]);
   function failure(code:string){
     if(code==='EXISTING_EMPTY_ACCOUNT'){router.push('/update-budget');return;}
     if(code==='ALREADY_INITIALIZED'){router.refresh();setError(t('already'));return;}
@@ -32,7 +54,6 @@ export function FirstRunScreen({today,actions}:{today:string;actions:Actions}){
       const result=await actions.preview(command);
       if(!result.ok){failure(result.code);return;}
       const reviewed=result.value as unknown as ReviewCommand;frozen.current=reviewed;setReview(reviewed);
-      setTimeout(()=>heading.current?.focus(),0);
     }catch{setError(t('error'));}finally{pending.current=false;setBusy(false);}
   }
   async function confirm(){
@@ -55,7 +76,7 @@ export function FirstRunScreen({today,actions}:{today:string;actions:Actions}){
   return <Stack spacing={3} sx={{minWidth:0}}>
     <Typography component="h1" variant="h1">{t('title')}</Typography>
     {!saved?<Typography>{t('unknown')}</Typography>:null}
-    {error?<Alert severity="error" role="alert">{error}</Alert>:null}
+    {error?<Alert severity="error" role="alert" ref={errorAlert} tabIndex={-1}>{error}</Alert>:null}
     {saved?<Alert severity="success" role="status">{t('saved')}</Alert>:null}
     {busy?<Typography role="status">{t('pending')}</Typography>:null}
     {unknown?<Alert severity="warning" role="status">{t('outcomeUnknown')}<Stack direction="row" spacing={1} sx={{flexWrap:'wrap'}}>
@@ -63,7 +84,10 @@ export function FirstRunScreen({today,actions}:{today:string;actions:Actions}){
     </Stack></Alert>:null}
     {!review&&!saved?<Paper component="form" variant="outlined" sx={{p:{xs:2,sm:3}}} onSubmit={e=>{e.preventDefault();void preview();}}>
       <Stack spacing={2}>
-        <TextField required label={u('balance')} value={balance} disabled={disabled} onChange={e=>setBalance(e.target.value)} slotProps={{htmlInput:{inputMode:'decimal',autoComplete:'off'}}}/>
+        <Stack spacing={1}>
+          <FormLabel htmlFor={balanceId} required disabled={disabled} sx={{color:'text.primary',whiteSpace:'normal',overflowWrap:'anywhere'}}>{u('balance')}</FormLabel>
+          <TextField id={balanceId} inputRef={balanceInput} required value={balance} disabled={disabled} onChange={e=>setBalance(e.target.value)} slotProps={{htmlInput:{inputMode:'decimal',autoComplete:'off'}}}/>
+        </Stack>
         <TextField required type="date" label={u('observedDate')} value={day} disabled={disabled} onChange={e=>setDay(e.target.value)} slotProps={{inputLabel:{shrink:true},htmlInput:{max:today}}}/>
         {rows.map((r,i)=><Stack spacing={1} key={i} sx={{minWidth:0}}>
           <TextField required type="month" label={u('period')} value={r.period} disabled={disabled} onChange={e=>setRows(rows.map((x,n)=>n===i?{...x,period:e.target.value}:x))} slotProps={{inputLabel:{shrink:true}}}/>

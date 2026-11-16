@@ -4,7 +4,7 @@ import { Suspense, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Box, Chip, Divider, Drawer, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Stack, Typography } from '@mui/material';
+import { Box, Chip, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, Typography } from '@mui/material';
 import { Preferences } from '@/shared/ui/preferences';
 import { SectionIcon } from './section-icon';
 import {parsePeriod} from '@/domain/periods/period';
@@ -18,11 +18,11 @@ export function AppShell({ children, sessionControl }: { children: ReactNode; se
   function links(period:string|null){
     return <List disablePadding>{sections.map(section=>{
       const href=section==='obligations'&&period&&(path==='/'||path==='/obligations')?sectionPaths[section]+'?period='+period:sectionPaths[section];
-      return <ListItemButton component={Link} href={href} prefetch={section==='history'?false:undefined} key={section}
+      return <ListItem key={section} disablePadding><ListItemButton component={Link} href={href} prefetch={section==='history'?false:undefined}
         selected={path===sectionPaths[section]} aria-current={path===sectionPaths[section]?'page':undefined} onClick={()=>setOpen(false)}>
         <ListItemIcon sx={{minWidth:36,color:'inherit'}}><SectionIcon section={section}/></ListItemIcon>
         <ListItemText primary={nav(section)} slotProps={{primary:{sx:{fontWeight:550}}}}/>
-      </ListItemButton>;
+      </ListItemButton></ListItem>;
     })}</List>;
   }
   function navigation(){return <Box component="nav" aria-label={t('navigation')}><Suspense fallback={links(null)}><ContextNavigation render={links}/></Suspense></Box>;}

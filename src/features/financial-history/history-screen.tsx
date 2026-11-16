@@ -1,7 +1,7 @@
 'use client';
-import {useEffect,useRef,useState} from 'react';
+import {useEffect,useId,useRef,useState} from 'react';
 import {useLocale,useTranslations} from 'next-intl';
-import {Alert,Box,Button,Card,CardContent,Paper,Stack,TextField,Typography} from '@mui/material';
+import {Alert,Box,Button,Card,CardContent,FormLabel,Paper,Stack,TextField,Typography} from '@mui/material';
 import type {Basis,Entry,HistoryResult,Page,PageQuery} from '@/domain/history/contracts';
 import {sameBasis} from '@/domain/history/validation';
 import {endOfMonth,parsePeriod} from '@/domain/periods/period';
@@ -15,6 +15,7 @@ type Data={readonly [key:string]:CanonicalValue};
 function object(v:CanonicalValue|undefined):Data|null{return v!==null&&typeof v==='object'&&!Array.isArray(v)?v as Data:null;}
 function text(v:CanonicalValue|undefined):string{return typeof v==='string'?v:'';}
 export function FinancialHistoryScreen({initial,actions}:{initial:HistoryResult<Page>|null;actions:HistoryActions}){
+  const monthFilterId=useId();
   const t=useTranslations('financialHistory'),r=useTranslations('recurring'),locale=useLocale();
   const [page,setPage]=useState<Page|null>(initial?.ok?initial.value:null),[stack,setStack]=useState<PageQuery[]>([]),[filter,setFilter]=useState('');
   const [pending,setPending]=useState(false),[error,setError]=useState(initial&&!initial.ok?initial.code:''),[selected,setSelected]=useState<Entry|null>(null);
@@ -98,8 +99,11 @@ export function FinancialHistoryScreen({initial,actions}:{initial:HistoryResult<
   return <Stack spacing={3} sx={{minWidth:0,overflowWrap:'anywhere'}} aria-busy={pending}>
     <Typography component="h1" variant="h2">{t('title')}</Typography><Typography>{t('intro')}</Typography>
     <Stack direction={{xs:'column',sm:'row'}} spacing={2}>
-      <TextField type="month" label={t('month')} value={filter} onChange={e=>setFilter(e.target.value)} slotProps={{inputLabel:{shrink:true}}}/>
-      <Button disabled={pending} onClick={()=>void refresh()}>{t('refresh')}</Button>
+      <Stack spacing={1} sx={{minWidth:0,flex:{sm:'0 1 24rem'}}}>
+        <FormLabel htmlFor={monthFilterId} sx={{color:'text.primary',whiteSpace:'normal',overflowWrap:'anywhere'}}>{t('month')}</FormLabel>
+        <TextField id={monthFilterId} type="month" value={filter} onChange={e=>setFilter(e.target.value)}/>
+      </Stack>
+      <Button disabled={pending} onClick={()=>void refresh()} sx={{alignSelf:{sm:'flex-end'}}}>{t('refresh')}</Button>
     </Stack>
     <Box role="status" aria-live="polite">{pending?t('loading'):page?t('progress',{page:stack.length+1,count:page.items.length}):''}</Box>
     {error?<Alert severity="error" role="alert">{t('error')}: {t(`errors.${error}`)}</Alert>:null}

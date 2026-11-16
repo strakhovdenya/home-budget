@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import {notifyBudgetCommitted} from './refresh';
 import { BudgetEditors } from './budget-editors';
 import { BudgetSession, useBudgetWorkspace, useBudgetState, useBudgetRef, openBudgetSession } from './budget-draft-provider';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
-import { Alert, Box, Button, Checkbox, FormControlLabel, MenuItem, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, Checkbox, FormControlLabel, FormLabel, MenuItem, Paper, Stack, TextField, Typography } from '@mui/material';
 import type { CanonicalValue, CommitReceipt } from '@/domain/updates/contracts';
 import { formatMoney } from '@/features/dashboard/format-money';
 import { formatCalendarDate,formatMonth } from '@/features/dashboard/presentation';
@@ -23,6 +23,8 @@ export function UpdateBudgetScreen({initialSeed,actions,scopeKey='standalone'}:{
   return <BudgetSession store={store}><UpdateBudgetForm initialSeed={initialSeed} actions={actions}/></BudgetSession>;
 }
 function UpdateBudgetForm({initialSeed,actions}:{initialSeed:UpdateSeed;actions:BudgetActions}){
+  const reasonId = useId();
+  const sourcePeriodId = useId();
   const t=useTranslations('budgetUpdate'),locale=useLocale();
   const [seed,setSeed]=useBudgetState('seed',initialSeed),[form,setForm]=useBudgetState<UpdateForm>('form',()=>initialForm(initialSeed));
   const [reviewed,setReviewed]=useBudgetState<CanonicalValue|null>('reviewed',null),[pending,setPending]=useBudgetState('pending',false),[dirty,setDirty]=useBudgetState('dirty',false);
@@ -121,7 +123,10 @@ function UpdateBudgetForm({initialSeed,actions}:{initialSeed:UpdateSeed;actions:
           <BudgetEditors seed={seed} form={form} disabled={disabled} fieldError={fieldError} error={error} edit={edit} change={change}/>
           <Button disabled={disabled||form.edits.filter(e=>e.kind==='OBLIGATION').length>=7} onClick={()=>add('OBLIGATION')}>{t('addObligation')}</Button>
           <Button disabled={disabled||form.edits.filter(e=>e.kind==='SAVING').length>=7} onClick={()=>add('SAVING')}>{t('addSaving')}</Button>
-          <TextField label={t('reason')} value={form.reason} disabled={disabled} onChange={e=>change({reason:e.target.value})}/>
+          <Stack spacing={1}>
+            <FormLabel htmlFor={reasonId} disabled={disabled} sx={{color:'text.primary',whiteSpace:'normal',overflowWrap:'anywhere'}}>{t('reason')}</FormLabel>
+            <TextField id={reasonId} value={form.reason} disabled={disabled} onChange={e=>change({reason:e.target.value})}/>
+          </Stack>
         </Stack></Paper>
         {seed.bank?<Paper variant="outlined" sx={box}><Stack spacing={2}>
           {unresolved?<><Typography>{t('chooseTransition')}</Typography><Button variant="contained" disabled={disabled} aria-pressed={form.mode==='FRESH_START'} onClick={()=>change({mode:'FRESH_START',reuse:false,fundingConfirmed:false,nonCarryConfirmed:false,futureConfirmed:false})}>{t('startFresh')}</Button></>:<Typography>{t('sameMonthRoutine')}</Typography>}
@@ -131,7 +136,10 @@ function UpdateBudgetForm({initialSeed,actions}:{initialSeed:UpdateSeed;actions:
           <TextField fullWidth select label={t('mode')} value={form.mode} disabled={disabled} slotProps={{select:{displayEmpty:true},inputLabel:{shrink:true}}} onChange={e=>change({mode:e.target.value as UpdateForm['mode'],...(e.target.value==='FRESH_START'?{reuse:false}:{}),fundingConfirmed:false,nonCarryConfirmed:false,futureConfirmed:false})}>
             <MenuItem value="">{t('noTransition')}</MenuItem>{['CARRY','FRESH_START','DEFER'].map(m=><MenuItem key={m} value={m}>{t(`modeLabel.${m}`)}</MenuItem>)}
           </TextField>
-          {form.mode==='CARRY'?<TextField label={t('source')} type="month" value={form.source} disabled={disabled} onChange={e=>change({source:e.target.value})} slotProps={{inputLabel:{shrink:true}}}/>:null}
+          {form.mode==='CARRY'?<Stack spacing={1}>
+            <FormLabel htmlFor={sourcePeriodId} disabled={disabled} sx={{color:'text.primary',whiteSpace:'normal',overflowWrap:'anywhere'}}>{t('source')}</FormLabel>
+            <TextField id={sourcePeriodId} type="month" value={form.source} disabled={disabled} onChange={e=>change({source:e.target.value})}/>
+          </Stack>:null}
           {form.mode==='CARRY'||form.mode==='FRESH_START'?consent('fundingConfirmed','fundingConsent'):null}
           {form.mode==='FRESH_START'?<>{consent('nonCarryConfirmed','nonCarryConsent')}{consent('futureConfirmed','futureConsent')}</>:null}
           {form.reuse&&!form.mode?consent('unchangedFunding','unchangedFundingConsent'):null}</Box>:null}

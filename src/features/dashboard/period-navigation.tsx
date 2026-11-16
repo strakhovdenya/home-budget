@@ -15,8 +15,8 @@ export function PeriodNavigation({ period, base,disabled=false }: { period: stri
   return <Box component="nav" aria-label={t('label')} aria-busy={pending}>
     <Stack spacing={2}>
       <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
-        {prev ? <Button component={Link} disabled={disabled||pending} prefetch={false} href={periodHref(base, prev)} aria-label={t('previous', { month: formatMonth(prev, locale) })}>← {t('previousShort')}</Button> : <Button disabled aria-label={t('lowerBoundary')}>←</Button>}
-        {next ? <Button component={Link} disabled={disabled||pending} prefetch={false} href={periodHref(base, next)} aria-label={t('next', { month: formatMonth(next, locale) })}>{t('nextShort')} →</Button> : <Button disabled aria-label={t('upperBoundary')}>→</Button>}
+        {prev ? <Button component={Link} disabled={disabled||pending} prefetch={false} href={periodHref(base, prev)} aria-label={t('previous', { month: formatMonth(prev, locale) })}><Box component="span" aria-hidden="true">← </Box>{t('previous', { month: formatMonth(prev, locale) })}</Button> : <Button disabled aria-label={t('lowerBoundary')}>←</Button>}
+        {next ? <Button component={Link} disabled={disabled||pending} prefetch={false} href={periodHref(base, next)} aria-label={t('next', { month: formatMonth(next, locale) })}>{t('next', { month: formatMonth(next, locale) })}<Box component="span" aria-hidden="true"> →</Box></Button> : <Button disabled aria-label={t('upperBoundary')}>→</Button>}
         <Button component={Link} disabled={disabled||pending} prefetch={false} href={base}>{t('current')}</Button>
       </Stack>
       <Stack component="form" direction={{ xs: 'column', sm: 'row' }} spacing={2} action={base} method="get" onSubmit={event => {
