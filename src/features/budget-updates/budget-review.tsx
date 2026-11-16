@@ -17,11 +17,12 @@ export function BudgetReview({review}:{review:BudgetReviewData}){
   const t=useTranslations('budgetUpdate'),d=useTranslations('dashboard'),locale=useLocale(),f=review.financial;
   const m=(c:string)=>formatMoney(c,locale),date=(s:string)=>formatCalendarDate(s,locale);
   const historical=!!f.asOfDate&&f.effectiveDate.slice(0,7)<f.asOfDate.slice(0,7);
-  const periods=(values:Period[])=>values.map(p=><Box component="dl" key={p.period} sx={{m:0,p:2,border:1,borderColor:'divider',borderRadius:1,minWidth:0}}>
-    <Typography component="dt" sx={{fontWeight:700}}>{formatMonth(p.period,locale)}</Typography>
+  const periods=(values:Period[])=>values.map(p=><Box component="section" aria-label={formatMonth(p.period,locale)} key={p.period} sx={{m:0,p:2,border:1,borderColor:'divider',borderRadius:1,minWidth:0}}>
+    <Typography sx={{fontWeight:700}}>{formatMonth(p.period,locale)}</Typography>
+    <Box component="dl" sx={{m:0}}>
     {(['allocated','reserved','savings','free','deficit'] as const).map(k=><Box key={k} sx={{display:'flex',gap:2,justifyContent:'space-between',flexWrap:'wrap'}}>
       <Typography component="dt">{t(k)}</Typography><Typography component="dd" sx={{m:0,fontVariantNumeric:'tabular-nums',overflowWrap:'anywhere'}}>{m(p[k])}</Typography>
-    </Box>)}</Box>);
+    </Box>)}</Box></Box>);
   return <Stack spacing={2}>
     <Box component="section" aria-label={t('proposedState')} sx={{p:2,border:1,borderColor:'primary.main',borderRadius:1,minWidth:0}}>
       <Typography component="h3" variant="h5">{t('proposedState')}</Typography>

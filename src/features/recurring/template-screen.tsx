@@ -22,8 +22,20 @@ export function TemplateScreen({initial,today,actions}:{initial:BudgetResult<Can
     [editing,setEditing]=useState<Template|null>(null),[review,setReview]=useState<Command|null>(null),[error,setError]=useState(initial.ok?'':t(initial.code==='UNAUTHORIZED'?'authError':['FORBIDDEN','ACCOUNT_SELECTION_REQUIRED'].includes(initial.code)?'scopeError':'storageError')),
     [busy,setBusy]=useState(false),[unknown,setUnknown]=useState(false),[saved,setSaved]=useState('');
   const pending=useRef(false),frozen=useRef<Command|null>(null),heading=useRef<HTMLHeadingElement>(null);
+  const titleInput = useRef<HTMLInputElement>(null);
+  const restoreDraftFocus = useRef(false);
   const origin=seed?.originPeriod??today.slice(0,7);
   const disabled=busy||unknown;
+  useEffect(() => {
+    if (review) {
+      heading.current?.focus();
+      return;
+    }
+    if (restoreDraftFocus.current) {
+      restoreDraftFocus.current = false;
+      titleInput.current?.focus();
+    }
+  }, [review]);
   useEffect(()=>{if(!initial.ok||busy||unknown||review)return;const next=initial.value as unknown as TemplateSeed;
     if(next.originPeriod!==origin){setSeed(next);setAmounts({});setHidden([]);}else if(seed&&BigInt(next.revision)>BigInt(seed.revision))setSeed(next);
   },[initial,busy,unknown,review,origin,seed]);
@@ -41,7 +53,7 @@ export function TemplateScreen({initial,today,actions}:{initial:BudgetResult<Can
     try{
       parseTemplateInput(payload);
       const command={requestId:crypto.randomUUID(),expectedRevision:seed.revision,effectiveDate:seed.today,reason:t('reason'),payload};
-      frozen.current=command;setReview(command);setSaved('');setError('');setTimeout(()=>heading.current?.focus(),0);
+      frozen.current=command;setReview(command);setSaved('');setError('');
     }catch{setError(t('error'));}
   }
   function decide(source:Template,action:'ACCEPT'|'DECLINE'){
@@ -96,10 +108,10 @@ export function TemplateScreen({initial,today,actions}:{initial:BudgetResult<Can
         expectedVersion:editing?.version??null,title:title.trim(),amountCents:inputCents(amount,locale),enabled});}catch{setError(t('error'));}}}>
         <Stack spacing={2}>
           <Typography component="h3" variant="h6">{t(editing?'edit':'create')}</Typography>
-          <TextField required label={t('name')} value={title} disabled={disabled||!seed} onChange={e=>setTitle(e.target.value)}/>
+          <TextField inputRef={titleInput} required label={t('name')} value={title} disabled={disabled||!seed} onChange={e=>setTitle(e.target.value)}/>
           <TextField required label={t('amount')} value={amount} disabled={disabled||!seed} onChange={e=>setAmount(e.target.value)} slotProps={{htmlInput:{inputMode:'decimal',autoComplete:'off'}}}/>
           <FormControlLabel control={<Checkbox checked={enabled} disabled={disabled||!seed} onChange={e=>setEnabled(e.target.checked)}/>} label={t('enabled')}/>
-          <Button type="submit" disabled={disabled||!seed}>{t('reviewConfig')}</Button>
+          <Button type="submit" disableFocusRipple disabled={disabled||!seed}>{t('reviewConfig')}</Button>
         </Stack>
       </Box>
       {seed?.configs.map(s=><Stack key={s.id} direction={{xs:'column',sm:'row'}} spacing={1} sx={{alignItems:{sm:'center'}}}>
@@ -115,9 +127,9 @@ export function TemplateScreen({initial,today,actions}:{initial:BudgetResult<Can
         {payload?.action==='ACCEPT'?<><Typography>{t('periodContext',{month:month(payload.originPeriod)})}</Typography><Typography>{t('acceptReview')}</Typography></>:null}
         {payload?.action==='CONFIG'?<Typography>{t(payload.enabled?'enabled':'disabled')} — {t('configOnly')}</Typography>:null}
         <Button variant="contained" disabled={disabled} onClick={confirm}>{t('confirm')}</Button>
-        <Button disabled={disabled} onClick={()=>{setReview(null);frozen.current=null;setError('');}}>{t('cancel')}</Button>
+        <Button disabled={disabled} onClick={()=>{restoreDraftFocus.current=true;setReview(null);frozen.current=null;setError('');}}>{t('cancel')}</Button>
       </Stack>
     </Paper>}
-    <Button component={Link} href="/history" prefetch={false}>{t('history')}</Button>
+    <Button component={Link} href="/history" prefetch={false} disableFocusRipple>{t('history')}</Button>
   </Stack>;
 }
