@@ -1,5 +1,16 @@
 # Remaining implementation-level questions
 
+## HB-023 — Cancelled (owner decision) — 2026-11-17
+
+**Final disposition:** owner cancelled HB-023, not Done. Do not import October or implement the proposed external archive. No outstanding implementation gate remains for this cancelled task. November stays independent and unchanged. No real financial values are retained here. See the [cancelled plan](planning/hb-023-october-one-time-transfer.md).
+
+- **Q-HB23-01 · CLOSED — task cancelled:** historical identity-level states remain unproved; no reconstruction or investigation will be performed under HB-023. Closure does not claim evidence or a technical solution.
+- **Q-HB23-02 · RESOLVED — owner 2026-11-17, product requirements:** October is exclusively historical statistics. Its obligations are active as of October 31 and must not affect any new-budget calculation from November 1. November is completely independent and must remain unchanged. No fictitious PAID/CANCELLED, transfers or changes to November financial history. This resolves product scope, not technical compatibility.
+- **Q-HB23-02-T · CLOSED — task cancelled; compatibility NOT PROVED:** existing lifecycle/all-period liquidity has no archive boundary. Neither ordinary import nor external archive will be implemented under HB-023.
+- **Q-HB23-03 · CLOSED — task cancelled; compatibility NOT PROVED:** later anchors/payments/transitions and November report impact were not verified against a database. No import or alteration of November is authorized; closure is cancellation, not proof of compatibility.
+
+No database inspection, import implementation, test execution or financial writes were performed for HB-023. Private owner-confirmed observations are not copied into Git. Any future October work requires a new explicit owner request; the cancelled proposal grants no ongoing authorization.
+
 ## HB-022-R3 — визуализация проверок (planning only)
 
 **Текущее решение — RESOLVED, owner 2026-11-17, D64:** владелец явно разрешил узкое opt-in исключение из D60 по [R3-плану](planning/hb-022-r3-chart-readability.md): только допустимые соседние фактические проверки, без соединений одной даты с неизвестным/неразличимым временем или недоказанным порядком, без обхода разрывов, промежуточных остатков и межстраничных соединений. Default — «Только точки», в режиме линии явное пояснение неизвестности. Разрешение реализации и границы тестирования записаны в [D64](DECISIONS.md#hb-022-r3-chart-readability-and-bounded-implementation--owner-2026-11-17). Исходный planning-вопрос ниже сохранён как история; R3 не объявлен принятым.

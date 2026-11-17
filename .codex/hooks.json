@@ -1,0 +1,57 @@
+{
+  "description": "Home Budget project hook candidate. Copy to .codex/hooks.json after review, then trust via /hooks.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"require(require('node:child_process').execFileSync('git',['rev-parse','--show-toplevel'],{encoding:'utf8'}).trim()+'/scripts/codex-quality/hook.cjs')\"",
+            "timeout": 120,
+            "statusMessage": "Home Budget quality: SessionStart",
+            "additionalContextLimit": 20000
+          }
+        ],
+        "matcher": "^(startup|resume|clear|compact|fork)$"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"require(require('node:child_process').execFileSync('git',['rev-parse','--show-toplevel'],{encoding:'utf8'}).trim()+'/scripts/codex-quality/hook.cjs')\"",
+            "timeout": 120,
+            "statusMessage": "Home Budget quality: PreToolUse"
+          }
+        ],
+        "matcher": ".*"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"require(require('node:child_process').execFileSync('git',['rev-parse','--show-toplevel'],{encoding:'utf8'}).trim()+'/scripts/codex-quality/hook.cjs')\"",
+            "timeout": 120,
+            "statusMessage": "Home Budget quality: PostToolUse"
+          }
+        ],
+        "matcher": ".*"
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"require(require('node:child_process').execFileSync('git',['rev-parse','--show-toplevel'],{encoding:'utf8'}).trim()+'/scripts/codex-quality/hook.cjs')\"",
+            "timeout": 120,
+            "statusMessage": "Home Budget quality: Stop"
+          }
+        ]
+      }
+    ]
+  }
+}

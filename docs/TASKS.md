@@ -334,9 +334,9 @@ required before publication. No HBH gate-binding or CI expansion is an MVP gate.
 **Acceptance:** does not count rolled-over free funds as new income; no fabricated daily balances.
 
 ### HB-023 · Safe historical October import
-**Status:** Planned · **Priority:** P1 · **Dependencies:** HB-010, HB-019, HB-022 · **Area:** import
-**Deliverables:** private, reviewed Markdown input-to-events mapping and import validation.
-**Acceptance:** imports only known checkpoint values and source-backed obligations; unresolved differences not called income; no real data in Git. See IMPORT_OCTOBER.md.
+**Status:** Cancelled (owner decision) · **Date:** 2026-11-17 · **Priority:** P1 · **Former dependencies:** HB-010, HB-019, HB-022 · **Area:** import
+**Disposition:** owner cancelled HB-023; do not import October. No importer, external archive/renderer, financial commands or database work will be implemented under this task. November remains independent and unchanged. Cancellation is not Done and claims no import/test evidence.
+**Retained context:** [cancelled plan](planning/hb-023-october-one-time-transfer.md), [import disposition](IMPORT_OCTOBER.md), [closed questions](OPEN_QUESTIONS.md#hb-023--cancelled-owner-decision--2026-11-17). Any future October work requires a new explicit owner request.
 
 ### HB-024 · Optional categories and private export
 **Status:** Planned · **Priority:** P1 · **Dependencies:** HB-017, HB-022 · **Area:** reporting

@@ -44229,7 +44229,7 @@
     },
     {
       "path": "docs/DECISIONS.md",
-      "sha256": "1a1ddbf9666f41810d980962cfef0908f094be757927c618ed24ea9b43699458"
+      "sha256": "5a8f23f5acfde6e332b42576a7787ad16750f89c1b2b635dfa85dd87fedce694"
     },
     {
       "path": "docs/adr/0001-checkpoints-and-allocations.md",
@@ -44269,15 +44269,15 @@
     },
     {
       "path": "docs/TASKS.md",
-      "sha256": "b220ab21f2ea8efad8c3a18bc5ad19a7d21dd2cc3f6a4a44e9f40156a55544fc"
+      "sha256": "a499eacdb5d37db6e83590855882baf448bdf58a09bc5e917ed61967c8508ac1"
     },
     {
       "path": "docs/OPEN_QUESTIONS.md",
-      "sha256": "d9e4652e39f94ffc249a90aee6db8653e51f20bdb940d449e1e4fe99913d0d24"
+      "sha256": "7ae6a7b8bced3087afa1db1dac8862929e20ad39ed15ebcb9d939d339e663643"
     },
     {
       "path": "docs/IMPLEMENTATION_PLAN.md",
-      "sha256": "13bf75a69a8fb2c17ccbc689e26abdf19e2564c31a1c7061679ca4c7e9e28c31"
+      "sha256": "1097701d732b9a54f9da4ad00601c396c1a47348b26fdfe96ae35df0cf8e8e8c"
     },
     {
       "path": "docs/planning/hb-019-1-budget-update-ux.md",

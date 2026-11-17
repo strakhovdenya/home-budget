@@ -27,7 +27,7 @@ is required before final HB-021 evidence. All future implementation needs separa
 permission. Phase3/4 extended analytics/import/PDF remain outside MVP.
 
 ## Phase 3 — Historical reports & import
-- Calendar vs financial-month views, comparisons, category optional, CSV/JSON export, optional October history import (local authorized process, never commit raw bank data).
+- Calendar vs financial-month views, comparisons, category optional, CSV/JSON export. October history import HB-023 is **Cancelled (owner decision), 2026-11-17**; do not import October or implement its proposed external archive.
 - Extended origin/carryover analytics and historical import tooling; existing corrections, closing versions and basic history remain M2 requirements.
 
 ## Phase 4 — Optional documents
