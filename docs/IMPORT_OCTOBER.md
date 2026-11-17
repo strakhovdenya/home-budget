@@ -1,5 +1,12 @@
 # Historical import: October 2026 (private follow-up)
 
+**Current disposition — 2026-11-17: HB-023 Cancelled (owner decision), not Done.**
+Do not import October. The proposed standalone archive/renderer is also not to be
+implemented under HB-023. November remains independent and unchanged. No financial
+operations or import verification were performed. The approach below is retained
+historical planning only and does not authorize implementation or data access.
+See the [cancelled plan](planning/hb-023-october-one-time-transfer.md).
+
 User intends to seed an October 2026 history from prior Markdown budget files. **Do not commit those raw files to Git**, even while repo is private and may later become public.
 
 ## Approach
@@ -12,4 +19,4 @@ User intends to seed an October 2026 history from prior Markdown budget files. *
 7. Preserve unpaid obligations and savings with full earmarks/identity. Propose cash transfer into the next month and require explicit one-button confirmation; retain existing target funds once and immutable October as-closed state. No automatic cash carryover.
 8. Never include personal names, benefit documents, PDFs or bank identifiers in fixtures/screenshots.
 
-The actual importer is **not yet implemented**; keep this as a future user-controlled local workflow with privacy review.
+The importer was not implemented; HB-023 is cancelled. Any future October work requires a new explicit owner request and review.

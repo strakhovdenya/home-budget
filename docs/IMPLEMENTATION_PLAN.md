@@ -99,7 +99,7 @@ remain M3. Technical design review and implementation permission remain separate
 1. Bank-date vs financing-period reporting and cross-period origins, trends based on actual checkpoints.
 2. Extended cross-period comparison and analytical views of lifecycle/funding. Closing versions, correction integrity and basic complete history are M2, not deferred here.
 3. Optional category tagging and cash movements; no forced per-purchase entry.
-4. Guided historical October import from locally supplied private Markdown data; provenance and unresolved differences, no fake income.
+4. Historical October import HB-023 — **Cancelled (owner decision), 2026-11-17**. Do not import October or implement the proposed external archive; no remaining implementation work under HB-023.
 5. Export to private JSON/CSV, import validation and backup restore design.
 
 **Exit gate:** historical reports explain when obligations existed vs were later closed; bank-checkpoint diffs do not appear as invented categorized purchases.

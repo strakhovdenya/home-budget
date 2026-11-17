@@ -1,5 +1,11 @@
 # Product decision log — current correction and archived chronology
 
+## HB-023 cancellation and Code Quality Hooks publication — owner 2026-11-17
+
+- **D66 — HB-023 Cancelled (owner decision), not Done.** Do not import October or implement the proposed external archive/renderer. November remains independent and unchanged. Close the task's technical questions by cancellation, without claiming compatibility or completed financial work. Any future October work needs a new explicit owner request.
+- The owner authorizes publication of the existing local `scripts/codex-quality/`, `tests/tooling/`, required `.codex/hooks.json` and scoped `eslint.config.mjs` override, with matching documentation. Exclude local profiles/trust state, snapshots/receipts, temporary/personal files, secrets and real financial data. This supersedes the earlier R3-only exclusion of those tooling files; historical R3 evidence is unchanged.
+- Create a branch from main, scoped commit, push and PR; wait for successful mandatory GitHub CI, squash merge and safely fast-forward local main. Do not run local tests/lint/build/PostgreSQL or bypass CI. Stop on conflict, failed CI or risk to local files; no reset/clean. No financial-engine, database, Neon or real-data changes.
+
 ## HB-022-R3 Owner Acceptance and gated release — 2026-11-17
 
 - **D65 — R3 independent APPROVED and full Owner Acceptance.** В запросе «HB-022-R3 — OWNER ACCEPTANCE / RELEASE» владелец принимает R3 целиком после независимого ZIP-ревью: **APPROVED (0 Critical / 0 High / 0 Medium / 0 Low)**. Это отдельный принятый follow-up базового HB-022 (D63). R3 — **Done / Owner Accepted, 2026-11-17**; повторная приёмка тех же изменений не требуется. Исправленный review ZIP: SHA-256 `3c7200de25d6836d6b870f3f1b9b10b130fe79a4573fb5f9e9303b37dc411d26`.
