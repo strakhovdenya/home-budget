@@ -24,6 +24,8 @@ Work loop: requirement → small HB-* task/spec → scenarios/tests → implemen
 
 Skills: .agents/skills/ contains nine original Codex adaptations of Dark Factory's project scaffolding workflows plus project finance verification. Consult docs/CODEX_WORKFLOW.md.
 
+**Practical UI QA — owner D62, 2026-11-17:** verify desktop mouse and phone touch flows, readable text/amounts/chart labels (including dark mode), working controls/errors/retries, no overlap/clipping/horizontal overflow, RU/DE/EN and light/dark themes, and exact financial information. Separate keyboard suites, screen readers, formal WCAG/ARIA audits, zoom200%, physical accessibility devices and live OS theme switching are not default acceptance gates unless explicitly requested. Preserve existing semantics, keyboard support and tests. This changes future QA scope, not historical results or financial/auth/privacy/release gates. See [D62](docs/DECISIONS.md#practical-ui-qa--owner-2026-11-17).
+
 Additional project-local Codex skills: use `.agents/skills/vercel-react-best-practices/SKILL.md` for React/Next.js work, `.agents/skills/security-best-practices/SKILL.md` for server authorization, and `.agents/skills/web-design-guidelines/SKILL.md` for the login page. Read relevant references before use; inspect scripts before running them. Project ADRs, architecture and installed Next.js APIs take precedence over generic skill advice. Do not add libraries or change architecture merely to follow a skill.
 
 ## Code quality skills / Scope discipline

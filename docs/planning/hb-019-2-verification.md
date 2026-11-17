@@ -1,5 +1,11 @@
 # HB-019.2 — local implementation verification
 
+## Owner Acceptance addendum — 2026-11-16
+
+The owner grants separate **Owner Acceptance 2026-11-16** to **HB-019.2 — Done**; see [D59](../DECISIONS.md#hb-0192-and-hb-020-separate-owner-acceptance--2026-11-16) and [TASKS](../TASKS.md#hb-0192--complete-saved-financial-history). This is a subsequent event, not a reinterpretation of D54 or HB-021 acceptance. This report retains its original implementation/U/C/PG/Finance Gate executions and exact source fingerprints. Later integrated browser evidence is [HB-021 F](hb-021-f-history-verification.md) (10/10 on its recorded source), with [J](hb-021-j-verification.md) and separate [D58](../DECISIONS.md#hb-021-owner-acceptance--2026-11-16) acceptance.
+
+All earlier sections below remain byte-for-byte historical text, including Latest execution, pending review/Owner Acceptance, NOT EXECUTED, failed attempts and fingerprints. Google provider login/relogin, native zoom 200% and full physical AT/NVDA/VoiceOver remain unexecuted limitations, not new PASS results. Nothing was rerun in DOC-HB22-01; old receipts do not attest to the current documentation tree. No code, tests, evidence artifacts or publication were changed here.
+
 **Latest execution:** [Final documentation and publication preparation](#final-documentation-and-publication-preparation--2026-11-11). Earlier execution records below are historical; the latest section gives D54, final local proof and publication boundaries.
 
 **2026-11-11. Local implementation prepared for independent review. Not Done; no Owner Acceptance.** Browser/physical AT verification remains NOT EXECUTED. The full unit suite and Finance Gate are not green; the protected-context blocker below is unresolved. This report records executed assertions, not independent approval.
