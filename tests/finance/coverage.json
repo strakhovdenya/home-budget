@@ -44229,7 +44229,7 @@
     },
     {
       "path": "docs/DECISIONS.md",
-      "sha256": "e80bd7ab0ddcd359a39d720ec18d598ebcae03348970c5f84e8b16d354f57691"
+      "sha256": "1a1ddbf9666f41810d980962cfef0908f094be757927c618ed24ea9b43699458"
     },
     {
       "path": "docs/adr/0001-checkpoints-and-allocations.md",
@@ -44269,11 +44269,11 @@
     },
     {
       "path": "docs/TASKS.md",
-      "sha256": "babbaa361b2db8365620b49edfc54828227cb3351f27545238f4bf8874245584"
+      "sha256": "b220ab21f2ea8efad8c3a18bc5ad19a7d21dd2cc3f6a4a44e9f40156a55544fc"
     },
     {
       "path": "docs/OPEN_QUESTIONS.md",
-      "sha256": "b22435239a43c56e1a678370faa763a72e353eaaf59a75486bc3123d1f0095a0"
+      "sha256": "d9e4652e39f94ffc249a90aee6db8653e51f20bdb940d449e1e4fe99913d0d24"
     },
     {
       "path": "docs/IMPLEMENTATION_PLAN.md",
