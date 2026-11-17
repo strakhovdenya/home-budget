@@ -1,5 +1,11 @@
 # Remaining implementation-level questions
 
+## HB-022-R3 — визуализация проверок (planning only)
+
+**Текущее решение — RESOLVED, owner 2026-11-17, D64:** владелец явно разрешил узкое opt-in исключение из D60 по [R3-плану](planning/hb-022-r3-chart-readability.md): только допустимые соседние фактические проверки, без соединений одной даты с неизвестным/неразличимым временем или недоказанным порядком, без обхода разрывов, промежуточных остатков и межстраничных соединений. Default — «Только точки», в режиме линии явное пояснение неизвестности. Разрешение реализации и границы тестирования записаны в [D64](DECISIONS.md#hb-022-r3-chart-readability-and-bounded-implementation--owner-2026-11-17). Исходный planning-вопрос ниже сохранён как история; R3 не объявлен принятым.
+
+**Q-HB22-R3-01 · OPEN · 2026-11-17:** после независимого ревью требуется решение владельца о визуальном исключении из D60: опционально соединять фактические проверки прямыми отрезками, сохраняя default «Только точки» и подпись о неизвестных промежуточных остатках. [План R3](planning/hb-022-r3-chart-readability.md) не предлагает вычислять промежуточные остатки, аппроксимацию или интерполяцию. Текущий запрос разрешает только подготовку предложения; реализация не разрешена. До решения D60 не меняется; базовый HB-022 остаётся принят по D63.
+
 ## HB-021 local auth proof — planning question
 
 **Current disposition — owner 2026-11-16:** ACCEPTED LIMITATION for HB-021 under [D58](DECISIONS.md#hb-021-owner-acceptance--2026-11-16). Google provider login/relogin remains **NOT EXECUTED**; accepted synthetic session E2E is not equivalent provider proof. The owner accepts HB-021 without that additional check, so this is no longer an HB-021 acceptance/publication blocker. No OAuth/network/credential change or provider execution is authorized. Separate HB-019.2/HB-020 task acceptance is not inferred. The dated original planning question and constraints below are retained as history, not the current HB-021 blocker disposition.
