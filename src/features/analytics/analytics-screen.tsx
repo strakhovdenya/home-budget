@@ -19,7 +19,7 @@ import type { Basis, Choices, Filters, Page, Query, Selection, View } from '@/do
 import { sameBasis } from '@/domain/analytics/validation';
 import type { AnalyticsActions } from './read-analytics';
 import { matchesQuery, matchesSelection } from './response';
-import { CheckDots, MonthBars } from './charts';
+import { CheckChart, MonthBars } from './charts';
 import { formatMoney } from '@/features/dashboard/format-money';
 import { formatCalendarDate, formatMonth } from '@/features/dashboard/presentation';
 
@@ -730,10 +730,13 @@ export function AnalyticsScreen({ actions }: {
                     </>
                   ) : (
                     <>
-                      <CheckDots
+                      <CheckChart
+                        key={JSON.stringify([page.basis, page.query.filters, page.query.cursor, page.checks])}
                         checks={page.checks}
                         label={t('checkChart')}
                         pointLabel={check => `${formatDate(check.observedDate)}: ${formatAmount(check.balance)}`}
+                        formatAmount={formatAmount}
+                        formatDate={formatDate}
                         onSelect={chooseCheck}
                       />
                       <Typography>
@@ -954,9 +957,13 @@ export function AnalyticsScreen({ actions }: {
                         {formatMonth(month.period, locale)}: {t('deficit')} {formatAmount(month.deficit)}
                       </Alert>
                     ))}
-                  <Typography variant="caption">A · {t('allocated')} / R · {t('reserved')} / S · {t('savings')} / F · {t('free')}
-                  </Typography>
-                  <MonthBars months={page.months} label={t('monthChart')} />
+                  <MonthBars
+                    key={JSON.stringify([page.basis, page.query.filters, page.query.cursor, page.months])}
+                    months={page.months}
+                    label={t('monthChart')}
+                    formatAmount={formatAmount}
+                    formatPeriod={period => formatMonth(period, locale)}
+                  />
                 </Stack>
               )}
             {page.view === 'FUNDING'
