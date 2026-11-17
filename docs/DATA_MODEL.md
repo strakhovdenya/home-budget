@@ -1,5 +1,7 @@
 # Data model — checkpoint-first
 
+**Delivery clarification — 2026-11-16:** HB-019.2 and HB-020 are implemented in the local tree and separately accepted **Done** by [D59](DECISIONS.md#hb-0192-and-hb-020-separate-owner-acceptance--2026-11-16). The planned/index-design/initialization labels below describe their dated design stages, not absence of implementation; see [TASKS](TASKS.md) and the original verification reports. [D60](DECISIONS.md#hb-022-approved-planning-and-ux--owner-2026-11-16) approves analytics planning/UX and checked read-only grouping in principle only: **P1–P4 implementation NOT AUTHORIZED**. This status clarification changes no data contract, DB schema, financial rule or immutable evidence; old fingerprints/NOT EXECUTED results remain historical.
+
 ## Saved-state history mapping — 2026-11-08
 
 Owner [D46–D49](DECISIONS.md#saved-financial-history-and-evidence-scope--2026-11-08)

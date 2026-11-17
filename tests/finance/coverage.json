@@ -44229,7 +44229,7 @@
     },
     {
       "path": "docs/DECISIONS.md",
-      "sha256": "16977a6d82906c5a804ad9b0034013b675edb1dc6578777ce8ed91f607fc77a7"
+      "sha256": "e80bd7ab0ddcd359a39d720ec18d598ebcae03348970c5f84e8b16d354f57691"
     },
     {
       "path": "docs/adr/0001-checkpoints-and-allocations.md",
@@ -44245,7 +44245,7 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "sha256": "ea40fed5c6ebb1225aa8abcef7d877917ff36193088547994634062458051eb2"
+      "sha256": "05ac4e38e3f477a52a299b7d497fbc76fbbb4660a9796dc30535152b8221301a"
     },
     {
       "path": "docs/architecture.json",
@@ -44253,7 +44253,7 @@
     },
     {
       "path": "docs/DATA_MODEL.md",
-      "sha256": "2aa18e33f22d3c3bf8f617e52a1ae2ed91f867e5b29863f85cdd810cb3ca802b"
+      "sha256": "da1146c2f53b957cc238e6c8385254dbd1054893923ffcd2faf435f0dbafc7bd"
     },
     {
       "path": "docs/conventions.md",
@@ -44269,7 +44269,7 @@
     },
     {
       "path": "docs/TASKS.md",
-      "sha256": "26ded21e4b91d9806fc51da26b3006a03cded8ad0dfd6b15e10abbaf34aa1920"
+      "sha256": "babbaa361b2db8365620b49edfc54828227cb3351f27545238f4bf8874245584"
     },
     {
       "path": "docs/OPEN_QUESTIONS.md",
@@ -44277,7 +44277,7 @@
     },
     {
       "path": "docs/IMPLEMENTATION_PLAN.md",
-      "sha256": "4756b0aae4fde8f79282e9724d5dc50a7542cd69049f4c5cd0871a592b8c98a4"
+      "sha256": "13bf75a69a8fb2c17ccbc689e26abdf19e2564c31a1c7061679ca4c7e9e28c31"
     },
     {
       "path": "docs/planning/hb-019-1-budget-update-ux.md",

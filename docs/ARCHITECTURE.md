@@ -1,5 +1,7 @@
 # Architecture — specification-first, Codex execution, Dark Factory-inspired
 
+**Delivery clarification — 2026-11-16:** HB-019.2 and HB-020 are implemented in the local tree and separately accepted **Done** by [D59](DECISIONS.md#hb-0192-and-hb-020-separate-owner-acceptance--2026-11-16); HB-021 acceptance is separately [D58](DECISIONS.md#hb-021-owner-acceptance--2026-11-16). Earlier planned/not-implemented/local-uncommitted/review labels below and in the dated implementation metadata of `architecture.json` describe their original stages; use [TASKS](TASKS.md) and dated verification for delivery status. [D60](DECISIONS.md#hb-022-approved-planning-and-ux--owner-2026-11-16) approves HB-022 planning/UX only, with a narrow private read-only contract in principle and P1 feasibility/resource proof still required. **P1–P4 implementation NOT AUTHORIZED**. No architecture, layer/import boundary, schema, selector or assembler changes are made by this clarification; machine-readable enforcement is unchanged.
+
 ## Saved-history scope — owner 2026-11-08 (planned, not implemented)
 
 [D46–D49](DECISIONS.md#saved-financial-history-and-evidence-scope--2026-11-08)

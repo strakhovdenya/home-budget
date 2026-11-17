@@ -1,5 +1,9 @@
 # HB-019.2 — Complete saved financial history
 
+## Owner Acceptance addendum — 2026-11-16
+
+The owner separately accepts **HB-019.2 — Done**, under [D59](../DECISIONS.md#hb-0192-and-hb-020-separate-owner-acceptance--2026-11-16). This is a new acceptance event, independent of D58/HB-021. See the [original implementation evidence and acceptance addendum](hb-019-2-verification.md#owner-acceptance-addendum--2026-11-16), integrated [HB-021 F](hb-021-f-history-verification.md) and [J](hb-021-j-verification.md). The complete pre-existing text below, including its dated Current status/Review/NOT EXECUTED statements, remains historical evidence. No scenario oracle, result or fingerprint is rewritten; provider login/relogin, native zoom 200% and full physical AT are not newly executed or declared PASS. No runtime verification or publication occurs in this documentation step.
+
 **Current status (owner 2026-11-11): Review / awaiting separate Owner Acceptance.**
 R1 implementation and Finance Gate context maintenance are independently APPROVED
 (0/0/0/0 each, as reported by the owner). Documentation finalization, fresh checks,

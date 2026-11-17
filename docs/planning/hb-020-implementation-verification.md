@@ -1,5 +1,11 @@
 # HB-020 verification — manual UX correction UX-01–UX-05
 
+## Owner Acceptance addendum — 2026-11-16
+
+The owner grants separate **Owner Acceptance 2026-11-16** to **HB-020 — Done**; see [D59](../DECISIONS.md#hb-0192-and-hb-020-separate-owner-acceptance--2026-11-16) and [TASKS](../TASKS.md#hb-020--first-run-budget-onboarding-and-recurring-payment-templates). This is subsequent to and independent of D58/HB-021. The original automated execution, failed attempts, receipts and fingerprint in this report remain historical evidence. Later integrated browser proof is [HB-021 D finance](hb-021-d-finance-verification.md), [E recurring](hb-021-e-recurring-verification.md) (12/12 on its recorded source) and consolidated [J](hb-021-j-verification.md); their own limitations remain.
+
+All pre-existing text below is preserved byte-for-byte, including pending independent review/Owner Acceptance and NOT EXECUTED browser/AT labels. Actual Google provider login/relogin, native zoom 200% and full WCAG/physical AT/NVDA/VoiceOver were not newly executed or declared PASS. DOC-HB22-01 runs documentation checks only; it does not renew source fingerprints/receipts, assert runtime verification of the current tree, or authorize publication.
+
 Date: 2026-11-12. Local unpublished correction on feat/hb-020-first-run-recurring, HEAD 35154f64ddabd66f268987b74f0f291478adba74. **Prepared for independent ChatGPT review; not Done and no Owner Acceptance.** The owner reports the preceding D57 implementation passed independent static review. The current UX correction has Codex self-review and the actual automated evidence below; it has not yet received that future independent review.
 
 ## Baseline, scope and preservation
