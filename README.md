@@ -17,6 +17,18 @@ This is a personal engineering project exploring a practical question: **how do 
 
 **Scope and status.** The checkpoint, obligation, savings, forecasting, budget-update, month-closing, saved-history, recurring-template, and read-only analytics features have been implemented and owner-accepted. The app is designed for one allowlisted user and one tracked bank card—not public sign-up or multi-bank synchronization. Optional categories/export and PDF statement processing are future work. See the [task register](docs/TASKS.md) for the authoritative status and accepted limitations.
 
+## Interface snapshots
+
+English-language screenshots from real browser QA, using **synthetic financial data**. The desktop view shows budget review and the safe-spending estimate; the mobile view demonstrates the responsive dark theme.
+
+<p align="center">
+  <img src="docs/planning/hb-017-browser/form-en-system-1280.png" alt="Home Budget on desktop: budget update and safe daily spending preview, English interface" width="68%" />
+  &nbsp;
+  <img src="docs/planning/hb-017-browser/form-en-dark-375.png" alt="Home Budget on mobile: budget confirmation form in English, dark theme" width="26%" />
+</p>
+
+<sub>Captured during HB-017 browser verification. These illustrate the implemented budgeting workflow; they are not screenshots of the later HB-022 analytics charts. [Browser verification details](docs/planning/hb-017-verification.md).</sub>
+
 ---
 
 ## Engineering deep dive
